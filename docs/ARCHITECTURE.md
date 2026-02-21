@@ -1,6 +1,6 @@
-# TrustLens Architecture
+# Baloney Architecture
 
-> System design documentation for the TrustLens AI content detection platform.
+> System design documentation for the Baloney AI content detection platform.
 
 ## System Overview
 
@@ -12,7 +12,7 @@ graph LR
     C -->|Views & RPCs| B
 ```
 
-TrustLens follows a serverless architecture with three main components: a Chrome extension that passively scans content as users browse, a Next.js frontend on Vercel that serves both the dashboard UI and API routes, and Supabase Postgres that stores scans, user profiles, and aggregated analytics. There is no separate backend server.
+Baloney follows a serverless architecture with three main components: a Chrome extension that passively scans content as users browse, a Next.js frontend on Vercel that serves both the dashboard UI and API routes, and Supabase Postgres that stores scans, user profiles, and aggregated analytics. There is no separate backend server.
 
 ## Data Flow
 

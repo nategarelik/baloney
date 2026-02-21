@@ -1,4 +1,4 @@
-// frontend/src/lib/constants.ts — TrustLens constants
+// frontend/src/lib/constants.ts — Baloney constants
 
 import type { Verdict } from "./types";
 
@@ -9,28 +9,34 @@ export const VERDICT_COLORS: Record<
   Verdict,
   { bg: string; border: string; label: string }
 > = {
+  human: {
+    bg: "rgba(22, 163, 74, 0.80)",
+    border: "rgba(100, 255, 150, 0.3)",
+    label: "Human",
+  },
+  light_edit: {
+    bg: "rgba(202, 138, 4, 0.80)",
+    border: "rgba(255, 200, 50, 0.3)",
+    label: "Light Edit",
+  },
+  heavy_edit: {
+    bg: "rgba(234, 88, 12, 0.85)",
+    border: "rgba(255, 150, 50, 0.4)",
+    label: "Heavy Edit",
+  },
   ai_generated: {
     bg: "rgba(220, 38, 38, 0.85)",
     border: "rgba(255, 100, 100, 0.4)",
     label: "AI",
   },
-  likely_human: {
-    bg: "rgba(22, 163, 74, 0.80)",
-    border: "rgba(100, 255, 150, 0.3)",
-    label: "Human",
-  },
-  inconclusive: {
-    bg: "rgba(202, 138, 4, 0.80)",
-    border: "rgba(255, 200, 50, 0.3)",
-    label: "Unclear",
-  },
 };
 
 // Tailwind class variants for badges
 export const VERDICT_CLASSES: Record<Verdict, string> = {
+  human: "bg-green-600/80 border-green-400/30",
+  light_edit: "bg-amber-600/80 border-amber-400/30",
+  heavy_edit: "bg-orange-600/85 border-orange-400/40",
   ai_generated: "bg-red-600/85 border-red-400/40",
-  likely_human: "bg-green-600/80 border-green-400/30",
-  inconclusive: "bg-amber-600/80 border-amber-400/30",
 };
 
 // Recharts colors

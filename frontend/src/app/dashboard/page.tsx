@@ -5,6 +5,7 @@ import { PersonalTab } from "./PersonalTab";
 import { CommunityTab } from "./CommunityTab";
 import { SlopIndexCard } from "./SlopIndexCard";
 import { ExposureScoreCard } from "./ExposureScoreCard";
+import { InformationDietCard } from "./InformationDietCard";
 import { ProvenanceTable } from "./ProvenanceTable";
 import { DEMO_USER_ID } from "@/lib/constants";
 import { cn } from "@/lib/cn";
@@ -112,6 +113,7 @@ export default function DashboardPage() {
 
         {tab === "personal" ? (
           <div className="space-y-6">
+            <InformationDietCard />
             <ExposureScoreCard />
             <PersonalTab
               analytics={personalData}

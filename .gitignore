@@ -71,3 +71,5 @@ frontend/.vercel/
 .vercel
 .railway
 *.zip
+
+.vercel

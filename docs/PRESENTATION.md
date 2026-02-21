@@ -1,4 +1,4 @@
-# TrustLens — Presentation Guide
+# Baloney — Presentation Guide
 
 ## 5-Minute Pitch Structure
 
@@ -14,7 +14,7 @@ This is happening everywhere, and nobody has the data to understand how big the 
 
 ### Solution (45 seconds)
 
-"We built TrustLens. It's a Chrome extension that scans your feed as you scroll. AI-generated images get flagged in real-time with detection badges powered by computer vision models with 97%+ accuracy.
+"We built Baloney. It's a Chrome extension that scans your feed as you scroll. AI-generated images get flagged in real-time with detection badges powered by computer vision models with 97%+ accuracy.
 
 Your personal dashboard shows your AI exposure. Opt in, and your anonymized data helps build the first open intelligence dataset on AI content prevalence."
 
@@ -25,7 +25,7 @@ Your personal dashboard shows your AI exposure. Opt in, and your anonymized data
 2. Scroll slowly -- badges appear on images as they enter the viewport
 3. Point out: real photo scores "Human" (green badge), AI image scores "AI 97%" (red badge)
 4. Show the stats bar updating: "12 of 20 scanned | 5 flagged AI"
-5. Key line: "This is what it looks like when you browse Instagram with TrustLens running"
+5. Key line: "This is what it looks like when you browse Instagram with Baloney running"
 
 **Step 2 — Dashboard** (45 seconds)
 1. Click "View Dashboard" or navigate to `/dashboard`
@@ -53,7 +53,7 @@ Your personal dashboard shows your AI exposure. Opt in, and your anonymized data
 
 ### Close (15 seconds)
 
-"Our generation grew up trusting screens. TrustLens is how we earn that trust back.
+"Our generation grew up trusting screens. Baloney is how we earn that trust back.
 
 It's live at [URL]. The detection is real. The data is real. And the problem isn't going away."
 
@@ -80,7 +80,7 @@ The demo is designed to never break:
 
 ## Judging Criteria Alignment
 
-| Criterion | How TrustLens Addresses It |
+| Criterion | How Baloney Addresses It |
 |-----------|---------------------------|
 | **Technical complexity** | Multi-modal ML (image + text + video), Chrome extension with CORS bypass, real-time detection pipeline, 14 TypeScript interfaces matching backend contracts |
 | **Data science rigor** | Published model metrics cited, accuracy limitations disclosed, statistical aggregations (trends, distributions, leaderboards) |

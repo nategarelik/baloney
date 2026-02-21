@@ -5,8 +5,9 @@ import type { ContentProvenance } from "@/lib/types";
 
 const VERDICT_BADGE: Record<string, string> = {
   ai_generated: "bg-red-600/80 text-red-100",
-  likely_human: "bg-green-600/80 text-green-100",
-  inconclusive: "bg-amber-600/80 text-amber-100",
+  heavy_edit: "bg-orange-600/80 text-orange-100",
+  light_edit: "bg-amber-600/80 text-amber-100",
+  human: "bg-green-600/80 text-green-100",
 };
 
 export function ProvenanceTable() {
@@ -61,7 +62,7 @@ export function ProvenanceTable() {
                   {entry.content_hash.slice(0, 12)}...
                 </span>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${VERDICT_BADGE[entry.compound_verdict] ?? "bg-slate-600/80 text-slate-200"}`}>
-                  {entry.compound_verdict === "ai_generated" ? "AI" : entry.compound_verdict === "likely_human" ? "Human" : "Unclear"}
+                  {entry.compound_verdict === "ai_generated" ? "AI" : entry.compound_verdict === "heavy_edit" ? "Heavy Edit" : entry.compound_verdict === "light_edit" ? "Light Edit" : "Human"}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-400">

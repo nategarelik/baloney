@@ -1,8 +1,8 @@
-# TrustLens — Project Instructions
+# Baloney — Project Instructions
 
 ## Overview
 
-TrustLens is a multi-modal AI content detection platform built for MadData26 (UW-Madison Data Science Hackathon, Feb 21-22, 2026). Chrome extension + Next.js dashboard + Supabase backend.
+Baloney is a multi-modal AI content detection platform built for MadData26 (UW-Madison Data Science Hackathon, Feb 21-22, 2026). Chrome extension + Next.js dashboard + Supabase backend.
 
 ## Architecture
 

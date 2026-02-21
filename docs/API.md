@@ -1,4 +1,4 @@
-# TrustLens API Reference
+# Baloney API Reference
 
 > All endpoints are served from Vercel at `https://trustlens-nu.vercel.app`.
 

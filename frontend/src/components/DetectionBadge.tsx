@@ -15,10 +15,12 @@ function formatLabel(verdict: Verdict, confidence: number): string {
   switch (verdict) {
     case "ai_generated":
       return `AI \u00B7 ${Math.round(confidence * 100)}%`;
-    case "likely_human":
+    case "heavy_edit":
+      return "\u26A0 Heavy Edit";
+    case "light_edit":
+      return "~ Light Edit";
+    case "human":
       return "\u2713 Human";
-    case "inconclusive":
-      return "? Unclear";
   }
 }
 

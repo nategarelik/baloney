@@ -1,4 +1,4 @@
-// frontend/src/lib/api.ts — TrustLens API client
+// frontend/src/lib/api.ts — Baloney API client
 
 import type {
   ErrorResponse,
