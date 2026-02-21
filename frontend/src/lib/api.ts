@@ -14,6 +14,7 @@ import type {
   SlopIndexEntry,
   ExposureScore,
   ContentProvenance,
+  TrackerResponse,
 } from "./types";
 
 // ──────────────────────────────────────────────
@@ -24,7 +25,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public body: ErrorResponse | null
+    public body: ErrorResponse | null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -38,7 +39,7 @@ export class ApiError extends Error {
 async function fetchApi<T>(
   url: string,
   init?: RequestInit,
-  timeoutMs = 10_000
+  timeoutMs = 10_000,
 ): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -56,7 +57,7 @@ async function fetchApi<T>(
       throw new ApiError(
         body?.error ?? `Request failed: ${res.status}`,
         res.status,
-        body
+        body,
       );
     }
 
@@ -73,7 +74,7 @@ async function fetchApi<T>(
 export async function detectImage(
   base64Image: string,
   userId?: string,
-  platform = "manual_upload"
+  platform = "manual_upload",
 ): Promise<DetectionResult> {
   return fetchApi<DetectionResult>("/api/detect/image", {
     method: "POST",
@@ -85,7 +86,7 @@ export async function detectImage(
 export async function detectText(
   text: string,
   userId?: string,
-  platform = "manual_upload"
+  platform = "manual_upload",
 ): Promise<TextDetectionResult> {
   return fetchApi<TextDetectionResult>("/api/detect/text", {
     method: "POST",
@@ -101,10 +102,10 @@ export async function detectText(
 export async function getMyScans(
   userId: string,
   limit = 50,
-  offset = 0
+  offset = 0,
 ): Promise<ScansResponse> {
   return fetchApi<ScansResponse>(
-    `/api/scans/me?user_id=${userId}&limit=${limit}&offset=${offset}`
+    `/api/scans/me?user_id=${userId}&limit=${limit}&offset=${offset}`,
   );
 }
 
@@ -113,10 +114,10 @@ export async function getMyScans(
 // ──────────────────────────────────────────────
 
 export async function getPersonalAnalytics(
-  userId: string
+  userId: string,
 ): Promise<PersonalAnalytics> {
   return fetchApi<PersonalAnalytics>(
-    `/api/analytics/personal?user_id=${userId}`
+    `/api/analytics/personal?user_id=${userId}`,
   );
 }
 
@@ -124,19 +125,17 @@ export async function getCommunityAnalytics(): Promise<CommunityAnalytics> {
   return fetchApi<CommunityAnalytics>("/api/analytics/community");
 }
 
-export async function getCommunityTrends(
-  days = 30
-): Promise<CommunityTrends> {
+export async function getCommunityTrends(days = 30): Promise<CommunityTrends> {
   return fetchApi<CommunityTrends>(
-    `/api/analytics/community/trends?days=${days}`
+    `/api/analytics/community/trends?days=${days}`,
   );
 }
 
 export async function getDomainLeaderboard(
-  limit = 20
+  limit = 20,
 ): Promise<DomainLeaderboard> {
   return fetchApi<DomainLeaderboard>(
-    `/api/analytics/community/domains?limit=${limit}`
+    `/api/analytics/community/domains?limit=${limit}`,
   );
 }
 
@@ -146,7 +145,7 @@ export async function getDomainLeaderboard(
 
 export async function toggleSharing(
   userId: string,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<SharingToggleResponse> {
   return fetchApi<SharingToggleResponse>("/api/sharing/toggle", {
     method: "POST",
@@ -155,9 +154,7 @@ export async function toggleSharing(
   });
 }
 
-export async function getSharingStatus(
-  userId: string
-): Promise<SharingStatus> {
+export async function getSharingStatus(userId: string): Promise<SharingStatus> {
   return fetchApi<SharingStatus>(`/api/sharing/status?user_id=${userId}`);
 }
 
@@ -169,16 +166,26 @@ export async function getSlopIndex(): Promise<SlopIndexEntry[]> {
   return fetchApi<SlopIndexEntry[]>("/api/slop-index");
 }
 
-export async function getExposureScore(
-  userId: string
-): Promise<ExposureScore> {
-  return fetchApi<ExposureScore>(
-    `/api/exposure-score?user_id=${userId}`
-  );
+export async function getExposureScore(userId: string): Promise<ExposureScore> {
+  return fetchApi<ExposureScore>(`/api/exposure-score?user_id=${userId}`);
 }
 
 export async function getTopProvenance(
-  limit = 20
+  limit = 20,
 ): Promise<ContentProvenance[]> {
   return fetchApi<ContentProvenance[]>(`/api/provenance?limit=${limit}`);
+}
+
+// ──────────────────────────────────────────────
+// Tracker (AI Tracker dashboard)
+// ──────────────────────────────────────────────
+
+export async function getTrackerTrends(
+  platform: string,
+  contentType: string,
+  days = 30,
+): Promise<TrackerResponse> {
+  return fetchApi<TrackerResponse>(
+    `/api/analytics/tracker?platform=${platform}&content_type=${contentType}&days=${days}`,
+  );
 }

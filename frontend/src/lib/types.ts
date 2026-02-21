@@ -2,7 +2,14 @@
 
 export type Verdict = "ai_generated" | "likely_human" | "inconclusive";
 
-export type Platform = "instagram" | "x" | "manual_upload" | "demo_feed" | "tiktok" | "reddit" | "facebook";
+export type Platform =
+  | "instagram"
+  | "x"
+  | "manual_upload"
+  | "demo_feed"
+  | "tiktok"
+  | "reddit"
+  | "facebook";
 
 export type ContentType = "image" | "text" | "video";
 
@@ -190,6 +197,17 @@ export interface ContentProvenance {
   platforms: string[];
   first_seen: string;
   last_seen: string;
+}
+
+// ──────────────────────────────────────────────
+// Tracker (from /api/analytics/tracker)
+// ──────────────────────────────────────────────
+
+export interface TrackerResponse {
+  platform: string;
+  content_type: string;
+  days: number;
+  trends: TrendDay[];
 }
 
 // ──────────────────────────────────────────────
