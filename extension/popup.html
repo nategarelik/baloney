@@ -3,377 +3,325 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Young+Serif&family=DM+Sans:wght@400;500;600;700&display=swap');
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       width: 280px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f1a2e;
-      color: #e2e8f0;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0e6ca;
+      color: #4a3728;
       padding: 16px;
     }
+
+    /* ── Header ── */
     .header {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid transparent;
-      border-image: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6) 1;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(74,55,40,0.1);
+    }
+    .header-logo {
+      width: 28px;
+      height: 28px;
+      mix-blend-mode: multiply;
     }
     .header h1 {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
+      font-family: 'Young Serif', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #4a3728;
     }
-    .logo { font-size: 20px; }
-    .status-dot {
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-light {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #22c55e;
-      margin-left: auto;
-      animation: status-pulse 2s ease-in-out infinite;
+      transition: background 0.3s;
     }
-    @keyframes status-pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
-      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(34, 197, 94, 0); }
+    .status-light.on { background: #16a34a; }
+    .status-light.off { background: #94a3b8; }
+
+    /* ── Toggle switch ── */
+    .toggle {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      cursor: pointer;
     }
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #ccc4ac;
+      border-radius: 10px;
+      transition: background 0.25s;
+    }
+    .toggle input:checked + .toggle-track {
+      background: #d4456b;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(16px);
+    }
+
+    /* ── Disabled overlay ── */
+    .body-content { transition: opacity 0.3s; }
+    .body-content.disabled { opacity: 0.35; pointer-events: none; }
+
+    /* ── Stats row ── */
     .stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .stat-card {
-      background: #1a2744;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 12px;
       text-align: center;
     }
+    .stat-card.pink { background: rgba(212,69,107,0.1); }
+    .stat-card.gold { background: rgba(232,201,122,0.18); }
     .stat-number {
       font-size: 24px;
       font-weight: 700;
-      color: #fff;
+      color: #4a3728;
     }
     .stat-label {
       font-size: 11px;
-      color: #94a3b8;
-      margin-top: 4px;
+      color: rgba(74,55,40,0.5);
+      margin-top: 2px;
     }
-    .exposure-bar {
-      background: #1a2744;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
+
+    /* ── Auto-scan toggles ── */
+    .toggles-section {
+      margin-bottom: 14px;
     }
-    .exposure-label {
-      font-size: 12px;
-      color: #94a3b8;
-      margin-bottom: 8px;
-    }
-    .bar-track {
-      height: 8px;
-      background: #0f1a2e;
-      border-radius: 4px;
-      overflow: hidden;
-    }
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      transition: width 0.5s ease;
-    }
-    .bar-fill.low { background: #22c55e; }
-    .bar-fill.medium { background: #eab308; }
-    .bar-fill.high { background: #ef4444; }
-    .exposure-percent {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-      margin-top: 6px;
-    }
-    /* Information Diet Score card */
-    .ids-card {
-      background: #1a2744;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
+    .toggle-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      padding: 7px 0;
     }
-    .ids-grade {
-      font-size: 32px;
-      font-weight: 800;
-      line-height: 1;
-      min-width: 40px;
-      text-align: center;
+    .toggle-row-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #4a3728;
     }
-    .ids-right {
-      flex: 1;
+    .toggle-sm {
+      position: relative;
+      width: 32px;
+      height: 18px;
+      cursor: pointer;
     }
-    .ids-title {
+    .toggle-sm input { opacity: 0; width: 0; height: 0; }
+    .toggle-sm .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: #ccc4ac;
+      border-radius: 9px;
+      transition: background 0.25s;
+    }
+    .toggle-sm input:checked + .toggle-track {
+      background: #d4456b;
+    }
+    .toggle-sm .toggle-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+    }
+    .toggle-sm input:checked ~ .toggle-thumb {
+      transform: translateX(14px);
+    }
+    .toggles-footnote {
       font-size: 11px;
-      color: #94a3b8;
+      color: #d4456b;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .toggles-footnote:hover { text-decoration: underline; }
+
+    /* ── Segmented control ── */
+    .segment-section {
+      margin-bottom: 14px;
+    }
+    .segment-label {
+      font-size: 11px;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 2px;
+      color: rgba(74,55,40,0.5);
+      margin-bottom: 6px;
     }
-    .ids-score {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
+    .segment {
+      display: flex;
+      background: #e6d9b8;
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
     }
-    .ids-score span {
-      font-size: 11px;
-      font-weight: 400;
-      color: #64748b;
-    }
-    .session-timer {
-      text-align: center;
-      font-size: 11px;
-      color: #64748b;
-      margin-bottom: 12px;
-    }
-    .session-timer span {
-      color: #94a3b8;
+    .segment-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(74,55,40,0.5);
+      font-size: 12px;
       font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
     }
+    .segment-btn:hover {
+      color: #4a3728;
+    }
+    .segment-btn.active {
+      background: #fff;
+      color: #4a3728;
+      box-shadow: 0 1px 3px rgba(74,55,40,0.1);
+    }
+
+    /* ── Dashboard link ── */
     .dashboard-link {
       display: block;
       text-align: center;
       padding: 10px;
-      background: #3b82f6;
+      background: #d4456b;
       color: #fff;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 999px;
       font-size: 13px;
       font-weight: 600;
       transition: background 0.2s;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        inset 0 -2px 0 rgba(0,0,0,0.12),
+        0 2px 8px rgba(212,69,107,0.25);
     }
-    .page-section {
-      background: #1a2744;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
+    .dashboard-link:hover { background: rgba(212,69,107,0.9); }
+    .dashboard-link:active {
+      transform: translateY(1px);
+      box-shadow:
+        inset 0 -1px 0 rgba(255,255,255,0.15),
+        inset 0 2px 0 rgba(0,0,0,0.12),
+        0 1px 4px rgba(212,69,107,0.2);
     }
-    .page-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 8px;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-    .page-icon { font-size: 14px; }
-    .page-hostname {
-      font-weight: 600;
-      color: #e2e8f0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      max-width: 200px;
-    }
-    .page-stats {
-      display: flex;
-      gap: 12px;
-    }
-    .page-stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-    }
-    .page-stat-num {
-      font-size: 18px;
-      font-weight: 700;
-      color: #fff;
-    }
-    .page-stat-label {
-      font-size: 10px;
-      color: #64748b;
-    }
-    .top-pages {
-      background: #1a2744;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .section-title {
-      font-size: 11px;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    .page-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 0;
-      font-size: 11px;
-    }
-    .page-row-name {
-      flex: 1;
-      color: #e2e8f0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .page-row-bar {
-      width: 60px;
-      height: 4px;
-      background: #0f1a2e;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .page-row-fill {
-      height: 100%;
-      border-radius: 2px;
-    }
-    .page-row-count {
-      color: #64748b;
-      font-size: 10px;
-      min-width: 20px;
-      text-align: right;
-    }
-    /* Filter mode selector */
-    .filter-section {
-      background: #1a2744;
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
-    }
-    .filter-label {
-      font-size: 11px;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-    }
-    .filter-buttons {
-      display: flex;
-      gap: 4px;
-    }
-    .filter-btn {
-      flex: 1;
-      padding: 6px 0;
-      border: 1px solid #1e3a5f;
-      border-radius: 6px;
-      background: #0f1a2e;
-      color: #94a3b8;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
-    }
-    .filter-btn:hover {
-      border-color: #3b82f6;
-      color: #e2e8f0;
-    }
-    .filter-btn.active {
-      background: #3b82f6;
-      border-color: #3b82f6;
-      color: #fff;
-    }
-    .dashboard-link:hover { background: #2563eb; }
+
+    /* ── Footer ── */
     .footer {
       text-align: center;
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 10px;
-      color: #64748b;
+      color: rgba(74,55,40,0.35);
     }
   </style>
 </head>
 <body>
+  <!-- Header -->
   <div class="header">
-    <span class="logo">🐷</span>
+    <img src="icons/icon48.png" class="header-logo" alt="Baloney">
     <h1>Baloney</h1>
-    <div class="status-dot" title="Scanning active"></div>
-    <span style="font-size:9px;color:#22c55e;font-weight:600;margin-left:-4px">Real AI</span>
-  </div>
-
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-number" id="scanned">0</div>
-      <div class="stat-label">Scanned</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="flagged">0</div>
-      <div class="stat-label">Flagged</div>
+    <div class="header-right">
+      <label class="toggle" id="master-toggle">
+        <input type="checkbox" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <div class="status-light on" id="status-light"></div>
     </div>
   </div>
 
-  <div class="exposure-bar">
-    <div class="exposure-label">AI Exposure This Session</div>
-    <div class="bar-track">
-      <div class="bar-fill low" id="bar" style="width: 0%"></div>
-    </div>
-    <div class="exposure-percent" id="percent">0%</div>
-  </div>
-
-  <div class="filter-section">
-    <div class="filter-label">AI Content Filter</div>
-    <div class="filter-buttons">
-      <button class="filter-btn active" data-mode="label">Label</button>
-      <button class="filter-btn" data-mode="blur">Blur</button>
-      <button class="filter-btn" data-mode="hide">Hide</button>
-    </div>
-  </div>
-
-  <div class="ids-card" id="ids-card">
-    <div class="ids-grade" id="ids-grade" style="color: #64748b">—</div>
-    <div class="ids-right">
-      <div class="ids-title">Information Diet</div>
-      <div class="ids-score" id="ids-score">— <span>/ 100</span></div>
-    </div>
-  </div>
-
-  <div class="page-section" id="page-section" style="display:none">
-    <div class="page-header">
-      <span class="page-icon">📄</span>
-      <span class="page-hostname" id="page-hostname">—</span>
-    </div>
-    <div class="page-stats">
-      <div class="page-stat">
-        <span class="page-stat-num" id="page-images">0</span>
-        <span class="page-stat-label">Images</span>
+  <div class="body-content" id="body-content">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card pink">
+        <div class="stat-number" id="scanned">0</div>
+        <div class="stat-label">Scanned</div>
       </div>
-      <div class="page-stat">
-        <span class="page-stat-num" id="page-text">0</span>
-        <span class="page-stat-label">Text</span>
-      </div>
-      <div class="page-stat">
-        <span class="page-stat-num" id="page-flagged">0</span>
-        <span class="page-stat-label">Flagged</span>
+      <div class="stat-card gold">
+        <div class="stat-number" id="flagged">0</div>
+        <div class="stat-label">Flagged</div>
       </div>
     </div>
+
+    <!-- Auto-scan toggles -->
+    <div class="toggles-section">
+      <div class="toggle-row">
+        <span class="toggle-row-label">Auto Scan Text</span>
+        <label class="toggle-sm" id="toggle-text">
+          <input type="checkbox">
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-row-label">Auto Scan Images</span>
+        <label class="toggle-sm" id="toggle-images">
+          <input type="checkbox" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-row-label">Auto Scan Videos</span>
+        <label class="toggle-sm" id="toggle-videos">
+          <input type="checkbox" checked>
+          <div class="toggle-track"></div>
+          <div class="toggle-thumb"></div>
+        </label>
+      </div>
+      <div class="toggles-footnote" id="edit-sites">Edit allowed websites</div>
+    </div>
+
+    <!-- Content mode -->
+    <div class="segment-section">
+      <div class="segment-label">Content Mode</div>
+      <div class="segment">
+        <button class="segment-btn active" data-mode="scan">Scan</button>
+        <button class="segment-btn" data-mode="blur">Blur</button>
+        <button class="segment-btn" data-mode="block">Block</button>
+      </div>
+    </div>
+
+    <!-- Dashboard CTA -->
+    <a href="https://trustlens-nu.vercel.app/dashboard" target="_blank" class="dashboard-link">
+      Open Dashboard
+    </a>
   </div>
 
-  <div class="top-pages" id="top-pages" style="display:none">
-    <div class="section-title">Top Pages</div>
-    <div id="pages-list"></div>
-  </div>
-
-  <div class="session-timer" id="timer">Session: <span>0m 0s</span></div>
-
-  <a href="https://trustlens-nu.vercel.app/dashboard" target="_blank" class="dashboard-link">
-    Open Full Dashboard →
-  </a>
-
-  <div class="footer">Baloney v0.3.0 · MadData26</div>
+  <div class="footer">Baloney v0.4.0</div>
 
   <script>
-    // Grade color mapping
-    const GRADE_COLORS = {
-      "A+": "#22c55e", "A": "#22c55e", "A-": "#22c55e",
-      "B+": "#84cc16", "B": "#84cc16", "B-": "#84cc16",
-      "C+": "#eab308", "C": "#eab308", "C-": "#eab308",
-      "D+": "#f97316", "D": "#f97316", "D-": "#f97316",
-      "F":  "#ef4444",
-    };
-
-    // Animated count-up effect
+    // Animated count-up
     function animateCount(el, target) {
       if (target === 0) { el.textContent = "0"; return; }
       const duration = 600;
@@ -381,7 +329,6 @@
       function tick(now) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        // ease-out cubic
         const eased = 1 - Math.pow(1 - progress, 3);
         el.textContent = Math.round(eased * target);
         if (progress < 1) requestAnimationFrame(tick);
@@ -389,152 +336,78 @@
       requestAnimationFrame(tick);
     }
 
-    // Session timer
-    function startTimer() {
-      chrome.storage.local.get("sessionStartTime", (data) => {
-        const startTime = data.sessionStartTime || Date.now();
-        const timerSpan = document.querySelector("#timer span");
-        function update() {
-          const elapsed = Math.floor((Date.now() - startTime) / 1000);
-          const mins = Math.floor(elapsed / 60);
-          const secs = elapsed % 60;
-          timerSpan.textContent = `${mins}m ${secs}s`;
-        }
-        update();
-        setInterval(update, 1000);
-      });
-    }
+    // ── Master toggle ──
+    const masterToggle = document.querySelector("#master-toggle input");
+    const statusLight = document.getElementById("status-light");
+    const bodyContent = document.getElementById("body-content");
 
-    // Load stats and animate
-    chrome.storage.local.get("sessionStats", (data) => {
-      const stats = data.sessionStats || { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
-      const totalScanned = stats.scanned + (stats.textScanned || 0);
-      const totalFlagged = stats.flaggedAI + (stats.textFlagged || 0);
-      const pct = totalScanned > 0
-        ? Math.round((totalFlagged / totalScanned) * 100)
-        : 0;
-
-      animateCount(document.getElementById("scanned"), totalScanned);
-      animateCount(document.getElementById("flagged"), totalFlagged);
-      document.getElementById("percent").textContent = `${pct}%`;
-
-      const bar = document.getElementById("bar");
-      bar.style.width = `${pct}%`;
-      bar.className = `bar-fill ${pct > 40 ? "high" : pct > 20 ? "medium" : "low"}`;
+    chrome.storage.local.get("extensionEnabled", (data) => {
+      const enabled = data.extensionEnabled !== false;
+      masterToggle.checked = enabled;
+      statusLight.className = `status-light ${enabled ? "on" : "off"}`;
+      bodyContent.classList.toggle("disabled", !enabled);
     });
 
-    // Load Information Diet Score
-    async function loadIDS() {
-      const data = await chrome.storage.local.get("userId");
-      const userId = data.userId;
-      if (!userId) return;
+    masterToggle.addEventListener("change", () => {
+      const enabled = masterToggle.checked;
+      chrome.storage.local.set({ extensionEnabled: enabled });
+      statusLight.className = `status-light ${enabled ? "on" : "off"}`;
+      bodyContent.classList.toggle("disabled", !enabled);
+    });
 
-      try {
-        const res = await fetch(
-          `https://trustlens-nu.vercel.app/api/information-diet?user_id=${userId}`,
-          { signal: AbortSignal.timeout(4000) }
-        );
-        if (!res.ok) return;
-        const ids = await res.json();
+    // ── Auto-scan toggles ──
+    const toggleMap = {
+      "toggle-text": "autoScanText",
+      "toggle-images": "autoScanImages",
+      "toggle-videos": "autoScanVideos",
+    };
 
-        const gradeEl = document.getElementById("ids-grade");
-        const scoreEl = document.getElementById("ids-score");
-        const grade = ids.letter_grade || "—";
-        const score = typeof ids.score === "number" ? Math.round(ids.score) : "—";
+    chrome.storage.local.get(["autoScanText", "autoScanImages", "autoScanVideos"], (data) => {
+      document.querySelector("#toggle-text input").checked = data.autoScanText === true;
+      document.querySelector("#toggle-images input").checked = data.autoScanImages !== false;
+      document.querySelector("#toggle-videos input").checked = data.autoScanVideos !== false;
+    });
 
-        gradeEl.textContent = grade;
-        gradeEl.style.color = GRADE_COLORS[grade] || "#94a3b8";
-        scoreEl.innerHTML = `${score} <span>/ 100</span>`;
-      } catch {
-        // Leave defaults — IDS endpoint may not exist yet
-      }
-    }
+    Object.entries(toggleMap).forEach(([elId, storageKey]) => {
+      const input = document.querySelector(`#${elId} input`);
+      input.addEventListener("change", () => {
+        chrome.storage.local.set({ [storageKey]: input.checked });
+      });
+    });
 
-    // Filter mode buttons
-    const filterButtons = document.querySelectorAll(".filter-btn");
+    // ── Content mode segmented control ──
+    const segmentBtns = document.querySelectorAll(".segment-btn");
 
-    chrome.storage.local.get("filterMode", (data) => {
-      const current = data.filterMode || "label";
-      filterButtons.forEach((btn) => {
+    chrome.storage.local.get("contentMode", (data) => {
+      const current = data.contentMode || "scan";
+      segmentBtns.forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.mode === current);
       });
     });
 
-    filterButtons.forEach((btn) => {
+    segmentBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         const mode = btn.dataset.mode;
-        chrome.storage.local.set({ filterMode: mode });
-        filterButtons.forEach((b) => b.classList.remove("active"));
+        chrome.storage.local.set({ contentMode: mode });
+        segmentBtns.forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
       });
     });
 
-    startTimer();
-    loadIDS();
+    // ── Load stats ──
+    chrome.storage.local.get("sessionStats", (data) => {
+      const stats = data.sessionStats || { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
+      const totalScanned = stats.scanned + (stats.textScanned || 0);
+      const totalFlagged = stats.flaggedAI + (stats.textFlagged || 0);
 
-    // Load page stats
-    async function loadPageStats() {
-      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      if (!tab?.url) return;
+      animateCount(document.getElementById("scanned"), totalScanned);
+      animateCount(document.getElementById("flagged"), totalFlagged);
+    });
 
-      let hostname;
-      try { hostname = new URL(tab.url).hostname; } catch { return; }
-
-      const data = await chrome.storage.local.get("pageStats");
-      const pageStats = data.pageStats || {};
-      const current = pageStats[hostname];
-
-      if (current) {
-        document.getElementById("page-section").style.display = "block";
-        document.getElementById("page-hostname").textContent = hostname;
-        document.getElementById("page-images").textContent = current.images || 0;
-        document.getElementById("page-text").textContent = current.text || 0;
-        document.getElementById("page-flagged").textContent = current.flagged || 0;
-      }
-
-      // Top pages list
-      const entries = Object.entries(pageStats)
-        .map(([host, s]) => ({ host, total: (s.images || 0) + (s.text || 0), flagged: s.flagged || 0 }))
-        .filter(e => e.total > 0)
-        .sort((a, b) => b.total - a.total)
-        .slice(0, 5);
-
-      if (entries.length > 0) {
-        const container = document.getElementById("top-pages");
-        container.style.display = "block";
-        const list = document.getElementById("pages-list");
-        const maxTotal = entries[0].total;
-
-        entries.forEach(e => {
-          const aiRate = e.total > 0 ? Math.round((e.flagged / e.total) * 100) : 0;
-          const barColor = aiRate > 40 ? "#ef4444" : aiRate > 20 ? "#eab308" : "#22c55e";
-          const row = document.createElement("div");
-          row.className = "page-row";
-
-          const name = document.createElement("span");
-          name.className = "page-row-name";
-          name.textContent = e.host;
-
-          const barOuter = document.createElement("div");
-          barOuter.className = "page-row-bar";
-          const barInner = document.createElement("div");
-          barInner.className = "page-row-fill";
-          barInner.style.width = `${Math.round((e.total/maxTotal)*100)}%`;
-          barInner.style.background = barColor;
-          barOuter.appendChild(barInner);
-
-          const count = document.createElement("span");
-          count.className = "page-row-count";
-          count.textContent = e.total;
-
-          row.appendChild(name);
-          row.appendChild(barOuter);
-          row.appendChild(count);
-          list.appendChild(row);
-        });
-      }
-    }
-    loadPageStats();
+    // ── Edit allowed websites link ──
+    document.getElementById("edit-sites").addEventListener("click", () => {
+      chrome.tabs.create({ url: "https://trustlens-nu.vercel.app/dashboard" });
+    });
   </script>
 </body>
 </html>
