@@ -18,7 +18,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 
 | Service | URL | Status |
 |---------|-----|--------|
-| Frontend (Vercel) | https://frontend-lime-six-25.vercel.app | Live |
+| Frontend (Vercel) | https://trustlens-nu.vercel.app | Live |
 | Supabase | https://xpeubpqbqlyxawjovxuy.supabase.co | Live |
 | GitHub | https://github.com/nategarelik/trustlens | Live (private) |
 
@@ -35,7 +35,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 
 Hit the seed endpoint once after deploying:
 ```bash
-curl -X POST "https://frontend-lime-six-25.vercel.app/api/seed?secret=$SEED_SECRET"
+curl -X POST "https://trustlens-nu.vercel.app/api/seed?secret=$SEED_SECRET"
 ```
 
 This creates 50 users, 535 scans, computes slop index and exposure scores.

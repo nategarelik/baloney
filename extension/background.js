@@ -1,7 +1,7 @@
 // extension/background.js — TrustLens Background Service Worker
 // Handles image fetching (bypasses CORS via host_permissions) and API communication.
 
-const API_URL = "https://frontend-lime-six-25.vercel.app";
+const API_URL = "https://trustlens-nu.vercel.app";
 const API_TIMEOUT_MS = 3000;
 
 // ──────────────────────────────────────────────

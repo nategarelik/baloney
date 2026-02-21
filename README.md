@@ -4,7 +4,7 @@
 
 **Built at MadData26** — UW-Madison Data Science Hackathon | February 21-22, 2026
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://frontend-lime-six-25.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel)](https://trustlens-nu.vercel.app)
 [![Built With](https://img.shields.io/badge/Built_With-Next.js_16-black?logo=next.js)](https://nextjs.org)
 [![Database](https://img.shields.io/badge/Database-Supabase-3FCF8E?logo=supabase)](https://supabase.com)
 

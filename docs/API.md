@@ -1,6 +1,6 @@
 # TrustLens API Reference
 
-> All endpoints are served from Vercel at `https://frontend-lime-six-25.vercel.app`.
+> All endpoints are served from Vercel at `https://trustlens-nu.vercel.app`.
 
 ## Error Contract
 
