@@ -7,9 +7,9 @@ interface TrustScoreGaugeProps {
 const CIRCUMFERENCE = 2 * Math.PI * 60; // ~376.99
 
 function getColor(score: number): string {
-  if (score > 0.7) return "#22c55e";
+  if (score > 0.7) return "#16a34a";
   if (score > 0.4) return "#f59e0b";
-  return "#ef4444";
+  return "#d4456b";
 }
 
 export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
@@ -25,7 +25,7 @@ export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
           cy="70"
           r="60"
           fill="none"
-          stroke="#1e3a5f"
+          stroke="rgba(74,55,40,0.08)"
           strokeWidth="10"
         />
         {/* Progress — rotated so it starts at top */}
@@ -46,7 +46,7 @@ export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
           y="66"
           textAnchor="middle"
           dominantBaseline="middle"
-          className="fill-white font-bold"
+          className="fill-secondary font-bold"
           style={{ fontSize: "28px", fontWeight: 700 }}
         >
           {Math.round(score * 100)}
@@ -56,12 +56,12 @@ export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
           y="86"
           textAnchor="middle"
           dominantBaseline="middle"
-          style={{ fontSize: "11px", fill: "#94a3b8" }}
+          style={{ fontSize: "11px", fill: "rgba(74,55,40,0.5)" }}
         >
           / 100
         </text>
       </svg>
-      <p className="text-slate-400 text-sm">Trust Score</p>
+      <p className="text-secondary/50 text-sm">Trust Score</p>
     </div>
   );
 }
