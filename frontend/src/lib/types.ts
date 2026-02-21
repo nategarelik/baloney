@@ -1,6 +1,6 @@
-// frontend/src/lib/types.ts — TrustLens type system
+// frontend/src/lib/types.ts — Baloney type system
 
-export type Verdict = "ai_generated" | "likely_human" | "inconclusive";
+export type Verdict = "human" | "light_edit" | "heavy_edit" | "ai_generated";
 
 export type Platform =
   | "instagram"
@@ -17,6 +17,20 @@ export type ContentType = "image" | "text" | "video";
 // Detection responses (from /api/detect/*)
 // ──────────────────────────────────────────────
 
+export interface SentenceScore {
+  text: string;
+  ai_probability: number;
+  start_index: number;
+  end_index: number;
+}
+
+export interface FeatureVector {
+  burstiness: number;
+  type_token_ratio: number;
+  perplexity: number;
+  repetition_score: number;
+}
+
 export interface DetectionResult {
   verdict: Verdict;
   confidence: number;
@@ -24,6 +38,9 @@ export interface DetectionResult {
   secondary_score: number;
   model_used: string;
   ensemble_used: boolean;
+  trust_score: number;
+  classification: Verdict;
+  edit_magnitude: number;
   scan_id?: string;
 }
 
@@ -34,6 +51,11 @@ export interface TextDetectionResult {
   model_used: string;
   text_stats: TextStats;
   caveat: string | null;
+  trust_score: number;
+  classification: Verdict;
+  edit_magnitude: number;
+  feature_vector: FeatureVector;
+  sentence_scores: SentenceScore[];
   scan_id?: string;
 }
 
@@ -197,6 +219,17 @@ export interface ContentProvenance {
   platforms: string[];
   first_seen: string;
   last_seen: string;
+}
+
+export interface InformationDietScore {
+  user_id: string;
+  score: number;
+  letter_grade: string;
+  ai_content_ratio: number;
+  source_diversity: number;
+  trend_direction: number;
+  awareness_actions: number;
+  computed_at: string;
 }
 
 // ──────────────────────────────────────────────

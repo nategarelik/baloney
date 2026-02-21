@@ -1,4 +1,4 @@
-# TrustLens
+# Baloney
 
 > Your AI content radar for the internet — personal insights for you, intelligence data for companies.
 
@@ -18,7 +18,7 @@ Companies in HR, marketing, publishing, and trust & safety need quantitative dat
 
 ## Our Solution
 
-TrustLens is a **Chrome extension** + **web dashboard** that detects AI-generated content in real-time as you scroll Instagram and X. Every scan feeds a personal analytics dashboard — and with one toggle, users can opt into sharing anonymized data with a community intelligence layer.
+Baloney is a **Chrome extension** + **web dashboard** that detects AI-generated content in real-time as you scroll Instagram and X. Every scan feeds a personal analytics dashboard — and with one toggle, users can opt into sharing anonymized data with a community intelligence layer.
 
 All detection and analytics are powered by **14 Next.js API routes** (including a health monitoring endpoint) backed by **Supabase Postgres** — no separate backend server required.
 
@@ -86,7 +86,7 @@ This creates 50 users, 535 scans, computes slop index and exposure scores.
 ## Project Structure
 
 ```
-trustlens/
+baloney/
 ├── frontend/                    # Next.js 16 + React 19 + Supabase
 │   ├── src/
 │   │   ├── app/

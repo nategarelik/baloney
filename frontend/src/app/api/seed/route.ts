@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
 
-const SEED_SECRET = process.env.SEED_SECRET || "trustlens-hackathon-2026";
+const SEED_SECRET = process.env.SEED_SECRET || "baloney-hackathon-2026";
 
 const PLATFORMS: Record<string, { weight: number; ai_rate: number }> = {
   instagram: { weight: 0.45, ai_rate: 0.35 },
@@ -61,6 +61,9 @@ interface ScanRow {
   content_category: string;
   content_hash: string | null;
   scan_duration_ms: number;
+  trust_score: number;
+  classification: string;
+  edit_magnitude: number;
 }
 
 function generateScan(userId: string, daysAgo: number): ScanRow {
@@ -69,22 +72,35 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
 
   const timeBoost = Math.max(0, (30 - daysAgo) / 30) * 0.10;
   const aiRate = (PLATFORMS[platform]?.ai_rate ?? 0.3) + timeBoost;
-  const isAi = Math.random() < aiRate;
+  const roll = Math.random();
 
   let verdict: string;
   let confidence: number;
+  let trustScore: number;
+  let editMagnitude: number;
 
-  if (isAi) {
+  if (roll < aiRate) {
     verdict = "ai_generated";
     confidence = parseFloat((Math.random() * 0.29 + 0.70).toFixed(4));
+    trustScore = parseFloat((Math.random() * 0.20 + 0.05).toFixed(4));
+    editMagnitude = parseFloat((Math.random() * 0.20 + 0.80).toFixed(4));
   } else {
-    const roll = Math.random();
-    if (roll < 0.85) {
-      verdict = "likely_human";
-      confidence = parseFloat((Math.random() * 0.23 + 0.75).toFixed(4));
+    const subRoll = Math.random();
+    if (subRoll < 0.10) {
+      verdict = "heavy_edit";
+      confidence = parseFloat((Math.random() * 0.20 + 0.60).toFixed(4));
+      trustScore = parseFloat((Math.random() * 0.20 + 0.25).toFixed(4));
+      editMagnitude = parseFloat((Math.random() * 0.25 + 0.55).toFixed(4));
+    } else if (subRoll < 0.25) {
+      verdict = "light_edit";
+      confidence = parseFloat((Math.random() * 0.20 + 0.50).toFixed(4));
+      trustScore = parseFloat((Math.random() * 0.20 + 0.45).toFixed(4));
+      editMagnitude = parseFloat((Math.random() * 0.35 + 0.20).toFixed(4));
     } else {
-      verdict = "inconclusive";
-      confidence = parseFloat((Math.random() * 0.25 + 0.40).toFixed(4));
+      verdict = "human";
+      confidence = parseFloat((Math.random() * 0.23 + 0.75).toFixed(4));
+      trustScore = parseFloat((Math.random() * 0.23 + 0.75).toFixed(4));
+      editMagnitude = parseFloat((Math.random() * 0.20).toFixed(4));
     }
   }
 
@@ -124,6 +140,9 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
     content_category: category,
     content_hash: contentHash,
     scan_duration_ms: Math.floor(Math.random() * 500 + 200),
+    trust_score: trustScore,
+    classification: verdict,
+    edit_magnitude: editMagnitude,
   };
 }
 
@@ -135,6 +154,7 @@ export async function POST(req: NextRequest) {
 
   // Clear all data in dependency order
   await supabase.from("content_sightings").delete().neq("content_hash", "");
+  await supabase.from("information_diet_scores").delete().neq("user_id", "");
   await supabase.from("exposure_scores").delete().neq("user_id", "");
   await supabase.from("platform_slop_index").delete().neq("platform", "");
   await supabase.from("scans").delete().neq("id", "00000000-0000-0000-0000-000000000000");
@@ -168,7 +188,10 @@ export async function POST(req: NextRequest) {
     const scan = generateScan("demo-user-001", Math.random() * 30);
     if (Math.random() < 0.38) {
       scan.verdict = "ai_generated";
+      scan.classification = "ai_generated";
       scan.confidence = parseFloat((Math.random() * 0.29 + 0.70).toFixed(4));
+      scan.trust_score = parseFloat((Math.random() * 0.20 + 0.05).toFixed(4));
+      scan.edit_magnitude = parseFloat((Math.random() * 0.20 + 0.80).toFixed(4));
     }
     allScans.push(scan);
   }
@@ -182,14 +205,16 @@ export async function POST(req: NextRequest) {
   }
 
   // Build content_sightings from scan data
-  // Group by content_hash
+  // Group by content_hash — ai votes = ai_generated, human votes = human/light_edit/heavy_edit
   const hashMap = new Map<string, { ai: number; human: number; inc: number; conf: number[]; platforms: Set<string>; first: string; last: string }>();
   for (const scan of allScans) {
     if (!scan.content_hash) continue;
     const existing = hashMap.get(scan.content_hash);
+    const isAi = scan.verdict === "ai_generated";
+    const isHuman = scan.verdict === "human";
     if (existing) {
-      if (scan.verdict === "ai_generated") existing.ai++;
-      else if (scan.verdict === "likely_human") existing.human++;
+      if (isAi) existing.ai++;
+      else if (isHuman) existing.human++;
       else existing.inc++;
       existing.conf.push(scan.confidence);
       existing.platforms.add(scan.platform);
@@ -197,9 +222,9 @@ export async function POST(req: NextRequest) {
       if (scan.created_at > existing.last) existing.last = scan.created_at;
     } else {
       hashMap.set(scan.content_hash, {
-        ai: scan.verdict === "ai_generated" ? 1 : 0,
-        human: scan.verdict === "likely_human" ? 1 : 0,
-        inc: scan.verdict === "inconclusive" ? 1 : 0,
+        ai: isAi ? 1 : 0,
+        human: isHuman ? 1 : 0,
+        inc: !isAi && !isHuman ? 1 : 0,
         conf: [scan.confidence],
         platforms: new Set([scan.platform]),
         first: scan.created_at,
@@ -211,7 +236,7 @@ export async function POST(req: NextRequest) {
   const sightingRows = Array.from(hashMap.entries()).map(([hash, data]) => {
     const total = data.ai + data.human + data.inc;
     const compoundScore = total > 0 ? parseFloat(((data.ai / total) * 100).toFixed(2)) : 0;
-    const compoundVerdict = compoundScore >= 60 ? "ai_generated" : compoundScore <= 30 ? "likely_human" : "inconclusive";
+    const compoundVerdict = compoundScore >= 60 ? "ai_generated" : compoundScore <= 30 ? "human" : "light_edit";
     return {
       content_hash: hash,
       first_seen: data.first,
@@ -239,6 +264,14 @@ export async function POST(req: NextRequest) {
     const batch = users.slice(i, i + 5);
     await Promise.allSettled(
       batch.map((u) => supabase.rpc("compute_exposure_score", { p_user_id: u.id }))
+    );
+  }
+
+  // Compute information diet scores
+  for (let i = 0; i < users.length; i += 5) {
+    const batch = users.slice(i, i + 5);
+    await Promise.allSettled(
+      batch.map((u) => supabase.rpc("compute_information_diet_score", { p_user_id: u.id }))
     );
   }
 
