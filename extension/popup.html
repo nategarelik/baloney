@@ -509,13 +509,26 @@
           const barColor = aiRate > 40 ? "#ef4444" : aiRate > 20 ? "#eab308" : "#22c55e";
           const row = document.createElement("div");
           row.className = "page-row";
-          row.innerHTML = `
-            <span class="page-row-name">${e.host}</span>
-            <div class="page-row-bar">
-              <div class="page-row-fill" style="width:${Math.round((e.total/maxTotal)*100)}%;background:${barColor}"></div>
-            </div>
-            <span class="page-row-count">${e.total}</span>
-          `;
+
+          const name = document.createElement("span");
+          name.className = "page-row-name";
+          name.textContent = e.host;
+
+          const barOuter = document.createElement("div");
+          barOuter.className = "page-row-bar";
+          const barInner = document.createElement("div");
+          barInner.className = "page-row-fill";
+          barInner.style.width = `${Math.round((e.total/maxTotal)*100)}%`;
+          barInner.style.background = barColor;
+          barOuter.appendChild(barInner);
+
+          const count = document.createElement("span");
+          count.className = "page-row-count";
+          count.textContent = e.total;
+
+          row.appendChild(name);
+          row.appendChild(barOuter);
+          row.appendChild(count);
           list.appendChild(row);
         });
       }

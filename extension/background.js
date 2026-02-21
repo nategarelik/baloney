@@ -190,19 +190,27 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "check-text" && info.selectionText) {
     const userId = await getUserId();
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
       const response = await fetch(`${API_URL}/api/detect/text`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           text: info.selectionText,
           user_id: userId,
           platform: detectPlatform(tab?.url),
         }),
       });
+      clearTimeout(timeoutId);
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
       const result = await response.json();
       chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
     } catch (err) {
-      console.error("[Baloney] Text check error:", err);
+      console.warn("[Baloney] Text check API unavailable, using mock:", err.message);
+      await delay(200 + Math.random() * 400);
+      const result = mockTextResult();
+      chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
     }
   }
 });

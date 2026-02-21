@@ -73,14 +73,14 @@ let sessionStats = { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
 
 function updateStats(verdict) {
   sessionStats.scanned++;
-  if (verdict === "ai_generated") sessionStats.flaggedAI++;
+  if (verdict === "ai_generated" || verdict === "heavy_edit") sessionStats.flaggedAI++;
   // Sync to extension storage for popup
   chrome.storage.local.set({ sessionStats });
 }
 
 function updateTextStats(verdict) {
   sessionStats.textScanned++;
-  if (verdict === "ai_generated") sessionStats.textFlagged++;
+  if (verdict === "ai_generated" || verdict === "heavy_edit") sessionStats.textFlagged++;
   chrome.storage.local.set({ sessionStats });
 }
 

@@ -20,7 +20,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 |---------|-----|--------|
 | Frontend (Vercel) | https://trustlens-nu.vercel.app | Live |
 | Supabase | https://xpeubpqbqlyxawjovxuy.supabase.co | Live |
-| GitHub | https://github.com/nategarelik/trustlens | Live (private) |
+| GitHub | https://github.com/nategarelik/baloney | Live (private) |
 
 ### Environment Variables
 
@@ -49,7 +49,7 @@ Detection is handled by `frontend/src/lib/mock-detectors.ts` — a TypeScript po
 - Text: real text_stats + mock verdict with caveats
 - Video: random frame-level analysis
 
-### API Routes (14 total)
+### API Routes (16 total)
 
 All in `frontend/src/app/api/`:
 
@@ -57,6 +57,8 @@ All in `frontend/src/app/api/`:
 |-------|--------|---------|
 | `detect/image` | POST | Image detection + Supabase write |
 | `detect/text` | POST | Text detection + Supabase write |
+| `detect/preview` | POST | Text detection WITHOUT Supabase write (preview mode) |
+| `information-diet` | GET | Information Diet Score by user_id |
 | `scans/me` | GET | Scan history by user_id |
 | `analytics/personal` | GET | Personal stats from Postgres views |
 | `analytics/community` | GET | Community stats (sharing_enabled only) |
@@ -72,14 +74,15 @@ All in `frontend/src/app/api/`:
 
 ### Supabase Schema
 
-**6 tables:** `profiles`, `scans`, `content_sightings`, `platform_slop_index`, `exposure_scores`, `daily_snapshots`
+**7 tables:** `profiles`, `scans`, `content_sightings`, `platform_slop_index`, `exposure_scores`, `information_diet_scores`, `daily_snapshots`
 
 **11 views:** `v_personal_stats`, `v_personal_by_platform`, `v_personal_by_content_type`, `v_personal_by_verdict`, `v_community_stats`, `v_community_by_platform`, `v_community_by_content_type`, `v_community_trends`, `v_domain_leaderboard`, `v_slop_index_latest`, `v_top_provenance`
 
-**3 RPC functions:**
+**4 RPC functions:**
 - `record_scan_with_provenance(...)` — Insert scan + upsert profile + update content_sightings
 - `compute_exposure_score(user_id)` — Calculate 0-850 awareness score
 - `compute_slop_index()` — Grade platforms A+ through F
+- `compute_information_diet_score(user_id)` — Calculate 0-100 diet score with letter grade
 
 ### Innovative Features
 
@@ -104,7 +107,7 @@ All in `frontend/src/app/api/`:
 
 ### API Client
 
-`frontend/src/lib/api.ts` — 11 functions using relative URLs (no external API dependency). Includes `getSlopIndex()`, `getExposureScore()`, `getTopProvenance()`.
+`frontend/src/lib/api.ts` — 13 functions using relative URLs (no external API dependency). Includes `getSlopIndex()`, `getExposureScore()`, `getTopProvenance()`, `getInformationDietScore()`, `detectPreview()`.
 
 ### Demo User
 
@@ -140,11 +143,23 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/app/dashboard/PersonalTab.tsx` — Personal analytics charts
 - `frontend/src/app/dashboard/CommunityTab.tsx` — Community analytics charts
 
-### Pages
+### Pages (7 total)
 
 - `frontend/src/app/page.tsx` — Landing (hero, stats, how-it-works)
 - `frontend/src/app/feed/page.tsx` — Demo feed (20 posts, IntersectionObserver scanning)
-- `frontend/src/app/dashboard/page.tsx` — Dashboard
+- `frontend/src/app/analyze/page.tsx` — Text Analyzer (sentence-level AI detection)
+- `frontend/src/app/my-diet/page.tsx` — Information Diet (score gauge, breakdown cards, tips, recent scans)
+- `frontend/src/app/platform/page.tsx` — Platform Simulator (Twitter/Reddit/LinkedIn/Instagram)
+- `frontend/src/app/dashboard/page.tsx` — Dashboard (personal + community analytics)
+- `frontend/src/app/extension/page.tsx` — Extension info (features, install steps, CTA)
+
+### Extension Features (v0.2.0)
+
+- `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions
+- `extension/content.js` — Image scanning (>=200px, IntersectionObserver), text scanning (>=100 chars, skip nav/header/footer), content filtering (label/blur/hide), per-page stats
+- `extension/background.js` — API calls with mock fallback, platform detection (8 platforms), context menus
+- `extension/popup.html` — Stats, exposure bar, filter buttons, IDS card, This Page, Top Pages, session timer
+- `extension/styles.css` — Badge variants, shimmer animation, blur/hide filter classes
 
 ## Development
 
@@ -153,9 +168,15 @@ Detection badges match extension `styles.css` exactly:
 ```bash
 cd frontend
 npm install
-# Copy .env.local with Supabase credentials
+cp .env.example .env.local   # Supabase credentials included
 npm run dev
 ```
+
+### Chrome Extension (local)
+
+1. Open `chrome://extensions`, enable Developer Mode
+2. Click "Load unpacked" → select the `extension/` folder
+3. Extension points at https://trustlens-nu.vercel.app (production API)
 
 ### Verification
 
@@ -167,7 +188,7 @@ npm run build        # Production build (must succeed)
 
 ### Git
 
-- Repo: https://github.com/nategarelik/trustlens (private)
+- Repo: https://github.com/nategarelik/baloney (private, was trustlens)
 - Branch: `master`
 - Commit style: conventional commits (feat:, fix:, chore:, docs:)
 - Stage specific files, never `git add -A`
@@ -175,9 +196,16 @@ npm run build        # Production build (must succeed)
 ## Documentation
 
 - `docs/ARCHITECTURE.md` — System diagrams (Mermaid), database ER, component hierarchy, design decisions
-- `docs/API.md` — Full API reference for all 14 endpoints
+- `docs/API.md` — Full API reference (missing detect/preview and information-diet endpoints)
 - `docs/AI_CITATION.md` — AI tools disclosure (hackathon requirement)
 - `docs/PRESENTATION.md` — 5-minute pitch guide and demo recovery plan
+- `docs/MANUAL_TEST_RESULTS.md` — Manual testing checklist and results
+
+## Deployment Notes
+
+- Vercel auto-deploy from GitHub broke when repo was renamed from `trustlens` to `baloney`
+- Use `cd frontend && npx vercel --prod --yes` from the repo root to deploy manually
+- Or run from the project root: `npx vercel --prod --yes` (Vercel config is in `frontend/.vercel/`)
 
 ## Known Limitations
 
@@ -185,3 +213,7 @@ npm run build        # Production build (must succeed)
 - No rate limiting on public endpoints
 - Next.js images use `<img>` tags instead of `<Image>` to avoid remote domain config
 - `compute_slop_index()` uses `ROUND(...::numeric, 2)` — Postgres requires numeric cast for 2-arg ROUND
+- `information_diet_scores` table has RLS disabled (only table without it)
+- `daily_snapshots` table is empty (never populated)
+- Extension hardcodes API URL to `https://trustlens-nu.vercel.app` (no local dev support)
+- New frontend design incoming from dev partner — expect page redesigns

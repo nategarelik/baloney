@@ -15,6 +15,7 @@ import type {
   ExposureScore,
   ContentProvenance,
   TrackerResponse,
+  InformationDietScore,
 } from "./types";
 
 // ──────────────────────────────────────────────
@@ -174,6 +175,29 @@ export async function getTopProvenance(
   limit = 20,
 ): Promise<ContentProvenance[]> {
   return fetchApi<ContentProvenance[]>(`/api/provenance?limit=${limit}`);
+}
+
+// ──────────────────────────────────────────────
+// Information Diet + Preview
+// ──────────────────────────────────────────────
+
+export async function getInformationDietScore(
+  userId: string,
+): Promise<InformationDietScore> {
+  return fetchApi<InformationDietScore>(
+    `/api/information-diet?user_id=${userId}`,
+  );
+}
+
+export async function detectPreview(
+  text: string,
+  platform?: string,
+): Promise<TextDetectionResult> {
+  return fetchApi<TextDetectionResult>("/api/detect/preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, platform }),
+  });
 }
 
 // ──────────────────────────────────────────────
