@@ -156,7 +156,7 @@ Detection badges match extension `styles.css` exactly:
 
 - `frontend/src/app/page.tsx` — Landing (hero, stats, how-it-works)
 - `frontend/src/app/feed/page.tsx` — Demo feed (20 posts, IntersectionObserver scanning)
-- `frontend/src/app/analyze/page.tsx` — Text Analyzer (sentence-level AI detection)
+- `frontend/src/app/analyze/page.tsx` — AI Detector (tabbed: Text, Image, Video) with warm Baloney theme
 - `frontend/src/app/my-diet/page.tsx` — Information Diet (score gauge, breakdown cards, tips, recent scans)
 - `frontend/src/app/platform/page.tsx` — Platform Simulator (Twitter/Reddit/LinkedIn/Instagram)
 - `frontend/src/app/dashboard/page.tsx` — Dashboard (personal + community analytics)
