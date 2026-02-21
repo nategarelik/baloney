@@ -42,18 +42,18 @@ export function ScoreBreakdown({ featureVector }: ScoreBreakdownProps) {
   ];
 
   return (
-    <div className="bg-navy-light rounded-xl border border-navy-lighter p-6">
-      <h2 className="text-white font-semibold mb-4">Feature Analysis</h2>
+    <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
+      <h2 className="font-display text-xl text-secondary mb-4">Feature Analysis</h2>
       <div className="space-y-4">
         {rows.map((row) => (
           <div key={row.label}>
             <div className="flex justify-between text-sm mb-1">
-              <span className="text-slate-300">{row.label}</span>
-              <span className="text-slate-400">{row.rawLabel}</span>
+              <span className="text-secondary/70">{row.label}</span>
+              <span className="text-secondary/50">{row.rawLabel}</span>
             </div>
-            <div className="h-2 bg-navy rounded-full overflow-hidden">
+            <div className="h-2 bg-secondary/8 rounded-full overflow-hidden">
               <div
-                className="h-full bg-accent rounded-full transition-all"
+                className="h-full bg-primary rounded-full transition-all duration-500"
                 style={{ width: `${Math.round(row.value * 100)}%` }}
               />
             </div>
