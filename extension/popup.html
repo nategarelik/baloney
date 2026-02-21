@@ -150,6 +150,132 @@
       font-weight: 600;
       transition: background 0.2s;
     }
+    .page-section {
+      background: #1a2744;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .page-icon { font-size: 14px; }
+    .page-hostname {
+      font-weight: 600;
+      color: #e2e8f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 200px;
+    }
+    .page-stats {
+      display: flex;
+      gap: 12px;
+    }
+    .page-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+    }
+    .page-stat-num {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .page-stat-label {
+      font-size: 10px;
+      color: #64748b;
+    }
+    .top-pages {
+      background: #1a2744;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .page-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 11px;
+    }
+    .page-row-name {
+      flex: 1;
+      color: #e2e8f0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .page-row-bar {
+      width: 60px;
+      height: 4px;
+      background: #0f1a2e;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .page-row-fill {
+      height: 100%;
+      border-radius: 2px;
+    }
+    .page-row-count {
+      color: #64748b;
+      font-size: 10px;
+      min-width: 20px;
+      text-align: right;
+    }
+    /* Filter mode selector */
+    .filter-section {
+      background: #1a2744;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+    .filter-label {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .filter-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .filter-btn {
+      flex: 1;
+      padding: 6px 0;
+      border: 1px solid #1e3a5f;
+      border-radius: 6px;
+      background: #0f1a2e;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .filter-btn:hover {
+      border-color: #3b82f6;
+      color: #e2e8f0;
+    }
+    .filter-btn.active {
+      background: #3b82f6;
+      border-color: #3b82f6;
+      color: #fff;
+    }
     .dashboard-link:hover { background: #2563eb; }
     .footer {
       text-align: center;
@@ -169,11 +295,11 @@
   <div class="stats">
     <div class="stat-card">
       <div class="stat-number" id="scanned">0</div>
-      <div class="stat-label">Images Scanned</div>
+      <div class="stat-label">Scanned</div>
     </div>
     <div class="stat-card">
       <div class="stat-number" id="flagged">0</div>
-      <div class="stat-label">AI Flagged</div>
+      <div class="stat-label">Flagged</div>
     </div>
   </div>
 
@@ -185,12 +311,47 @@
     <div class="exposure-percent" id="percent">0%</div>
   </div>
 
+  <div class="filter-section">
+    <div class="filter-label">AI Content Filter</div>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-mode="label">Label</button>
+      <button class="filter-btn" data-mode="blur">Blur</button>
+      <button class="filter-btn" data-mode="hide">Hide</button>
+    </div>
+  </div>
+
   <div class="ids-card" id="ids-card">
     <div class="ids-grade" id="ids-grade" style="color: #64748b">—</div>
     <div class="ids-right">
       <div class="ids-title">Information Diet</div>
       <div class="ids-score" id="ids-score">— <span>/ 100</span></div>
     </div>
+  </div>
+
+  <div class="page-section" id="page-section" style="display:none">
+    <div class="page-header">
+      <span class="page-icon">📄</span>
+      <span class="page-hostname" id="page-hostname">—</span>
+    </div>
+    <div class="page-stats">
+      <div class="page-stat">
+        <span class="page-stat-num" id="page-images">0</span>
+        <span class="page-stat-label">Images</span>
+      </div>
+      <div class="page-stat">
+        <span class="page-stat-num" id="page-text">0</span>
+        <span class="page-stat-label">Text</span>
+      </div>
+      <div class="page-stat">
+        <span class="page-stat-num" id="page-flagged">0</span>
+        <span class="page-stat-label">Flagged</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-pages" id="top-pages" style="display:none">
+    <div class="section-title">Top Pages</div>
+    <div id="pages-list"></div>
   </div>
 
   <div class="session-timer" id="timer">Session: <span>0m 0s</span></div>
@@ -245,13 +406,15 @@
 
     // Load stats and animate
     chrome.storage.local.get("sessionStats", (data) => {
-      const stats = data.sessionStats || { scanned: 0, flaggedAI: 0 };
-      const pct = stats.scanned > 0
-        ? Math.round((stats.flaggedAI / stats.scanned) * 100)
+      const stats = data.sessionStats || { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
+      const totalScanned = stats.scanned + (stats.textScanned || 0);
+      const totalFlagged = stats.flaggedAI + (stats.textFlagged || 0);
+      const pct = totalScanned > 0
+        ? Math.round((totalFlagged / totalScanned) * 100)
         : 0;
 
-      animateCount(document.getElementById("scanned"), stats.scanned);
-      animateCount(document.getElementById("flagged"), stats.flaggedAI);
+      animateCount(document.getElementById("scanned"), totalScanned);
+      animateCount(document.getElementById("flagged"), totalFlagged);
       document.getElementById("percent").textContent = `${pct}%`;
 
       const bar = document.getElementById("bar");
@@ -286,8 +449,78 @@
       }
     }
 
+    // Filter mode buttons
+    const filterButtons = document.querySelectorAll(".filter-btn");
+
+    chrome.storage.local.get("filterMode", (data) => {
+      const current = data.filterMode || "label";
+      filterButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === current);
+      });
+    });
+
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const mode = btn.dataset.mode;
+        chrome.storage.local.set({ filterMode: mode });
+        filterButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
     startTimer();
     loadIDS();
+
+    // Load page stats
+    async function loadPageStats() {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab?.url) return;
+
+      let hostname;
+      try { hostname = new URL(tab.url).hostname; } catch { return; }
+
+      const data = await chrome.storage.local.get("pageStats");
+      const pageStats = data.pageStats || {};
+      const current = pageStats[hostname];
+
+      if (current) {
+        document.getElementById("page-section").style.display = "block";
+        document.getElementById("page-hostname").textContent = hostname;
+        document.getElementById("page-images").textContent = current.images || 0;
+        document.getElementById("page-text").textContent = current.text || 0;
+        document.getElementById("page-flagged").textContent = current.flagged || 0;
+      }
+
+      // Top pages list
+      const entries = Object.entries(pageStats)
+        .map(([host, s]) => ({ host, total: (s.images || 0) + (s.text || 0), flagged: s.flagged || 0 }))
+        .filter(e => e.total > 0)
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
+
+      if (entries.length > 0) {
+        const container = document.getElementById("top-pages");
+        container.style.display = "block";
+        const list = document.getElementById("pages-list");
+        const maxTotal = entries[0].total;
+
+        entries.forEach(e => {
+          const aiRate = e.total > 0 ? Math.round((e.flagged / e.total) * 100) : 0;
+          const barColor = aiRate > 40 ? "#ef4444" : aiRate > 20 ? "#eab308" : "#22c55e";
+          const row = document.createElement("div");
+          row.className = "page-row";
+          row.innerHTML = `
+            <span class="page-row-name">${e.host}</span>
+            <div class="page-row-bar">
+              <div class="page-row-fill" style="width:${Math.round((e.total/maxTotal)*100)}%;background:${barColor}"></div>
+            </div>
+            <span class="page-row-count">${e.total}</span>
+          `;
+          list.appendChild(row);
+        });
+      }
+    }
+    loadPageStats();
   </script>
 </body>
 </html>

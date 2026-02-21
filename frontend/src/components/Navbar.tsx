@@ -8,8 +8,10 @@ import { cn } from "@/lib/cn";
 const NAV_LINKS = [
   { href: "/feed", label: "Demo Feed" },
   { href: "/analyze", label: "Analyze" },
+  { href: "/my-diet", label: "My Diet" },
   { href: "/platform", label: "Platform" },
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/extension", label: "Extension" },
 ] as const;
 
 export function Navbar() {

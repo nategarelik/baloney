@@ -11,10 +11,7 @@
   ],
 
   "host_permissions": [
-    "https://*.cdninstagram.com/*",
-    "https://*.fbcdn.net/*",
-    "https://pbs.twimg.com/*",
-    "https://video.twimg.com/*"
+    "<all_urls>"
   ],
 
   "background": {
@@ -24,10 +21,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.instagram.com/*",
-        "https://instagram.com/*",
-        "https://x.com/*",
-        "https://twitter.com/*"
+        "<all_urls>"
       ],
       "js": ["content.js"],
       "css": ["styles.css"],
