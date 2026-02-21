@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { mockImageResult } from "@/lib/mock-detectors";
+import { realImageDetection } from "@/lib/real-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import crypto from "crypto";
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const start = Date.now();
-    const result = mockImageResult(platform);
+    const result = await realImageDetection(image);
     const duration = Date.now() - start;
 
     const contentHash = crypto.createHash("sha256").update(image.slice(0, 1000)).digest("hex");

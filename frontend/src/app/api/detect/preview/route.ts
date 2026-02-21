@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { mockTextResult } from "@/lib/mock-detectors";
+import { realTextDetection } from "@/lib/real-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import { API_LIMITS } from "@/lib/constants";
 
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Preview mode: detect WITHOUT recording to Supabase
-    const result = mockTextResult(text);
+    const result = await realTextDetection(text);
 
     return NextResponse.json({ ...result, platform: platform || "unknown", preview: true });
   } catch (err) {

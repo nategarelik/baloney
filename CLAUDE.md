@@ -28,6 +28,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 - `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase publishable anon key
 - `SEED_SECRET` — Protects the `/api/seed` endpoint
+- `HUGGINGFACE_API_KEY` — HuggingFace Inference API key (enables real ML detection; falls back to mock without it)
 
 **Local development:** Copy values to `frontend/.env.local`
 
@@ -42,12 +43,19 @@ This creates 50 users, 535 scans, computes slop index and exposure scores.
 
 ## Key Patterns
 
-### Mock Detection (TypeScript)
+### Real AI Detection (HuggingFace)
 
-Detection is handled by `frontend/src/lib/mock-detectors.ts` — a TypeScript port of the original Python `mock_detector.py`. All detection runs server-side in Next.js API routes:
+Detection is handled by `frontend/src/lib/real-detectors.ts` — multi-signal ensemble using HuggingFace Inference API. All detection runs server-side in Next.js API routes:
+- **Text:** Method A (RoBERTa, 50%) + Method B (MiniLM sentence embeddings, 20%) + Method D (statistical features, 30%)
+- **Image:** Method E (ViT AI-image-detector, 55%) + Method F (frequency/FFT analysis, 25%) + Method G (metadata/EXIF, 20%)
+- Falls back to `mock-detectors.ts` if `HUGGINGFACE_API_KEY` is not set or API fails
+- Models: `openai-community/roberta-base-openai-detector`, `sentence-transformers/all-MiniLM-L6-v2`, `umm-maybe/AI-image-detector`
+
+### Mock Detection (Fallback)
+
+Fallback detectors in `frontend/src/lib/mock-detectors.ts`:
 - Image: 35% AI (conf 0.78-0.96), 55% human, 10% inconclusive
 - Text: real text_stats + mock verdict with caveats
-- Video: random frame-level analysis
 
 ### API Routes (16 total)
 
@@ -131,7 +139,8 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/lib/types.ts` — Type contract
 - `frontend/src/lib/api.ts` — All API calls (relative URLs)
 - `frontend/src/lib/supabase.ts` — Supabase client
-- `frontend/src/lib/mock-detectors.ts` — TS mock detection logic
+- `frontend/src/lib/real-detectors.ts` — Real HuggingFace ML detection (multi-signal ensemble)
+- `frontend/src/lib/mock-detectors.ts` — Mock fallback detection logic + shared `computeTextStats()`
 - `frontend/src/lib/constants.ts` — Colors, IDs, RequestQueue
 
 ### Dashboard Components
@@ -153,13 +162,14 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/app/dashboard/page.tsx` — Dashboard (personal + community analytics)
 - `frontend/src/app/extension/page.tsx` — Extension info (features, install steps, CTA)
 
-### Extension Features (v0.2.0)
+### Extension Features (v0.3.0 — Selection + Hover UX)
 
-- `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions
-- `extension/content.js` — Image scanning (>=200px, IntersectionObserver), text scanning (>=100 chars, skip nav/header/footer), content filtering (label/blur/hide), per-page stats
-- `extension/background.js` — API calls with mock fallback, platform detection (8 platforms), context menus
-- `extension/popup.html` — Stats, exposure bar, filter buttons, IDS card, This Page, Top Pages, session timer
-- `extension/styles.css` — Badge variants, shimmer animation, blur/hide filter classes
+- `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions, pig icon
+- `extension/content.js` — **Selection-based text** (highlight → popup → insight), **image hover borders** (colored outline on hover, tooltip at edge), **video scanning** (poster/frame capture), max 2 concurrent scans, content filtering (label/blur/hide), per-page stats
+- `extension/background.js` — API calls with safe offline fallback (returns human/0 confidence), platform detection (8 platforms), context menus ("Scan with Baloney" for images, "Check with Baloney" for text)
+- `extension/popup.html` — Pig logo, stats, exposure bar, filter buttons, IDS card, This Page, Top Pages, session timer
+- `extension/styles.css` — Hover borders (outline per verdict color), selection popup with scan button + insight, loading spinner, content filtering, page indicator
+- `extension/icons/` — Pig face icons (SVG-generated) at 16/48/128px on navy rounded-square background
 
 ## Development
 
@@ -216,4 +226,26 @@ npm run build        # Production build (must succeed)
 - `information_diet_scores` table has RLS disabled (only table without it)
 - `daily_snapshots` table is empty (never populated)
 - Extension hardcodes API URL to `https://trustlens-nu.vercel.app` (no local dev support)
-- New frontend design incoming from dev partner — expect page redesigns
+- HuggingFace free tier has rate limits (~30k chars/day for text, ~100 images/day)
+- Video analysis uses poster frame or single captured frame (not multi-frame)
+
+## Future Development (Hackathon Win Strategy)
+
+### High-Impact Quick Wins
+- **Real detection demo**: Set `HUGGINGFACE_API_KEY` on Vercel → instant upgrade from mock to real ML
+- **Extension polish**: Load extension in Chrome for live demo — judges love interactive demos
+- **Data pipeline**: Populate `daily_snapshots` table → enables trend visualizations
+
+### Differentiators to Emphasize
+1. **Multi-modal ensemble** — 3 methods per modality (RoBERTa + embeddings + statistical for text; ViT + FFT + metadata for images)
+2. **Selection-based UX** — Intentional detection (user highlights text) vs passive scanning. More respectful, more trustworthy
+3. **Content Provenance** — SHA-256 crowd-sourced truth across platforms. No other tool does this
+4. **Information Diet Score** — Gamification of AI awareness. Unique concept in the space
+5. **Open architecture** — Real HuggingFace models with graceful fallback. Not a black box
+
+### Demo Script Tips
+- Start with extension: highlight text on any article → show insight popup with WHY explanations
+- Hover over images → colored border appears → move to edge → tooltip with visual analysis
+- Switch to dashboard → show personal stats updating in real-time
+- Show AI Slop Index → platform report cards with letter grades
+- Close with Information Diet Score → gamification angle

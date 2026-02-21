@@ -25,15 +25,27 @@ sequenceDiagram
     participant S as Supabase Postgres
 
     U->>E: Scrolls page (MutationObserver)
-    E->>E: IntersectionObserver detects image
+    E->>E: IntersectionObserver detects image/video
     E->>B: chrome.runtime.sendMessage(analyze-image)
     B->>B: Fetch image as base64
     B->>V: POST /api/detect/image
-    V->>V: Mock detector generates result
+    V->>V: Real ML ensemble (ViT + FFT + metadata)
     V->>S: record_scan_with_provenance()
     V-->>B: DetectionResult JSON
-    B-->>E: Result with verdict + confidence
-    E->>U: Inject badge overlay on image
+    B-->>E: Result with verdict + confidence + scores
+    E->>U: Colored border on hover, insight tooltip at edge
+
+    Note over U,E: Text: User highlights text (mouseup)
+    U->>E: Selects text (min 20 chars)
+    E->>U: Shows "Scan with Baloney" popup
+    U->>E: Clicks scan button
+    E->>B: chrome.runtime.sendMessage(analyze-text)
+    B->>V: POST /api/detect/text
+    V->>V: Real ML ensemble (RoBERTa + MiniLM + statistical)
+    V->>S: record_scan_with_provenance()
+    V-->>B: TextDetectionResult JSON
+    B-->>E: Result with verdict + feature_vector + sentence_scores
+    E->>U: Insight popup with WHY explanations
 ```
 
 ## Database Schema
@@ -125,13 +137,14 @@ erDiagram
 | `v_slop_index_latest` | Most recent slop index computation |
 | `v_top_provenance` | Content hashes with most cross-platform sightings |
 
-### RPC Functions (3)
+### RPC Functions (4)
 
 | Function | Purpose |
 |----------|---------|
 | `record_scan_with_provenance(...)` | Insert scan, upsert profile, update content_sightings atomically |
 | `compute_exposure_score(user_id)` | Calculate 0-850 awareness score based on frequency, diversity, streaks |
 | `compute_slop_index()` | Grade platforms A+ through F based on AI detection rates |
+| `compute_information_diet_score(user_id)` | Calculate 0-100 diet score with letter grade |
 
 ## Component Hierarchy
 
@@ -167,13 +180,21 @@ We started with a FastAPI + SQLite backend on Railway, but migrated to Supabase 
 2. **RPC functions** — `record_scan_with_provenance()` atomically handles scan insertion, profile upsert, and content sighting updates in a single database call
 3. **Deployment simplicity** — Supabase handles hosting, backups, and connection pooling; Vercel API routes just call `supabase-js`
 
-### Why mock detectors?
+### Real ML detection via HuggingFace
 
-Real ML inference (Organika/sdxl-detector for images, chatgpt-detector-roberta for text) requires GPU allocation that exceeds hackathon constraints. The mock detectors in `mock-detectors.ts`:
-- Return statistically realistic distributions (35% AI for images, calibrated text analysis)
-- Generate real `text_stats` metrics (word count, lexical diversity, sentence length)
-- Run synchronously with sub-millisecond latency
-- Are functionally identical to the real pipeline from the API consumer's perspective
+Detection uses a multi-signal ensemble via the HuggingFace Inference API (`real-detectors.ts`):
+
+**Text (3 methods):**
+- **Method A (50%)**: `openai-community/roberta-base-openai-detector` — RoBERTa fine-tuned on GPT-2 outputs
+- **Method B (20%)**: `sentence-transformers/all-MiniLM-L6-v2` — inter-sentence embedding uniformity (EditLens-inspired)
+- **Method D (30%)**: Statistical features — burstiness, TTR, perplexity proxy, repetition, readability
+
+**Image (3 methods):**
+- **Method E (55%)**: `umm-maybe/AI-image-detector` — ViT trained on AI vs real images
+- **Method F (25%)**: Frequency analysis — local variance uniformity and high-frequency energy
+- **Method G (20%)**: Metadata analysis — EXIF markers, camera make/model detection
+
+Falls back to mock detectors if `HUGGINGFACE_API_KEY` is not configured or API fails.
 
 ### Feed fallback strategy
 

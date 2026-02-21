@@ -20,14 +20,21 @@ Your personal dashboard shows your AI exposure. Opt in, and your anonymized data
 
 ### Live Demo (2.5 minutes)
 
-**Step 1 — Feed Page** (60 seconds)
-1. Open the demo feed at `/feed`
-2. Scroll slowly -- badges appear on images as they enter the viewport
-3. Point out: real photo scores "Human" (green badge), AI image scores "AI 97%" (red badge)
-4. Show the stats bar updating: "12 of 20 scanned | 5 flagged AI"
-5. Key line: "This is what it looks like when you browse Instagram with Baloney running"
+**Step 1 — Extension: Text Selection** (45 seconds)
+1. Open any news article or blog post in Chrome (with extension loaded)
+2. Highlight a paragraph of text -- "Scan with Baloney" popup appears below the selection
+3. Click the button -- loading spinner → insight popup with verdict, confidence, and WHY bullets
+4. Point out: "It tells you WHY it thinks this is AI -- sentence uniformity, vocabulary patterns, predictability"
+5. Key line: "You choose what to scan. No passive surveillance. Intentional AI detection."
 
-**Step 2 — Dashboard** (45 seconds)
+**Step 2 — Extension: Image Hover** (30 seconds)
+1. Navigate to an image-heavy page (Instagram, news site)
+2. Images auto-scan as they enter the viewport (max 2 at a time)
+3. Hover over an image -- colored border appears (red = AI, green = human)
+4. Move cursor to the border edge -- insight tooltip with visual analysis reasons
+5. Key line: "Hover to see the verdict. Touch the border for the deep analysis."
+
+**Step 3 — Dashboard** (45 seconds)
 1. Click "View Dashboard" or navigate to `/dashboard`
 2. Personal tab loads automatically -- point out:
    - AI Exposure donut: "38% of my feed is AI"
@@ -36,16 +43,11 @@ Your personal dashboard shows your AI exposure. Opt in, and your anonymized data
    - Recent scans table with verdict badges
 3. Key line: "This is your personal AI radar. Private by default. Nobody sees this but you."
 
-**Step 3 — Community** (30 seconds)
+**Step 4 — Community + Slop Index** (30 seconds)
 1. Toggle to Community tab
 2. Show the animated counter, trend chart, domain leaderboard
-3. Toggle the sharing switch ON
-4. Key line: "When users opt in, their anonymized metadata feeds the community dataset. This is the data layer that doesn't exist yet."
-
-**Step 4 — Extension Flash** (15 seconds)
-1. Briefly show the Chrome extension loaded in the browser
-2. Open popup showing session stats
-3. Key line: "This works on real Instagram and X right now"
+3. Show AI Slop Index -- platform report cards with letter grades
+4. Key line: "When users opt in, their anonymized metadata feeds the community dataset. Instagram gets a C+. This data layer doesn't exist yet."
 
 ### Business Model (30 seconds)
 
@@ -66,7 +68,7 @@ The demo is designed to never break:
 | Scenario | What Happens | Recovery |
 |----------|-------------|----------|
 | Backend is down | Feed page uses curated fallback data after 5s timeout | Badges still appear with correct verdicts |
-| Backend is slow | RequestQueue limits to 3 concurrent, badges appear as they resolve | Just scroll slower |
+| Backend is slow | RequestQueue limits to 2 concurrent, badges appear as they resolve | Just scroll slower |
 | Dashboard API fails | Loading skeletons show, no crash | Mention "dashboard populates with real scan data" |
 | Extension not installed | Skip step 4, focus on web demo | "Extension works the same way on real sites" |
 

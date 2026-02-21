@@ -32,7 +32,7 @@ Values outside bounds are clamped to the nearest valid value.
 
 ---
 
-## Detection (2 endpoints)
+## Detection (3 endpoints)
 
 ### POST /api/detect/image
 
@@ -101,6 +101,38 @@ Detect AI-generated text content.
   },
   "caveat": null,
   "scan_id": "e5f6g7h8"
+}
+```
+
+### POST /api/detect/preview
+
+Preview text detection WITHOUT recording to Supabase. Useful for extension inline scanning.
+
+**Request Body:** Same as `/api/detect/text`
+
+**Response:** Same as `/api/detect/text` (but no `scan_id` — not persisted)
+
+---
+
+## Information Diet (1 endpoint)
+
+### GET /api/information-diet
+
+Get a user's Information Diet Score (0-100 with letter grade).
+
+**Query Params:** `user_id` (required)
+
+**Response:** `InformationDietScore`
+```json
+{
+  "user_id": "demo-user-001",
+  "score": 72,
+  "letter_grade": "B",
+  "grade_label": "Balanced Consumer",
+  "ai_ratio": 0.34,
+  "platform_diversity": 4,
+  "scan_frequency": 1.2,
+  "computed_at": "2026-02-21T18:30:00.000Z"
 }
 ```
 
@@ -261,6 +293,8 @@ Check a user's sharing preference.
 ---
 
 ## Features (3 endpoints)
+
+> **Note:** Detection now uses real HuggingFace ML models when `HUGGINGFACE_API_KEY` is configured. Falls back to mock detectors without it.
 
 ### GET /api/slop-index
 
