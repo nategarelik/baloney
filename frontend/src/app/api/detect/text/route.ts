@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { mockTextResult } from "@/lib/mock-detectors";
+import { realTextDetection } from "@/lib/real-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import { API_LIMITS } from "@/lib/constants";
 import crypto from "crypto";
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const start = Date.now();
-    const result = mockTextResult(text);
+    const result = await realTextDetection(text);
     const duration = Date.now() - start;
 
     const contentHash = crypto.createHash("sha256").update(text).digest("hex");

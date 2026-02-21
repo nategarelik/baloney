@@ -1,117 +1,290 @@
-/* extension/styles.css — Baloney detection badge overlays */
+/* extension/styles.css — Baloney detection indicators (Selection + Hover UX v0.3.0) */
 
-/* ── Badge base ── */
+/* ── Image/Video hover borders ── */
 
-.baloney-badge {
+.baloney-scanned-image {
+  transition: outline 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  outline: 3px solid transparent;
+  outline-offset: -3px;
+}
+
+.baloney-scanned-image--hover[data-baloney-verdict="ai"] {
+  outline-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239,68,68,0.3);
+}
+.baloney-scanned-image--hover[data-baloney-verdict="heavy"] {
+  outline-color: #f97316;
+  box-shadow: 0 0 12px rgba(249,115,22,0.3);
+}
+.baloney-scanned-image--hover[data-baloney-verdict="light"] {
+  outline-color: #f59e0b;
+  box-shadow: 0 0 8px rgba(245,158,11,0.2);
+}
+.baloney-scanned-image--hover[data-baloney-verdict="human"] {
+  outline-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34,197,94,0.15);
+}
+
+/* ── Selection popup ── */
+
+.baloney-selection-popup {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 9999;
-  padding: 4px 10px;
+  width: 300px;
+  background: rgba(15,26,46,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 12px;
+  padding: 12px;
+  z-index: 2147483647;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+  pointer-events: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+.baloney-selection-popup.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.baloney-scan-btn {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+.baloney-scan-btn:hover {
+  background: #2563eb;
+}
+
+.baloney-scan-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.baloney-scan-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #1e3a5f;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: baloney-spin 0.6s linear infinite;
+}
+
+@keyframes baloney-spin {
+  to { transform: rotate(360deg); }
+}
+
+.baloney-scan-error {
+  padding: 8px 0;
+  font-size: 12px;
+  color: #ef4444;
+}
+
+/* ── Insight content (shared by selection popup + image tooltip) ── */
+
+.baloney-insight__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.baloney-insight__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.baloney-insight__confidence {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+.baloney-insight__caveat {
+  font-size: 10px;
+  color: #64748b;
+  font-style: italic;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: rgba(148,163,184,0.08);
   border-radius: 6px;
+  line-height: 1.4;
+}
+.baloney-insight__reasons {
+  margin-bottom: 8px;
+}
+.baloney-insight__reason {
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 2px 0;
+  line-height: 1.4;
+}
+.baloney-insight__sentences {
+  max-height: 100px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+.baloney-insight__sentence {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 10px;
+  color: #94a3b8;
+}
+.baloney-insight__sentence-bar {
+  width: 40px;
+  height: 4px;
+  background: #1e3a5f;
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.baloney-insight__sentence-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.baloney-insight__sentence-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.baloney-insight__model {
+  font-size: 9px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* ── Tooltip card (image/video hover) ── */
+
+.baloney-tooltip {
+  position: fixed;
+  width: 280px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: rgba(15,26,46,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 10px;
+  padding: 12px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #e2e8f0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+  pointer-events: none;
+}
+.baloney-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Floating page indicator ── */
+
+.baloney-page-indicator {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.3px;
-  pointer-events: none;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  animation: baloney-badge-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-/* ── Badge variants ── */
-
-.baloney-badge--ai {
-  background: rgba(220, 38, 38, 0.85);
   color: #fff;
-  border: 1px solid rgba(255, 100, 100, 0.4);
+  cursor: pointer;
+  z-index: 2147483646;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
 }
-
-.baloney-badge--human {
-  background: rgba(22, 163, 74, 0.80);
-  color: #fff;
-  border: 1px solid rgba(100, 255, 150, 0.3);
+.baloney-page-indicator:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
+.baloney-page-indicator--clean { background: #22c55e; }
+.baloney-page-indicator--warn { background: #f59e0b; }
+.baloney-page-indicator--alert { background: #ef4444; }
 
-.baloney-badge--light-edit {
-  background: rgba(202, 138, 4, 0.80);
-  color: #fff;
-  border: 1px solid rgba(255, 200, 50, 0.3);
-}
-
-.baloney-badge--heavy-edit {
-  background: rgba(249, 115, 22, 0.85);
-  color: #fff;
-  border: 1px solid rgba(255, 160, 80, 0.4);
-}
-
-/* ── Badge entrance animation ── */
-
-@keyframes baloney-badge-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.5) translateY(-4px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* ── Scanning shimmer overlay ── */
-
-.baloney-scanning {
-  position: absolute;
-  inset: 0;
-  z-index: 9998;
-  border: 2px solid rgba(59, 130, 246, 0.6);
-  border-radius: 4px;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.baloney-scanning::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(59, 130, 246, 0.15) 40%,
-    rgba(59, 130, 246, 0.25) 50%,
-    rgba(59, 130, 246, 0.15) 60%,
-    transparent 100%
-  );
-  animation: baloney-shimmer 1.2s ease-in-out infinite;
-}
-
-@keyframes baloney-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* ── Scanning label ── */
-
-.baloney-scanning-label {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 9999;
-  padding: 3px 8px;
-  border-radius: 4px;
-  background: rgba(59, 130, 246, 0.85);
-  color: #fff;
+.baloney-page-panel {
+  position: fixed;
+  bottom: 68px;
+  right: 24px;
+  width: 240px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(15,26,46,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 10px;
+  padding: 10px;
+  z-index: 2147483646;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  animation: baloney-pulse 1s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  display: none;
 }
-
-@keyframes baloney-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+.baloney-page-panel.open { display: block; }
+.baloney-page-panel__title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.baloney-page-panel__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: #e2e8f0;
+  transition: background 0.15s;
+}
+.baloney-page-panel__item:hover { background: rgba(59,130,246,0.1); }
+.baloney-page-panel__item-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.baloney-page-panel__item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Content filtering ── */
@@ -144,7 +317,6 @@
   letter-spacing: 0.3px;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  animation: baloney-badge-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .baloney-blur-reveal:hover {
@@ -154,4 +326,11 @@
 
 .baloney-hidden {
   display: none !important;
+}
+
+/* ── Animations ── */
+
+@keyframes baloney-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

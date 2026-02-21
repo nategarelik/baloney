@@ -2,72 +2,7 @@
 // Handles image fetching (bypasses CORS via host_permissions) and API communication.
 
 const API_URL = "https://trustlens-nu.vercel.app";
-const API_TIMEOUT_MS = 3000;
-
-// ──────────────────────────────────────────────
-// Client-side mock fallback (mirrors backend mock_detector.py)
-// ──────────────────────────────────────────────
-
-function mockImageResult() {
-  const roll = Math.random();
-  let verdict, confidence;
-
-  if (roll < 0.30) {
-    verdict = "ai_generated";
-    confidence = 0.75 + Math.random() * 0.2; // 0.75–0.95
-  } else if (roll < 0.40) {
-    verdict = "heavy_edit";
-    confidence = 0.60 + Math.random() * 0.2; // 0.60–0.80
-  } else if (roll < 0.55) {
-    verdict = "light_edit";
-    confidence = 0.50 + Math.random() * 0.2; // 0.50–0.70
-  } else {
-    verdict = "human";
-    confidence = 0.75 + Math.random() * 0.22; // 0.75–0.97
-  }
-
-  return {
-    verdict,
-    confidence: Math.round(confidence * 100) / 100,
-    model: "mock-client-fallback",
-    processing_time: 0.1 + Math.random() * 0.3,
-  };
-}
-
-function mockTextResult() {
-  const roll = Math.random();
-  let verdict, confidence, ai_probability;
-
-  if (roll < 0.25) {
-    verdict = "ai_generated";
-    confidence = 0.80 + Math.random() * 0.15;
-    ai_probability = 0.75 + Math.random() * 0.2;
-  } else if (roll < 0.35) {
-    verdict = "heavy_edit";
-    confidence = 0.60 + Math.random() * 0.2;
-    ai_probability = 0.50 + Math.random() * 0.25;
-  } else if (roll < 0.50) {
-    verdict = "light_edit";
-    confidence = 0.50 + Math.random() * 0.2;
-    ai_probability = 0.30 + Math.random() * 0.2;
-  } else {
-    verdict = "human";
-    confidence = 0.75 + Math.random() * 0.22;
-    ai_probability = 0.05 + Math.random() * 0.15;
-  }
-
-  return {
-    verdict,
-    confidence: Math.round(confidence * 100) / 100,
-    ai_probability: Math.round(ai_probability * 100) / 100,
-    model: "mock-client-fallback",
-    processing_time: 0.1 + Math.random() * 0.3,
-  };
-}
-
-async function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+const API_TIMEOUT_MS = 8000;
 
 // ──────────────────────────────────────────────
 // Core functions
@@ -135,14 +70,13 @@ async function detectImage(base64Image, platform, sourceDomain) {
   }
 }
 
-// Detect with mock fallback — real API first, mock on any failure
+// Detect with safe fallback — real API first, fallback on any failure
 async function detectWithFallback(base64Image, platform, sourceDomain) {
   try {
     return await detectImage(base64Image, platform, sourceDomain);
   } catch (error) {
-    console.warn("[Baloney] API unavailable, using mock fallback:", error.message);
-    await delay(200 + Math.random() * 400); // 200-600ms simulated latency
-    return mockImageResult();
+    console.warn("[Baloney] API unavailable, using safe fallback:", error.message);
+    return { verdict: "human", confidence: 0, model: "offline-fallback" };
   }
 }
 
@@ -207,9 +141,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       const result = await response.json();
       chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
     } catch (err) {
-      console.warn("[Baloney] Text check API unavailable, using mock:", err.message);
-      await delay(200 + Math.random() * 400);
-      const result = mockTextResult();
+      console.warn("[Baloney] Text check API unavailable:", err.message);
+      const result = { verdict: "human", confidence: 0, ai_probability: 0, model: "offline-fallback" };
       chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
     }
   }
@@ -274,9 +207,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const result = await response.json();
         sendResponse(result);
       } catch (error) {
-        console.warn("[Baloney] Text API unavailable, using mock:", error.message);
-        await delay(200 + Math.random() * 400);
-        sendResponse(mockTextResult());
+        console.warn("[Baloney] Text API unavailable:", error.message);
+        sendResponse({ verdict: "human", confidence: 0, ai_probability: 0, model: "offline-fallback" });
       }
     });
 
