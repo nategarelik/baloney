@@ -64,6 +64,35 @@ export const API_LIMITS = {
   OFFSET_MAX: 10_000,
 } as const;
 
+// Baloney brand colors (for use in JS/charts)
+export const BALONEY_COLORS = {
+  base: "#f0e6ca",
+  baseDark: "#e6d9b8",
+  primary: "#d4456b",
+  secondary: "#4a3728",
+  accent: "#e8c97a",
+} as const;
+
+// Tracker chart colors
+export const TRACKER_CHART_COLORS = {
+  line: "#d4456b",
+  fill: "#d4456b",
+  grid: "rgba(74,55,40,0.1)",
+  axis: "#4a3728",
+  tooltipBg: "#f0e6ca",
+  tooltipBorder: "rgba(74,55,40,0.15)",
+} as const;
+
+// Platform list for AI Tracker (easily extensible)
+export const TRACKER_PLATFORMS = [
+  { id: "x", label: "X" },
+  { id: "linkedin", label: "LinkedIn" },
+  { id: "substack", label: "Substack" },
+] as const;
+
+// Content types for AI Tracker
+export const TRACKER_CONTENT_TYPES = ["text", "image", "video"] as const;
+
 export const FEED_TIMEOUT_MS = 5000;
 export const MAX_CONCURRENT_REQUESTS = 3;
 
