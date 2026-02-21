@@ -1,7 +1,7 @@
-// frontend/src/lib/real-detectors.ts — Real AI detection via HuggingFace models
-// Implements detection methods from BALONEY-COMPLETE-SPEC.md:
-//   Text:  Method A (RoBERTa) + Method B (sentence embeddings) + Method D (statistical)
-//   Image: Method E (ViT classifier) + Method F (frequency analysis) + Method G (metadata)
+// frontend/src/lib/real-detectors.ts — Real AI detection
+// Primary:  Self-hosted DeBERTa-v3-large on Railway (#1 on RAID benchmark)
+// Fallback: HuggingFace Inference API (RoBERTa + MiniLM + statistical)
+// Image:    HuggingFace Inference API (ViT + FFT + metadata)
 
 import { InferenceClient } from "@huggingface/inference";
 import type {
@@ -292,9 +292,64 @@ function scoreSentencesReal(text: string, aiProbability: number): SentenceScore[
   });
 }
 
+// ──────────────────────────────────────────────
+// Railway Backend Integration
+// Self-hosted DeBERTa-v3-large (#1 RAID benchmark)
+// ──────────────────────────────────────────────
+
+async function railwayTextDetection(text: string): Promise<TextDetectionResult | null> {
+  const backendUrl = process.env.RAILWAY_BACKEND_URL;
+  if (!backendUrl) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+  try {
+    const response = await fetch(`${backendUrl}/api/analyze`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Railway API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const aiProbability = data.final_score as number;
+    const textStats = computeTextStats(text);
+
+    // Map Railway response to TextDetectionResult format
+    const mapping = mapVerdict(aiProbability, text.length);
+    const stats = methodD_statistical(text, textStats);
+    const featureVector = buildFeatureVector(stats);
+    const sentenceScores = scoreSentencesReal(text, aiProbability);
+
+    return {
+      verdict: mapping.verdict,
+      confidence: mapping.confidence,
+      ai_probability: aiProbability,
+      model_used: "railway:deberta-v3-large+statistical",
+      text_stats: textStats,
+      caveat: mapping.caveat,
+      trust_score: mapping.trust_score,
+      classification: mapping.verdict,
+      edit_magnitude: mapping.edit_magnitude,
+      feature_vector: featureVector,
+      sentence_scores: sentenceScores,
+    };
+  } catch (error) {
+    console.warn("[Baloney] Railway backend unavailable, falling back:", error);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 // ══════════════════════════════════════════════
 // REAL TEXT DETECTION — Multi-Signal Ensemble
-// Methods A (50%) + B (20%) + D (30%)
+// Priority: Railway DeBERTa → HuggingFace RoBERTa+MiniLM → Mock
 // ══════════════════════════════════════════════
 
 export async function realTextDetection(text: string): Promise<TextDetectionResult> {
@@ -308,7 +363,7 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
         verdict: "light_edit",
         confidence: 0.0,
         ai_probability: 0.5,
-        model_used: "hf:roberta+minilm+statistical",
+        model_used: "deberta+statistical",
         text_stats: textStats,
         caveat: "Text too short for reliable detection (minimum 50 characters recommended).",
         trust_score: 0.5,
@@ -319,6 +374,11 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       };
     }
 
+    // Try Railway backend first (self-hosted DeBERTa, RAID #1)
+    const railwayResult = await railwayTextDetection(text);
+    if (railwayResult) return railwayResult;
+
+    // Fallback to HuggingFace Inference API
     const client = getHFClient();
     const sentences = splitSentences(text).filter((s) => s.length > 10);
 
