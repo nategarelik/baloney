@@ -3,21 +3,69 @@
 @tailwind utilities;
 
 :root {
+  --base: #f0e6ca;
+  --base-dark: #e6d9b8;
+  --primary: #d4456b;
+  --secondary: #4a3728;
+  --accent: #e8c97a;
+  /* Legacy */
   --navy: #0f1a2e;
   --navy-light: #1a2744;
-  --accent: #3b82f6;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: var(--navy);
-  color: #e2e8f0;
+  font-family: var(--font-body), system-ui, sans-serif;
+  background: var(--base);
+  color: var(--secondary);
+}
+
+/* Offset for floating navbar (height ~64px + 16px top margin) */
+.page-top-offset {
+  padding-top: 6rem;
+}
+
+/* 3D bevel for primary (pink) buttons */
+.btn-primary-3d {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -2px 0 rgba(0, 0, 0, 0.18) inset,
+    0 3px 10px rgba(212, 69, 107, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+}
+.btn-primary-3d:hover {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 -2px 0 rgba(0, 0, 0, 0.18) inset,
+    0 5px 16px rgba(212, 69, 107, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.btn-primary-3d:active {
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.15) inset,
+    0 2px 0 rgba(0, 0, 0, 0.2) inset,
+    0 1px 4px rgba(212, 69, 107, 0.2);
+  transform: translateY(1px);
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--navy); }
-::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+::-webkit-scrollbar-track { background: var(--base); }
+::-webkit-scrollbar-thumb { background: #c4b694; border-radius: 3px; }
+
+/* ──────────────────────────────────────────── */
+/* Hand-drawn underline draw-on animation       */
+/* ──────────────────────────────────────────── */
+
+@keyframes draw-on {
+  from { stroke-dashoffset: var(--path-length, 200); }
+  to { stroke-dashoffset: 0; }
+}
+
+.animate-draw-on {
+  animation: draw-on 0.4s ease-out forwards;
+}
 
 /* ──────────────────────────────────────────── */
 /* Animations                                   */
