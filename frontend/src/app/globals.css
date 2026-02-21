@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0f1a2e;
+  --navy-light: #1a2744;
+  --accent: #3b82f6;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--navy);
+  color: #e2e8f0;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+/* ──────────────────────────────────────────── */
+/* Animations                                   */
+/* ──────────────────────────────────────────── */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes scan-pulse {
+  0%, 100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes glow-shift {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1) translate(0, 0);
+  }
+  25% {
+    opacity: 0.7;
+    transform: scale(1.05) translate(10px, -5px);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.95) translate(-5px, 5px);
+  }
+  75% {
+    opacity: 0.6;
+    transform: scale(1.02) translate(-10px, -3px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+.animate-scan-pulse {
+  animation: scan-pulse 1.5s ease-in-out infinite;
+}
+
+.animate-glow-shift {
+  animation: glow-shift 8s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-count-up {
+  animation: count-up 0.5s ease-out forwards;
+}

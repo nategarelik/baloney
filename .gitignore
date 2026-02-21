@@ -1,0 +1,73 @@
+# ──────────────────────────────────────────────
+# Dependencies
+# ──────────────────────────────────────────────
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# ──────────────────────────────────────────────
+# Build outputs
+# ──────────────────────────────────────────────
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# ──────────────────────────────────────────────
+# Environment & secrets
+# ──────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ──────────────────────────────────────────────
+# Model weights & data (too large for git)
+# ──────────────────────────────────────────────
+models/*.pkl
+models/*.pt
+models/*.bin
+models/*.safetensors
+models/hub/
+data/raw/
+data/*.csv
+data/*.json
+*.sqlite
+*.db
+
+# ──────────────────────────────────────────────
+# IDE & OS
+# ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ──────────────────────────────────────────────
+# Deprecated / artifacts
+# ──────────────────────────────────────────────
+nul
+data/
+models/
+notebooks/
+scripts/
+
+# ──────────────────────────────────────────────
+# Build artifacts
+# ──────────────────────────────────────────────
+frontend/tsconfig.tsbuildinfo
+frontend/.vercel/
+
+# ──────────────────────────────────────────────
+# Misc
+# ──────────────────────────────────────────────
+*.log
+.vercel
+.railway
+*.zip

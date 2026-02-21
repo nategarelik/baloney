@@ -1,0 +1,80 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { Shield } from "lucide-react";
+import { cn } from "@/lib/cn";
+import { toggleSharing, getSharingStatus } from "@/lib/api";
+
+interface ShareToggleProps {
+  userId: string;
+  initialEnabled?: boolean;
+  className?: string;
+}
+
+export function ShareToggle({
+  userId,
+  initialEnabled,
+  className,
+}: ShareToggleProps) {
+  const [enabled, setEnabled] = useState(initialEnabled ?? false);
+  const [loading, setLoading] = useState(initialEnabled === undefined);
+
+  useEffect(() => {
+    if (initialEnabled !== undefined) return;
+    getSharingStatus(userId)
+      .then((data) => setEnabled(data.sharing_enabled))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [userId, initialEnabled]);
+
+  async function handleToggle() {
+    const next = !enabled;
+    setEnabled(next);
+    try {
+      await toggleSharing(userId, next);
+    } catch {
+      setEnabled(!next); // revert on failure
+    }
+  }
+
+  return (
+    <div
+      className={cn(
+        "bg-navy-light rounded-xl border border-navy-lighter p-5 max-w-lg mx-auto",
+        className
+      )}
+    >
+      <div className="flex items-start gap-4">
+        <Shield className="h-5 w-5 text-accent mt-0.5 shrink-0" />
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-white">
+              Community Sharing
+            </span>
+            <button
+              onClick={handleToggle}
+              disabled={loading}
+              className={cn(
+                "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+                enabled ? "bg-accent" : "bg-navy-lighter"
+              )}
+              aria-label="Toggle community sharing"
+            >
+              <span
+                className={cn(
+                  "inline-block h-4 w-4 rounded-full bg-white transition-transform",
+                  enabled ? "translate-x-6" : "translate-x-1"
+                )}
+              />
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Share my anonymized scan data with the TrustLens community. We
+            never share your identity, the content you viewed, or your browsing
+            history &mdash; only detection verdicts and platform-level metadata.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
