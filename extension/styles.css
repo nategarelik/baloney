@@ -1,40 +1,103 @@
-/* extension/styles.css — Baloney detection indicators (Selection + Hover UX v0.3.0) */
+/* extension/styles.css — Baloney detection indicators (v0.4.0 — Dot UI + Warm Theme) */
 
-/* ── Image/Video hover borders ── */
+/* ── Detection Dot (image/video overlay) ── */
 
-.baloney-scanned-image {
-  transition: outline 0.2s ease, box-shadow 0.2s ease;
+.baloney-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  z-index: 10001;
   cursor: pointer;
-  outline: 3px solid transparent;
-  outline-offset: -3px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  transition: width 0.2s ease, height 0.2s ease, padding 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
-.baloney-scanned-image--hover[data-baloney-verdict="ai"] {
-  outline-color: #ef4444;
-  box-shadow: 0 0 12px rgba(239,68,68,0.3);
-}
-.baloney-scanned-image--hover[data-baloney-verdict="heavy"] {
-  outline-color: #f97316;
-  box-shadow: 0 0 12px rgba(249,115,22,0.3);
-}
-.baloney-scanned-image--hover[data-baloney-verdict="light"] {
-  outline-color: #f59e0b;
-  box-shadow: 0 0 8px rgba(245,158,11,0.2);
-}
-.baloney-scanned-image--hover[data-baloney-verdict="human"] {
-  outline-color: #22c55e;
-  box-shadow: 0 0 8px rgba(34,197,94,0.15);
+.baloney-dot:hover {
+  width: 62px;
+  height: 20px;
+  border-radius: 10px;
+  padding: 0 8px;
+  justify-content: center;
 }
 
-/* ── Selection popup ── */
+.baloney-dot__label {
+  opacity: 0;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: opacity 0.15s ease 0.05s;
+  pointer-events: none;
+}
+
+.baloney-dot:hover .baloney-dot__label {
+  opacity: 1;
+}
+
+/* ── Text Detection Dot (positioned absolutely in page) ── */
+
+.baloney-text-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 10px;
+  z-index: 2147483645;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  transition: width 0.2s ease, height 0.2s ease, padding 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  /* Pre-expanded to show label */
+  width: 62px;
+  height: 20px;
+  padding: 0 8px;
+  justify-content: center;
+}
+
+.baloney-text-dot .baloney-dot__label {
+  opacity: 1;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ── Text Underlines (Grammarly-style) ── */
+
+.baloney-text-underline {
+  position: absolute;
+  height: 2px;
+  border-radius: 1px;
+  z-index: 2147483644;
+  pointer-events: none;
+  opacity: 0.7;
+  animation: baloney-underline-in 0.3s ease both;
+}
+
+@keyframes baloney-underline-in {
+  from { opacity: 0; transform: scaleX(0); transform-origin: left; }
+  to { opacity: 0.7; transform: scaleX(1); transform-origin: left; }
+}
+
+/* ── Selection popup (warm theme) ── */
 
 .baloney-selection-popup {
   position: absolute;
   width: 300px;
-  background: rgba(15,26,46,0.95);
+  background: rgba(240,230,202,0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59,130,246,0.2);
+  border: 1px solid rgba(74,55,40,0.1);
   border-radius: 12px;
   padding: 12px;
   z-index: 2147483647;
@@ -42,9 +105,9 @@
   transform: translateY(4px);
   transition: opacity 150ms ease, transform 150ms ease;
   pointer-events: none;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #e2e8f0;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #4a3728;
+  box-shadow: 0 4px 20px rgba(74,55,40,0.12);
 }
 
 .baloney-selection-popup.visible {
@@ -57,17 +120,24 @@
   width: 100%;
   padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  background: #3b82f6;
+  border-radius: 999px;
+  background: #d4456b;
   color: #fff;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.15s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -2px 0 rgba(0,0,0,0.12),
+    0 2px 8px rgba(212,69,107,0.2);
 }
 .baloney-scan-btn:hover {
-  background: #2563eb;
+  background: rgba(212,69,107,0.9);
+}
+.baloney-scan-btn:active {
+  transform: translateY(1px);
 }
 
 .baloney-scan-loading {
@@ -76,14 +146,14 @@
   gap: 8px;
   padding: 8px 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: rgba(74,55,40,0.5);
 }
 
 .baloney-scan-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #1e3a5f;
-  border-top-color: #3b82f6;
+  border: 2px solid #e6d9b8;
+  border-top-color: #d4456b;
   border-radius: 50%;
   animation: baloney-spin 0.6s linear infinite;
 }
@@ -95,10 +165,10 @@
 .baloney-scan-error {
   padding: 8px 0;
   font-size: 12px;
-  color: #ef4444;
+  color: #d4456b;
 }
 
-/* ── Insight content (shared by selection popup + image tooltip) ── */
+/* ── Insight content (shared by selection popup + tooltip) ── */
 
 .baloney-insight__header {
   display: flex;
@@ -107,6 +177,7 @@
   font-size: 13px;
   font-weight: 700;
   margin-bottom: 8px;
+  color: #4a3728;
 }
 .baloney-insight__dot {
   width: 8px;
@@ -118,15 +189,15 @@
   margin-left: auto;
   font-size: 11px;
   font-weight: 400;
-  color: #94a3b8;
+  color: rgba(74,55,40,0.5);
 }
 .baloney-insight__caveat {
   font-size: 10px;
-  color: #64748b;
+  color: rgba(74,55,40,0.5);
   font-style: italic;
   margin-bottom: 8px;
   padding: 6px 8px;
-  background: rgba(148,163,184,0.08);
+  background: rgba(74,55,40,0.04);
   border-radius: 6px;
   line-height: 1.4;
 }
@@ -135,7 +206,7 @@
 }
 .baloney-insight__reason {
   font-size: 11px;
-  color: #94a3b8;
+  color: rgba(74,55,40,0.65);
   padding: 2px 0;
   line-height: 1.4;
 }
@@ -150,12 +221,12 @@
   gap: 6px;
   padding: 3px 0;
   font-size: 10px;
-  color: #94a3b8;
+  color: rgba(74,55,40,0.6);
 }
 .baloney-insight__sentence-bar {
   width: 40px;
   height: 4px;
-  background: #1e3a5f;
+  background: #e6d9b8;
   border-radius: 2px;
   overflow: hidden;
   flex-shrink: 0;
@@ -173,36 +244,8 @@
 }
 .baloney-insight__model {
   font-size: 9px;
-  color: #64748b;
+  color: rgba(74,55,40,0.35);
   margin-top: 4px;
-}
-
-/* ── Tooltip card (image/video hover) ── */
-
-.baloney-tooltip {
-  position: fixed;
-  width: 280px;
-  max-height: 360px;
-  overflow-y: auto;
-  background: rgba(15,26,46,0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59,130,246,0.2);
-  border-radius: 10px;
-  padding: 12px;
-  z-index: 2147483647;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #e2e8f0;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 150ms ease, transform 150ms ease;
-  pointer-events: none;
-}
-.baloney-tooltip.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
 }
 
 /* ── Floating page indicator ── */
@@ -217,23 +260,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 12px;
   font-weight: 700;
   color: #fff;
   cursor: pointer;
   z-index: 2147483646;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 12px rgba(74,55,40,0.2);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   user-select: none;
 }
 .baloney-page-indicator:hover {
   transform: scale(1.1);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(74,55,40,0.3);
 }
-.baloney-page-indicator--clean { background: #22c55e; }
+.baloney-page-indicator--clean { background: #16a34a; }
 .baloney-page-indicator--warn { background: #f59e0b; }
-.baloney-page-indicator--alert { background: #ef4444; }
+.baloney-page-indicator--alert { background: #d4456b; }
 
 .baloney-page-panel {
   position: fixed;
@@ -242,22 +285,22 @@
   width: 240px;
   max-height: 300px;
   overflow-y: auto;
-  background: rgba(15,26,46,0.95);
+  background: rgba(240,230,202,0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(59,130,246,0.2);
+  border: 1px solid rgba(74,55,40,0.1);
   border-radius: 10px;
   padding: 10px;
   z-index: 2147483646;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  box-shadow: 0 4px 20px rgba(74,55,40,0.12);
   display: none;
 }
 .baloney-page-panel.open { display: block; }
 .baloney-page-panel__title {
   font-size: 11px;
   font-weight: 700;
-  color: #94a3b8;
+  color: rgba(74,55,40,0.5);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -270,10 +313,10 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 11px;
-  color: #e2e8f0;
+  color: #4a3728;
   transition: background 0.15s;
 }
-.baloney-page-panel__item:hover { background: rgba(59,130,246,0.1); }
+.baloney-page-panel__item:hover { background: rgba(212,69,107,0.08); }
 .baloney-page-panel__item-dot {
   width: 6px;
   height: 6px;
@@ -307,21 +350,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 26, 46, 0.7);
+  background: rgba(240,230,202,0.7);
   border-radius: 4px;
   cursor: pointer;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 13px;
   font-weight: 700;
-  color: #ef4444;
+  color: #d4456b;
   letter-spacing: 0.3px;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
 
 .baloney-blur-reveal:hover {
-  background: rgba(15, 26, 46, 0.85);
-  color: #fff;
+  background: rgba(240,230,202,0.85);
+  color: #4a3728;
 }
 
 .baloney-hidden {

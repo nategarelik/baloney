@@ -1,8 +1,20 @@
-// extension/background.js — Baloney Background Service Worker
-// Handles image fetching (bypasses CORS via host_permissions) and API communication.
+// extension/background.js — Baloney Background Service Worker (v0.4.0)
+// Handles image fetching (bypasses CORS via host_permissions), API communication,
+// storage defaults, migration, and sidepanel management.
 
 const API_URL = "https://trustlens-nu.vercel.app";
 const API_TIMEOUT_MS = 8000;
+
+// Default storage values for v0.4.0
+const STORAGE_DEFAULTS = {
+  extensionEnabled: true,
+  autoScanText: false,
+  autoScanImages: true,
+  autoScanVideos: true,
+  contentMode: "scan",
+  allowedSites: ["x.com", "twitter.com", "linkedin.com", "substack.com"],
+  sidepanelData: null,
+};
 
 // ──────────────────────────────────────────────
 // Core functions
@@ -75,7 +87,10 @@ async function detectWithFallback(base64Image, platform, sourceDomain) {
   try {
     return await detectImage(base64Image, platform, sourceDomain);
   } catch (error) {
-    console.warn("[Baloney] API unavailable, using safe fallback:", error.message);
+    console.warn(
+      "[Baloney] API unavailable, using safe fallback:",
+      error.message,
+    );
     return { verdict: "human", confidence: 0, model: "offline-fallback" };
   }
 }
@@ -90,10 +105,11 @@ function extractDomain(url) {
 }
 
 // ──────────────────────────────────────────────
-// Context menus
+// Installation & storage migration
 // ──────────────────────────────────────────────
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async (details) => {
+  // Context menus
   chrome.contextMenus.create({
     id: "scan-image",
     title: "Scan with Baloney",
@@ -104,7 +120,42 @@ chrome.runtime.onInstalled.addListener(() => {
     title: "Check with Baloney",
     contexts: ["selection"],
   });
+
+  // Set defaults for any missing keys
+  const existing = await chrome.storage.local.get(
+    Object.keys(STORAGE_DEFAULTS),
+  );
+  const toSet = {};
+  for (const [key, defaultValue] of Object.entries(STORAGE_DEFAULTS)) {
+    if (existing[key] === undefined) {
+      toSet[key] = defaultValue;
+    }
+  }
+  if (Object.keys(toSet).length > 0) {
+    await chrome.storage.local.set(toSet);
+  }
+
+  // Migrate filterMode → contentMode
+  if (details.reason === "update") {
+    const data = await chrome.storage.local.get(["filterMode", "contentMode"]);
+    if (data.filterMode && !data.contentMode) {
+      const modeMap = { label: "scan", blur: "blur", hide: "block" };
+      const newMode = modeMap[data.filterMode] || "scan";
+      await chrome.storage.local.set({ contentMode: newMode });
+      await chrome.storage.local.remove("filterMode");
+      console.log("[Baloney] Migrated filterMode →", newMode);
+    }
+  }
+
+  // Sidepanel: don't open on action click (we use popup)
+  if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+    chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+  }
 });
+
+// ──────────────────────────────────────────────
+// Context menus
+// ──────────────────────────────────────────────
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId === "scan-image" && info.srcUrl) {
@@ -113,9 +164,13 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       const result = await detectWithFallback(
         base64,
         detectPlatform(tab?.url),
-        extractDomain(info.srcUrl)
+        extractDomain(info.srcUrl),
       );
-      chrome.tabs.sendMessage(tab.id, { type: "show-result", result, srcUrl: info.srcUrl });
+      chrome.tabs.sendMessage(tab.id, {
+        type: "show-result",
+        result,
+        srcUrl: info.srcUrl,
+      });
     } catch (err) {
       console.error("[Baloney] Context menu scan error:", err);
     }
@@ -139,11 +194,24 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       clearTimeout(timeoutId);
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       const result = await response.json();
-      chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
+      chrome.tabs.sendMessage(tab.id, {
+        type: "show-text-result",
+        result,
+        text: info.selectionText,
+      });
     } catch (err) {
       console.warn("[Baloney] Text check API unavailable:", err.message);
-      const result = { verdict: "human", confidence: 0, ai_probability: 0, model: "offline-fallback" };
-      chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
+      const result = {
+        verdict: "human",
+        confidence: 0,
+        ai_probability: 0,
+        model: "offline-fallback",
+      };
+      chrome.tabs.sendMessage(tab.id, {
+        type: "show-text-result",
+        result,
+        text: info.selectionText,
+      });
     }
   }
 });
@@ -157,7 +225,7 @@ chrome.storage.onChanged.addListener((changes) => {
     const stats = changes.sessionStats.newValue;
     const count = stats?.flaggedAI || 0;
     chrome.action.setBadgeText({ text: count > 0 ? String(count) : "" });
-    chrome.action.setBadgeBackgroundColor({ color: "#ef4444" });
+    chrome.action.setBadgeBackgroundColor({ color: "#d4456b" });
     chrome.action.setBadgeTextColor({ color: "#ffffff" });
   }
 });
@@ -208,7 +276,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(result);
       } catch (error) {
         console.warn("[Baloney] Text API unavailable:", error.message);
-        sendResponse({ verdict: "human", confidence: 0, ai_probability: 0, model: "offline-fallback" });
+        sendResponse({
+          verdict: "human",
+          confidence: 0,
+          ai_probability: 0,
+          model: "offline-fallback",
+        });
       }
     });
 
@@ -221,15 +294,55 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  // Open sidepanel with detection result data
+  if (message.type === "open-sidepanel") {
+    const tabId = sender.tab?.id;
+    chrome.storage.local.set({ sidepanelData: message.data }).then(() => {
+      if (chrome.sidePanel && chrome.sidePanel.open && tabId) {
+        chrome.sidePanel.open({ tabId }).catch((err) => {
+          console.warn(
+            "[Baloney] Sidepanel open failed, falling back to tab:",
+            err.message,
+          );
+          const encoded = encodeURIComponent(JSON.stringify(message.data));
+          chrome.tabs.create({
+            url: `https://trustlens-nu.vercel.app/analyze?result=${encoded}`,
+          });
+        });
+      } else {
+        const encoded = encodeURIComponent(JSON.stringify(message.data));
+        chrome.tabs.create({
+          url: `https://trustlens-nu.vercel.app/analyze?result=${encoded}`,
+        });
+      }
+    });
+    return true;
+  }
 });
 
 // ──────────────────────────────────────────────
-// Initialize
+// Initialize session
 // ──────────────────────────────────────────────
 
-chrome.storage.local.set({
-  sessionStats: { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 },
-  sessionStartTime: Date.now(),
+// Only initialize session stats if missing (avoids wiping on service worker wake)
+chrome.storage.local.get(["sessionStats", "sessionStartTime"], (data) => {
+  if (!data.sessionStats) {
+    chrome.storage.local.set({
+      sessionStats: {
+        scanned: 0,
+        flaggedAI: 0,
+        textScanned: 0,
+        textFlagged: 0,
+      },
+      sessionStartTime: Date.now(),
+    });
+  }
 });
 
-console.log("[Baloney] Background service worker initialized");
+// Ensure sidepanel doesn't auto-open on action click
+if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
+  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+}
+
+console.log("[Baloney] Background service worker initialized (v0.4.0)");

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Young+Serif&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0e6ca;
+      color: #4a3728;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(74,55,40,0.1);
+    }
+    .header img {
+      width: 28px;
+      height: 28px;
+      mix-blend-mode: multiply;
+    }
+    .header h1 {
+      font-family: 'Young Serif', serif;
+      font-size: 18px;
+      font-weight: 400;
+      color: #4a3728;
+    }
+    .header-sub {
+      margin-left: auto;
+      font-size: 11px;
+      color: rgba(74,55,40,0.5);
+    }
+
+    /* Verdict banner */
+    .verdict-banner {
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .verdict-banner.ai { background: rgba(212,69,107,0.12); }
+    .verdict-banner.heavy { background: rgba(249,115,22,0.12); }
+    .verdict-banner.light { background: rgba(245,158,11,0.12); }
+    .verdict-banner.human { background: rgba(34,197,94,0.12); }
+
+    .verdict-label {
+      font-family: 'Young Serif', serif;
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 4px;
+    }
+    .verdict-banner.ai .verdict-label { color: #d4456b; }
+    .verdict-banner.heavy .verdict-label { color: #f97316; }
+    .verdict-banner.light .verdict-label { color: #f59e0b; }
+    .verdict-banner.human .verdict-label { color: #16a34a; }
+
+    .verdict-confidence {
+      font-size: 13px;
+      color: rgba(74,55,40,0.6);
+    }
+
+    /* Confidence meter */
+    .meter {
+      margin-bottom: 16px;
+    }
+    .meter-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: rgba(74,55,40,0.5);
+      margin-bottom: 6px;
+    }
+    .meter-track {
+      height: 8px;
+      background: #e6d9b8;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .meter-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Young Serif', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: #4a3728;
+      margin-bottom: 8px;
+    }
+
+    /* Reasons */
+    .reason {
+      font-size: 13px;
+      color: rgba(74,55,40,0.75);
+      padding: 6px 0;
+      padding-left: 12px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .reason::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #d4456b;
+    }
+
+    /* Sentence breakdown */
+    .sentence-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+    }
+    .sentence-bar {
+      width: 50px;
+      height: 5px;
+      background: #e6d9b8;
+      border-radius: 3px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .sentence-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+    .sentence-text {
+      flex: 1;
+      color: rgba(74,55,40,0.7);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sentence-pct {
+      font-weight: 600;
+      font-size: 11px;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    /* Caveat */
+    .caveat {
+      font-size: 12px;
+      font-style: italic;
+      color: rgba(74,55,40,0.5);
+      padding: 10px 12px;
+      background: rgba(74,55,40,0.04);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* Model footer */
+    .model-info {
+      font-size: 11px;
+      color: rgba(74,55,40,0.4);
+      padding-top: 12px;
+      border-top: 1px solid rgba(74,55,40,0.08);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(74,55,40,0.4);
+      font-size: 14px;
+    }
+    .empty-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" alt="Baloney">
+    <h1>Baloney</h1>
+    <span class="header-sub">Detection Detail</span>
+  </div>
+
+  <div id="content">
+    <div class="empty">
+      <div class="empty-icon">🐷</div>
+      <div>Click a detection dot to view analysis details here.</div>
+    </div>
+  </div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>
