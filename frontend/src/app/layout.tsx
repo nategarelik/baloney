@@ -3,7 +3,7 @@ import { Navbar } from "@/components/Navbar";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TrustLens \u2014 AI Content Detection",
+  title: "Baloney \u2014 AI Content Detection",
   description:
     "Detect AI-generated images, text, and video. Personal analytics dashboard with community intelligence.",
 };

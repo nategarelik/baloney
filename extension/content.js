@@ -1,4 +1,4 @@
-// extension/content.js — TrustLens Content Script
+// extension/content.js — Baloney Content Script
 // Injected into Instagram and X. Detects images in viewport, sends to backend,
 // injects AI detection overlay badges.
 
@@ -75,10 +75,10 @@ function showScanningIndicator(img) {
   if (!parent) return;
 
   const overlay = document.createElement("div");
-  overlay.className = "trustlens-scanning";
+  overlay.className = "baloney-scanning";
 
   const label = document.createElement("div");
-  label.className = "trustlens-scanning-label";
+  label.className = "baloney-scanning-label";
   label.textContent = "Scanning...";
 
   overlay.appendChild(label);
@@ -88,7 +88,7 @@ function showScanningIndicator(img) {
 function removeScanningIndicator(img) {
   const parent = img.parentElement;
   if (!parent) return;
-  const overlay = parent.querySelector(".trustlens-scanning");
+  const overlay = parent.querySelector(".baloney-scanning");
   if (overlay) overlay.remove();
 }
 
@@ -122,17 +122,20 @@ function injectBadge(img, result) {
   }
 
   const badge = document.createElement("div");
-  badge.className = "trustlens-badge";
+  badge.className = "baloney-badge";
 
   if (result.verdict === "ai_generated") {
-    badge.classList.add("trustlens-badge--ai");
+    badge.classList.add("baloney-badge--ai");
     badge.textContent = `AI ${Math.round(result.confidence * 100)}%`;
-  } else if (result.verdict === "likely_human") {
-    badge.classList.add("trustlens-badge--human");
-    badge.textContent = "\u2713 Human";
+  } else if (result.verdict === "heavy_edit") {
+    badge.classList.add("baloney-badge--heavy-edit");
+    badge.textContent = "\u26A0 Heavy Edit";
+  } else if (result.verdict === "light_edit") {
+    badge.classList.add("baloney-badge--light-edit");
+    badge.textContent = "~ Light Edit";
   } else {
-    badge.classList.add("trustlens-badge--unclear");
-    badge.textContent = "? Unclear";
+    badge.classList.add("baloney-badge--human");
+    badge.textContent = "\u2713 Human";
   }
 
   parent.appendChild(badge);
@@ -143,8 +146,8 @@ function injectBadge(img, result) {
 // ──────────────────────────────────────────────
 
 async function analyzeImage(img) {
-  if (img.dataset.trustlensScanned) return;
-  img.dataset.trustlensScanned = "pending";
+  if (img.dataset.baloneyScanned) return;
+  img.dataset.baloneyScanned = "pending";
 
   showScanningIndicator(img);
 
@@ -169,14 +172,14 @@ async function analyzeImage(img) {
     removeScanningIndicator(img);
 
     if (result && result.verdict) {
-      img.dataset.trustlensScanned = result.verdict;
+      img.dataset.baloneyScanned = result.verdict;
       injectBadge(img, result);
       updateStats(result.verdict);
     }
   } catch (error) {
     removeScanningIndicator(img);
-    console.error("[TrustLens] Analysis failed:", error);
-    img.dataset.trustlensScanned = "error";
+    console.error("[Baloney] Analysis failed:", error);
+    img.dataset.baloneyScanned = "error";
   }
 }
 
@@ -189,7 +192,7 @@ const viewportObserver = new IntersectionObserver(
     for (const entry of entries) {
       if (entry.isIntersecting) {
         const img = entry.target;
-        if (isTargetImage(img) && !img.dataset.trustlensScanned) {
+        if (isTargetImage(img) && !img.dataset.baloneyScanned) {
           analyzeImage(img);
         }
         viewportObserver.unobserve(img);
@@ -227,7 +230,7 @@ const domObserver = new MutationObserver((mutations) => {
 // ──────────────────────────────────────────────
 
 function init() {
-  console.log("[TrustLens] Content script loaded");
+  console.log("[Baloney] Content script loaded");
 
   // Observe future DOM changes
   domObserver.observe(document.body, {
@@ -240,6 +243,91 @@ function init() {
     viewportObserver.observe(img);
   });
 }
+
+// ──────────────────────────────────────────────
+// Context menu result toasts
+// ──────────────────────────────────────────────
+
+function showToast(lines, verdict) {
+  const existing = document.getElementById("baloney-toast");
+  if (existing) existing.remove();
+
+  const colorMap = {
+    ai_generated: "#ef4444",
+    heavy_edit: "#f97316",
+    light_edit: "#eab308",
+    human: "#22c55e",
+  };
+  const color = colorMap[verdict] || "#3b82f6";
+
+  const toast = document.createElement("div");
+  toast.id = "baloney-toast";
+  toast.style.cssText = [
+    "position:fixed",
+    "bottom:24px",
+    "right:24px",
+    "z-index:2147483647",
+    "background:#0f1a2e",
+    `border-left:4px solid ${color}`,
+    "border-radius:8px",
+    "padding:12px 16px",
+    "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif",
+    "font-size:13px",
+    "color:#e2e8f0",
+    "box-shadow:0 4px 20px rgba(0,0,0,0.5)",
+    "max-width:300px",
+    "animation:baloney-toast-in 0.25s ease both",
+  ].join(";");
+
+  const style = document.createElement("style");
+  style.textContent = "@keyframes baloney-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}";
+  toast.appendChild(style);
+
+  lines.forEach((line, i) => {
+    const p = document.createElement("p");
+    p.textContent = line;
+    p.style.cssText = i === 0
+      ? "font-weight:700;color:#fff;margin-bottom:4px"
+      : "color:#94a3b8;font-size:11px;margin:0";
+    toast.appendChild(p);
+  });
+
+  document.body.appendChild(toast);
+  setTimeout(() => toast?.remove(), 5000);
+}
+
+function verdictLabel(result) {
+  const pct = Math.round((result.confidence ?? 0) * 100);
+  switch (result.verdict) {
+    case "ai_generated": return `AI Generated · ${pct}% confidence`;
+    case "heavy_edit":   return `Heavy AI Edit · ${pct}% confidence`;
+    case "light_edit":   return `Light AI Edit · ${pct}% confidence`;
+    default:             return `Human · ${pct}% confidence`;
+  }
+}
+
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === "show-result" && message.result) {
+    const result = message.result;
+    showToast(
+      ["Baloney: Image Scan", verdictLabel(result)],
+      result.verdict
+    );
+  }
+
+  if (message.type === "show-text-result" && message.result) {
+    const result = message.result;
+    const preview = (message.text || "").slice(0, 60) + ((message.text?.length ?? 0) > 60 ? "…" : "");
+    showToast(
+      ["Baloney: Text Check", verdictLabel(result), `"${preview}"`],
+      result.verdict
+    );
+  }
+});
+
+// ──────────────────────────────────────────────
+// Initialize
+// ──────────────────────────────────────────────
 
 // Wait for page load
 if (document.readyState === "loading") {

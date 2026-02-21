@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "TrustLens — AI Content Detector",
-  "version": "0.1.0",
+  "name": "Baloney — AI Content Detector",
+  "version": "0.2.0",
   "description": "Detect AI-generated images and text as you scroll. Personal analytics dashboard included.",
 
   "permissions": [
     "storage",
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
 
   "host_permissions": [

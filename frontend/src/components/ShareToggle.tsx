@@ -69,7 +69,7 @@ export function ShareToggle({
             </button>
           </div>
           <p className="text-xs text-slate-500 leading-relaxed">
-            Share my anonymized scan data with the TrustLens community. We
+            Share my anonymized scan data with the Baloney community. We
             never share your identity, the content you viewed, or your browsing
             history &mdash; only detection verdicts and platform-level metadata.
           </p>

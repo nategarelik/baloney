@@ -7,6 +7,8 @@ import { cn } from "@/lib/cn";
 
 const NAV_LINKS = [
   { href: "/feed", label: "Demo Feed" },
+  { href: "/analyze", label: "Analyze" },
+  { href: "/platform", label: "Platform" },
   { href: "/dashboard", label: "Dashboard" },
 ] as const;
 
@@ -17,7 +19,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-navy/90 backdrop-blur border-b border-navy-lighter">
       <Link href="/" className="flex items-center gap-2">
         <ScanSearch className="h-5 w-5 text-accent" />
-        <span className="font-bold text-white">TrustLens</span>
+        <span className="font-bold text-white">Baloney</span>
       </Link>
       <div className="flex items-center gap-6">
         {NAV_LINKS.map((link) => (

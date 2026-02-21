@@ -64,7 +64,7 @@
       background: #1a2744;
       border-radius: 8px;
       padding: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .exposure-label {
       font-size: 12px;
@@ -90,6 +90,43 @@
       font-weight: 700;
       color: #fff;
       margin-top: 6px;
+    }
+    /* Information Diet Score card */
+    .ids-card {
+      background: #1a2744;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ids-grade {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1;
+      min-width: 40px;
+      text-align: center;
+    }
+    .ids-right {
+      flex: 1;
+    }
+    .ids-title {
+      font-size: 11px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .ids-score {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .ids-score span {
+      font-size: 11px;
+      font-weight: 400;
+      color: #64748b;
     }
     .session-timer {
       text-align: center;
@@ -125,7 +162,7 @@
 <body>
   <div class="header">
     <span class="logo">🔍</span>
-    <h1>TrustLens</h1>
+    <h1>Baloney</h1>
     <div class="status-dot" title="Scanning active"></div>
   </div>
 
@@ -148,15 +185,32 @@
     <div class="exposure-percent" id="percent">0%</div>
   </div>
 
+  <div class="ids-card" id="ids-card">
+    <div class="ids-grade" id="ids-grade" style="color: #64748b">—</div>
+    <div class="ids-right">
+      <div class="ids-title">Information Diet</div>
+      <div class="ids-score" id="ids-score">— <span>/ 100</span></div>
+    </div>
+  </div>
+
   <div class="session-timer" id="timer">Session: <span>0m 0s</span></div>
 
   <a href="https://trustlens-nu.vercel.app/dashboard" target="_blank" class="dashboard-link">
     Open Full Dashboard →
   </a>
 
-  <div class="footer">TrustLens v0.1.0 · MadData26</div>
+  <div class="footer">Baloney v0.2.0 · MadData26</div>
 
   <script>
+    // Grade color mapping
+    const GRADE_COLORS = {
+      "A+": "#22c55e", "A": "#22c55e", "A-": "#22c55e",
+      "B+": "#84cc16", "B": "#84cc16", "B-": "#84cc16",
+      "C+": "#eab308", "C": "#eab308", "C-": "#eab308",
+      "D+": "#f97316", "D": "#f97316", "D-": "#f97316",
+      "F":  "#ef4444",
+    };
+
     // Animated count-up effect
     function animateCount(el, target) {
       if (target === 0) { el.textContent = "0"; return; }
@@ -205,7 +259,35 @@
       bar.className = `bar-fill ${pct > 40 ? "high" : pct > 20 ? "medium" : "low"}`;
     });
 
+    // Load Information Diet Score
+    async function loadIDS() {
+      const data = await chrome.storage.local.get("userId");
+      const userId = data.userId;
+      if (!userId) return;
+
+      try {
+        const res = await fetch(
+          `https://trustlens-nu.vercel.app/api/information-diet?user_id=${userId}`,
+          { signal: AbortSignal.timeout(4000) }
+        );
+        if (!res.ok) return;
+        const ids = await res.json();
+
+        const gradeEl = document.getElementById("ids-grade");
+        const scoreEl = document.getElementById("ids-score");
+        const grade = ids.letter_grade || "—";
+        const score = typeof ids.score === "number" ? Math.round(ids.score) : "—";
+
+        gradeEl.textContent = grade;
+        gradeEl.style.color = GRADE_COLORS[grade] || "#94a3b8";
+        scoreEl.innerHTML = `${score} <span>/ 100</span>`;
+      } catch {
+        // Leave defaults — IDS endpoint may not exist yet
+      }
+    }
+
     startTimer();
+    loadIDS();
   </script>
 </body>
 </html>

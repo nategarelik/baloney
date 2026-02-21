@@ -1,4 +1,4 @@
-// frontend/src/lib/api.ts — TrustLens API client
+// frontend/src/lib/api.ts — Baloney API client
 
 import type {
   ErrorResponse,
@@ -14,6 +14,7 @@ import type {
   SlopIndexEntry,
   ExposureScore,
   ContentProvenance,
+  InformationDietScore,
 } from "./types";
 
 // ──────────────────────────────────────────────
@@ -181,4 +182,23 @@ export async function getTopProvenance(
   limit = 20
 ): Promise<ContentProvenance[]> {
   return fetchApi<ContentProvenance[]>(`/api/provenance?limit=${limit}`);
+}
+
+export async function getInformationDietScore(
+  userId: string
+): Promise<InformationDietScore> {
+  return fetchApi<InformationDietScore>(
+    `/api/information-diet?user_id=${userId}`
+  );
+}
+
+export async function detectPreview(
+  text: string,
+  platform?: string
+): Promise<TextDetectionResult> {
+  return fetchApi<TextDetectionResult>("/api/detect/preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, platform }),
+  });
 }

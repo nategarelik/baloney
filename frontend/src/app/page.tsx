@@ -76,7 +76,7 @@ export default function Home() {
           <span className="text-accent">for the internet</span>
         </h1>
         <p className="relative text-lg text-slate-400 max-w-2xl mb-8">
-          TrustLens detects AI-generated images and text as you scroll Instagram
+          Baloney detects AI-generated images and text as you scroll Instagram
           and X. See your personal AI exposure metrics. Opt into sharing
           anonymized data with the community.
         </p>

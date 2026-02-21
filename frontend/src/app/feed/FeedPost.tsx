@@ -64,12 +64,15 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
     result ??
     (state === "complete"
       ? {
-          verdict: post.isAiGenerated ? "ai_generated" : post.expectedConfidence < 0.55 ? "inconclusive" : "likely_human",
+          verdict: post.isAiGenerated ? "ai_generated" : post.expectedConfidence < 0.55 ? "light_edit" : "human",
           confidence: post.expectedConfidence,
           primary_score: post.expectedConfidence,
           secondary_score: post.expectedConfidence,
           model_used: "fallback",
           ensemble_used: false,
+          trust_score: post.isAiGenerated ? 1 - post.expectedConfidence : post.expectedConfidence,
+          classification: post.isAiGenerated ? "ai_generated" as const : post.expectedConfidence < 0.55 ? "light_edit" as const : "human" as const,
+          edit_magnitude: post.isAiGenerated ? 0.8 : 0,
         }
       : null);
 

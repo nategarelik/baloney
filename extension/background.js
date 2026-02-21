@@ -1,4 +1,4 @@
-// extension/background.js — TrustLens Background Service Worker
+// extension/background.js — Baloney Background Service Worker
 // Handles image fetching (bypasses CORS via host_permissions) and API communication.
 
 const API_URL = "https://trustlens-nu.vercel.app";
@@ -12,15 +12,18 @@ function mockImageResult() {
   const roll = Math.random();
   let verdict, confidence;
 
-  if (roll < 0.35) {
+  if (roll < 0.30) {
     verdict = "ai_generated";
     confidence = 0.75 + Math.random() * 0.2; // 0.75–0.95
-  } else if (roll < 0.9) {
-    verdict = "likely_human";
-    confidence = 0.7 + Math.random() * 0.25; // 0.70–0.95
+  } else if (roll < 0.40) {
+    verdict = "heavy_edit";
+    confidence = 0.60 + Math.random() * 0.2; // 0.60–0.80
+  } else if (roll < 0.55) {
+    verdict = "light_edit";
+    confidence = 0.50 + Math.random() * 0.2; // 0.50–0.70
   } else {
-    verdict = "inconclusive";
-    confidence = 0.3 + Math.random() * 0.3; // 0.30–0.60
+    verdict = "human";
+    confidence = 0.75 + Math.random() * 0.22; // 0.75–0.97
   }
 
   return {
@@ -101,7 +104,7 @@ async function detectWithFallback(base64Image, platform, sourceDomain) {
   try {
     return await detectImage(base64Image, platform, sourceDomain);
   } catch (error) {
-    console.warn("[TrustLens] API unavailable, using mock fallback:", error.message);
+    console.warn("[Baloney] API unavailable, using mock fallback:", error.message);
     await delay(200 + Math.random() * 400); // 200-600ms simulated latency
     return mockImageResult();
   }
@@ -115,6 +118,58 @@ function extractDomain(url) {
     return null;
   }
 }
+
+// ──────────────────────────────────────────────
+// Context menus
+// ──────────────────────────────────────────────
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: "scan-image",
+    title: "Scan with Baloney",
+    contexts: ["image"],
+  });
+  chrome.contextMenus.create({
+    id: "check-text",
+    title: "Check with Baloney",
+    contexts: ["selection"],
+  });
+});
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId === "scan-image" && info.srcUrl) {
+    try {
+      const base64 = await fetchImageAsBase64(info.srcUrl);
+      const result = await detectWithFallback(
+        base64,
+        detectPlatform(tab?.url),
+        extractDomain(info.srcUrl)
+      );
+      chrome.tabs.sendMessage(tab.id, { type: "show-result", result, srcUrl: info.srcUrl });
+    } catch (err) {
+      console.error("[Baloney] Context menu scan error:", err);
+    }
+  }
+
+  if (info.menuItemId === "check-text" && info.selectionText) {
+    const userId = await getUserId();
+    try {
+      const response = await fetch(`${API_URL}/api/detect/text`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: info.selectionText,
+          user_id: userId,
+          platform: detectPlatform(tab?.url),
+        }),
+      });
+      const result = await response.json();
+      chrome.tabs.sendMessage(tab.id, { type: "show-text-result", result, text: info.selectionText });
+    } catch (err) {
+      console.error("[Baloney] Text check error:", err);
+    }
+  }
+});
 
 // ──────────────────────────────────────────────
 // Toolbar badge (red count of AI-flagged images)
@@ -144,7 +199,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .then((base64) => detectWithFallback(base64, platform, sourceDomain))
       .then((result) => sendResponse(result))
       .catch((error) => {
-        console.error("[TrustLens] Detection error:", error);
+        console.error("[Baloney] Detection error:", error);
         sendResponse({ error: error.message });
       });
 
@@ -168,4 +223,4 @@ chrome.storage.local.set({
   sessionStartTime: Date.now(),
 });
 
-console.log("[TrustLens] Background service worker initialized");
+console.log("[Baloney] Background service worker initialized");

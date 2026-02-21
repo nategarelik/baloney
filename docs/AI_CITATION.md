@@ -1,6 +1,6 @@
 # AI Tools Disclosure
 
-> Per MadData26 hackathon requirements, this document discloses all AI tools used in building TrustLens.
+> Per MadData26 hackathon requirements, this document discloses all AI tools used in building Baloney.
 
 ## Tools Used
 

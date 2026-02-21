@@ -31,6 +31,9 @@ export async function POST(req: NextRequest) {
         p_content_category: "photo",
         p_content_hash: contentHash,
         p_scan_duration_ms: duration,
+        p_trust_score: result.trust_score,
+        p_classification: result.classification,
+        p_edit_magnitude: result.edit_magnitude,
       });
     }
 
