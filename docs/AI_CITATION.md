@@ -18,6 +18,8 @@
 - **CSS theming**: Dark mode color system, chart styling, badge colors
 - **Rebrand & redesign**: Baloney landing page, warm color palette, Young Serif + DM Sans typography, SVG hand-drawn accent components
 - **AI Tracker dashboard**: Platform-tabbed tracker page with collapsible chart sections, new `/api/analytics/tracker` endpoint
+- **Design system**: Full `docs/DESIGN.md` — brand ethos, color palette, typography rationale, component patterns, page layouts, do/don't rules
+- **UI polish**: 3D bevel effect for primary buttons (`.btn-primary-3d`), pig logo favicon (`app/icon.png`), `HandDrawnUnderline` SVG component
 - **Documentation**: Architecture diagrams, API reference, this disclosure
 
 ## What Humans Did
