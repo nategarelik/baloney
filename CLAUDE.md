@@ -162,14 +162,27 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/app/dashboard/page.tsx` — Dashboard (personal + community analytics)
 - `frontend/src/app/extension/page.tsx` — Extension info (features, install steps, CTA)
 
-### Extension Features (v0.3.0 — Selection + Hover UX)
+### Extension Features (v0.4.0 — Warm Theme + Dot UI + Sidepanel)
 
-- `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions, pig icon
-- `extension/content.js` — **Selection-based text** (highlight → popup → insight), **image hover borders** (colored outline on hover, tooltip at edge), **video scanning** (poster/frame capture), max 2 concurrent scans, content filtering (label/blur/hide), per-page stats
-- `extension/background.js` — API calls with safe offline fallback (returns human/0 confidence), platform detection (8 platforms), context menus ("Scan with Baloney" for images, "Check with Baloney" for text)
-- `extension/popup.html` — Pig logo, stats, exposure bar, filter buttons, IDS card, This Page, Top Pages, session timer
-- `extension/styles.css` — Hover borders (outline per verdict color), selection popup with scan button + insight, loading spinner, content filtering, page indicator
+- `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions, pig icon, `sidePanel` permission, `minimum_chrome_version: 114`
+- `extension/content.js` — **Selection-based text** (highlight → popup → insight + colored underlines), **detection dots** (10px colored dot on images/videos, expands on hover to show "78% AI", click opens sidepanel), **video scanning** (poster/frame capture), max 2 concurrent scans, **gating system** (master on/off, allowed sites list, per-type auto-scan toggles), content mode (scan/blur/block), per-page stats
+- `extension/background.js` — API calls with safe offline fallback, platform detection (8 platforms), context menus, **storage defaults + migration** (filterMode→contentMode), **sidepanel open handler**, session stats preserved across service worker wakes
+- `extension/popup.html` — **Warm Baloney theme** (cream bg, Young Serif + DM Sans), pig logo, master on/off toggle + status light, pink/gold stat cards, 3 auto-scan toggles (text OFF, images ON, videos ON), segmented Scan/Blur/Block control, 3D pink dashboard CTA
+- `extension/sidepanel.html` + `extension/sidepanel.js` — **Chrome sidepanel** detail view with verdict banner, confidence meter, reasoning bullets, sentence breakdown (text), model attribution
+- `extension/styles.css` — Detection dots with expand animation, text underlines (Grammarly-style slide-in), warm-themed selection popup + page indicator + blur overlay, content filtering
 - `extension/icons/` — Pig face icons (SVG-generated) at 16/48/128px on navy rounded-square background
+
+### Extension Storage Schema (v0.4.0)
+
+| Key | Type | Default |
+|-----|------|---------|
+| `extensionEnabled` | boolean | `true` |
+| `autoScanText` | boolean | `false` |
+| `autoScanImages` | boolean | `true` |
+| `autoScanVideos` | boolean | `true` |
+| `contentMode` | `"scan"/"blur"/"block"` | `"scan"` |
+| `allowedSites` | string[] | `["x.com","twitter.com","linkedin.com","substack.com"]` |
+| `sidepanelData` | object | null |
 
 ## Development
 
@@ -244,8 +257,9 @@ npm run build        # Production build (must succeed)
 5. **Open architecture** — Real HuggingFace models with graceful fallback. Not a black box
 
 ### Demo Script Tips
-- Start with extension: highlight text on any article → show insight popup with WHY explanations
-- Hover over images → colored border appears → move to edge → tooltip with visual analysis
+- Start with extension: highlight text on any article → show insight popup with WHY explanations → colored underlines appear
+- Images auto-scan → discrete dots appear on AI content → hover dot to see "78% AI" → click to open sidepanel with full analysis
+- Show popup: toggle auto-scan settings, switch content mode to Blur → AI content blurs with reveal overlay
 - Switch to dashboard → show personal stats updating in real-time
 - Show AI Slop Index → platform report cards with letter grades
 - Close with Information Diet Score → gamification angle
