@@ -1,6 +1,6 @@
 # AI Tools Disclosure
 
-> Per MadData26 hackathon requirements, this document discloses all AI tools used in building TrustLens.
+> Per MadData26 hackathon requirements, this document discloses all AI tools used in building Baloney (formerly TrustLens).
 
 ## Tools Used
 
@@ -16,6 +16,8 @@
 - **Seed data**: Realistic scan distributions, weighted platform selection, content hash generation
 - **Type definitions**: 17+ TypeScript interfaces matching Supabase schema
 - **CSS theming**: Dark mode color system, chart styling, badge colors
+- **Rebrand & redesign**: Baloney landing page, warm color palette, Young Serif + DM Sans typography, SVG hand-drawn accent components
+- **AI Tracker dashboard**: Platform-tabbed tracker page with collapsible chart sections, new `/api/analytics/tracker` endpoint
 - **Documentation**: Architecture diagrams, API reference, this disclosure
 
 ## What Humans Did
