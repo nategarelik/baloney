@@ -18,6 +18,7 @@
 - **Type definitions**: 17+ TypeScript interfaces matching Supabase schema
 - **CSS theming**: Dark mode color system, chart styling, badge colors
 - **Extension UX redesign (v0.3.0)**: Selection-based text scanning (highlight → popup → insight with WHY explanations), image hover borders (outline per verdict), video frame capture analysis, pig icon generation (SVG → PNG via sharp)
+- **Extension warm theme + dot UI (v0.4.0)**: Full warm-theme popup redesign (cream/pink/brown, Young Serif + DM Sans), detection dots replacing hover borders (10px dot → expand on hover → click to open Chrome sidepanel), Grammarly-style text underlines after selection scans, master on/off toggle, per-type auto-scan toggles, allowed-sites gating, content mode selector (scan/blur/block), Chrome sidePanel API integration with fallback, storage migration system
 - **Rebrand & redesign**: Baloney landing page, warm color palette, Young Serif + DM Sans typography, SVG hand-drawn accent components
 - **AI Tracker dashboard**: Platform-tabbed tracker page with collapsible chart sections, new `/api/analytics/tracker` endpoint
 - **Design system**: Full `docs/DESIGN.md` — brand ethos, color palette, typography rationale, component patterns, page layouts, do/don't rules
