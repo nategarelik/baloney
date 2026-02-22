@@ -5,6 +5,8 @@ import { BarChart3, Bot, Percent } from "lucide-react";
 import { ChartCard } from "@/components/ChartCard";
 import { AiRateBySiteChart } from "./AiRateBySiteChart";
 import { RecentScansTable } from "./RecentScansTable";
+import { DetectionVelocity } from "./DetectionVelocity";
+import { SentinelBoard } from "./SentinelBoard";
 import { getAllScans } from "@/lib/api";
 import { isAiWithFloor } from "@/lib/bayesian";
 import type { ScanRecord } from "@/lib/types";
@@ -121,8 +123,13 @@ export default function DashboardPage() {
           </ChartCard>
         </div>
 
+        {/* ── Detection Velocity ── */}
+        <div className="mb-6">
+          <DetectionVelocity scans={scans} />
+        </div>
+
         {/* ── Recent Scans ── */}
-        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 mb-6">
           <h2 className="text-lg font-display text-secondary mb-4">
             Recent Scans
           </h2>
@@ -136,6 +143,9 @@ export default function DashboardPage() {
             <RecentScansTable scans={scans} />
           )}
         </div>
+
+        {/* ── Sentinel Board (personal variant) ── */}
+        <SentinelBoard userLevel="Vigilant" />
       </div>
     </main>
   );

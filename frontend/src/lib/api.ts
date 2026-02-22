@@ -17,6 +17,11 @@ import type {
   ContentProvenance,
   TrackerResponse,
   InformationDietScore,
+  RadarAxisData,
+  HeatmapCell,
+  FlowData,
+  TreemapEntry,
+  SentinelLevel,
 } from "./types";
 
 // ──────────────────────────────────────────────
@@ -258,5 +263,31 @@ export async function getTrackerTrends(
 ): Promise<TrackerResponse> {
   return fetchApi<TrackerResponse>(
     `/api/analytics/tracker?platform=${platform}&content_type=${contentType}&days=${days}`,
+  );
+}
+
+// ──────────────────────────────────────────────
+// Dashboard Visualizations
+// ──────────────────────────────────────────────
+
+export async function getCommunityRadar(): Promise<RadarAxisData[]> {
+  return fetchApi<RadarAxisData[]>("/api/analytics/community/radar");
+}
+
+export async function getCommunityHeatmap(): Promise<HeatmapCell[]> {
+  return fetchApi<HeatmapCell[]>("/api/analytics/community/heatmap");
+}
+
+export async function getCommunityFlow(): Promise<FlowData> {
+  return fetchApi<FlowData>("/api/analytics/community/flow");
+}
+
+export async function getCommunityTreemap(): Promise<TreemapEntry[]> {
+  return fetchApi<TreemapEntry[]>("/api/analytics/community/treemap");
+}
+
+export async function getSentinelDistribution(): Promise<SentinelLevel[]> {
+  return fetchApi<SentinelLevel[]>(
+    "/api/analytics/community/sentinel-distribution",
   );
 }

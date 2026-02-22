@@ -125,6 +125,8 @@ export interface ScanRecord {
   content_category: string | null;
   content_hash: string | null;
   scan_duration_ms: number | null;
+  trust_score: number | null;
+  edit_magnitude: number | null;
 }
 
 export interface ScansResponse {
@@ -271,6 +273,55 @@ export interface TrackerResponse {
   content_type: string;
   days: number;
   trends: TrendDay[];
+}
+
+// ──────────────────────────────────────────────
+// Dashboard Visualizations
+// ──────────────────────────────────────────────
+
+export interface RadarAxisData {
+  platform: string;
+  ai_rate: number;
+  avg_confidence: number;
+  content_diversity: number;
+  scan_volume: number;
+  consensus_strength: number;
+}
+
+export interface HeatmapCell {
+  day: number; // 0=Sun, 6=Sat
+  hour: number; // 0–23
+  ai_rate: number;
+  total: number;
+}
+
+export interface FlowNode {
+  name: string;
+}
+
+export interface FlowLink {
+  source: number;
+  target: number;
+  value: number;
+}
+
+export interface FlowData {
+  nodes: FlowNode[];
+  links: FlowLink[];
+}
+
+export interface TreemapEntry {
+  platform: string;
+  content_category: string;
+  total: number;
+  ai_count: number;
+  ai_rate: number;
+}
+
+export interface SentinelLevel {
+  level: string;
+  count: number;
+  avg_ai_caught: number;
 }
 
 // ──────────────────────────────────────────────
