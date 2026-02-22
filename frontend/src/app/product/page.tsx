@@ -1,7 +1,10 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
+import { getCommunityAnalytics } from "@/lib/api";
+import type { CommunityAnalytics } from "@/lib/types";
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*  Baloney — Product Page                                                   */
@@ -39,20 +42,6 @@ const apiServices = [
 //   { name: "AI Image Detector", id: "umm-maybe/AI-image-detector", desc: "..." },
 //   { name: "SDXL Detector", id: "Organika/sdxl-detector", desc: "..." },
 // ];
-
-const stats = [
-  { label: "Scans Run", value: "[TBD]" },
-  { label: "Accuracy", value: "[TBD]" },
-  { label: "Modalities", value: "3" },
-  { label: "Average Latency", value: "[TBD]" },
-];
-
-const limitations = [
-  "Short text under ~50 words lacks enough signal for reliable classification.",
-  "Heavily human-edited AI text blends signals and may read as human-written.",
-  "Screenshots of AI-generated text bypass our text pipeline entirely.",
-  "Brand-new generative models not present in our training data may evade detection until we retrain.",
-];
 
 const supportedSites = [
   {
@@ -116,7 +105,7 @@ const installSteps = [
   {
     step: "1",
     title: "Install Extension",
-    desc: "Add Baloney to Chrome from the extension page. One click, zero config.",
+    desc: "Add Baloney to Chrome from the extension page with one click.",
   },
   {
     step: "2",
@@ -131,6 +120,14 @@ const installSteps = [
 ];
 
 export default function ProductPage() {
+  const [analytics, setAnalytics] = useState<CommunityAnalytics | null>(null);
+
+  useEffect(() => {
+    getCommunityAnalytics()
+      .then(setAnalytics)
+      .catch(() => {});
+  }, []);
+
   return (
     <main className="min-h-screen bg-base">
       {/* ── 1. Hero ── */}
@@ -139,67 +136,11 @@ export default function ProductPage() {
           Ever been fooled by AI?
         </h1>
         <p className="text-secondary/70 text-lg max-w-2xl mx-auto leading-relaxed">
-          AI-generated text, images, and videos are flooding every social
-          platform you use. Most of it is invisible. Some of it is designed to
-          deceive. <span className="text-primary font-semibold">Baloney</span>{" "}
-          gives you the power to see what&apos;s real and what isn&apos;t
-          &mdash; right inside your browser.
+          See what&apos;s AI right in your browser, instantly.
         </p>
       </section>
 
-      {/* ── 2. The Problem ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          The Problem
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          AI-generated deception is no longer hypothetical. It&apos;s happening
-          right now, to real people, with real consequences.
-        </p>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
-            >
-              Email Deepfake
-            </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: Mnookin email deepfake incident &mdash; a university
-              president targeted by an AI-generated voice clone used to
-              authorize fraudulent wire transfers.]
-            </p>
-          </div>
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
-            >
-              AI Content Flood
-            </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: Neetcode tweet about AI-generated content dominating
-              feeds &mdash; developers noticing the majority of online
-              discussion is now synthetic.]
-            </p>
-          </div>
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
-            >
-              Video Deception
-            </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: AI-generated video deception &mdash; deepfake videos
-              used to spread misinformation during elections, financial scams,
-              and social engineering attacks.]
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. What is Baloney? ── */}
+      {/* ── 2. What is Baloney? ── */}
       <section className="max-w-4xl mx-auto px-6 py-16">
         <div className="text-center mb-10">
           <h2 className="font-display text-3xl text-secondary mb-1 inline-block">
@@ -211,8 +152,8 @@ export default function ProductPage() {
             <span className="text-primary font-medium">Chrome extension</span>{" "}
             and a{" "}
             <span className="text-primary font-medium">web dashboard</span>. It
-            analyzes text, images, and video in real time &mdash; so you always
-            know what you&apos;re looking at.
+            analyzes text, images, and video in real time, so you always know
+            what you&apos;re looking at.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
@@ -254,7 +195,7 @@ export default function ProductPage() {
         {/* Text Pipeline — Cascading */}
         <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 mb-6">
           <h3 className="font-display text-xl text-secondary mb-1">
-            Text Detection &mdash; Cascading Pipeline
+            Text Detection
           </h3>
           <p className="text-secondary/50 text-sm mb-4">
             Models run sequentially. Each stage can exit early with a
@@ -298,22 +239,13 @@ export default function ProductPage() {
               </div>
             ))}
           </div>
-          <p className="text-secondary/40 text-xs mt-4 italic">
-            [More details coming &mdash; placeholder for in-depth model
-            descriptions]
-          </p>
         </div>
 
         {/* Image/Video Pipeline — Cascading */}
         <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 mb-6">
           <h3 className="font-display text-xl text-secondary mb-1">
-            Image / Video Detection &mdash; Cascading Pipeline
+            Image / Video Detection
           </h3>
-          <p className="text-secondary/50 text-sm mb-4">
-            Same early-exit strategy. Video additionally uses multi-frame
-            extraction (poster + keyframes) before routing through this
-            pipeline.
-          </p>
           <div className="space-y-4">
             {[
               {
@@ -352,51 +284,32 @@ export default function ProductPage() {
               </div>
             ))}
           </div>
-          <p className="text-secondary/40 text-xs mt-4 italic">
-            [More details coming &mdash; placeholder for in-depth model
-            descriptions]
-          </p>
         </div>
       </section>
 
-      {/* ── 5. Technologies & Models ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-10 text-center">
-          Technologies &amp; Models
-        </h2>
-
-        {/* API Services */}
-        <h3 className="font-display text-lg text-secondary mb-4">
-          API Services
-        </h3>
-        <div className="grid sm:grid-cols-2 gap-6 mb-10">
-          {apiServices.map((s) => (
-            <div
-              key={s.name}
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6"
-            >
-              <p className="font-display text-lg text-secondary mb-1">
-                {s.name}
-              </p>
-              <p className="text-secondary/40 text-xs mb-3">{s.provider}</p>
-              <p className="text-secondary/70 text-sm leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Open-Source Models — commented out (primary APIs only) */}
-      </section>
-
-      {/* ── 6. Detection Results ── */}
+      {/* ── 4. Detection Results ── */}
       <section className="max-w-4xl mx-auto px-6 py-16">
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
           Detection Results
           <HandDrawnUnderline width={180} className="mx-auto mt-1" />
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((s) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              label: "Total Scans",
+              value: analytics ? analytics.total_scans.toLocaleString() : "...",
+            },
+            {
+              label: "Contributing Users",
+              value: analytics ? analytics.total_users.toLocaleString() : "...",
+            },
+            {
+              label: "Community AI Rate",
+              value: analytics
+                ? `${Math.round(analytics.ai_rate * 100)}%`
+                : "...",
+            },
+          ].map((s) => (
             <div
               key={s.label}
               className="bg-base-dark rounded-xl border border-secondary/10 p-6 text-center"
@@ -410,92 +323,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 7. Error Analysis ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          Error Analysis
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          We prioritize minimizing{" "}
-          <span className="text-primary font-medium">false positives</span>{" "}
-          (Type I errors) &mdash; incorrectly labeling human content as AI. A
-          false accusation erodes trust far more than a missed detection.
-        </p>
-
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <h3 className="font-display text-xl text-secondary mb-2">
-              Confidence Floor
-            </h3>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              No verdict is issued below a{" "}
-              <span className="font-semibold" style={{ color: "#e8c97a" }}>
-                60% confidence threshold
-              </span>
-              . Content that falls below this floor is marked{" "}
-              <span className="text-amber-500 font-medium">Inconclusive</span>{" "}
-              rather than making a shaky call. Users can trust that when Baloney
-              says &ldquo;AI-generated,&rdquo; the system is genuinely
-              confident.
-            </p>
-          </div>
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <h3 className="font-display text-xl text-secondary mb-2">
-              Bayesian Posterior Adjustment
-            </h3>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              Raw model outputs are adjusted using{" "}
-              <span className="font-semibold" style={{ color: "#e8c97a" }}>
-                Bayesian posterior reasoning
-              </span>
-              . In plain terms: we factor in how common AI content actually is
-              on each platform. A 70% model score on a platform where only 5% of
-              content is AI means the real probability is much lower than 70%.
-              This dramatically reduces false positives in low-prevalence
-              environments.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-secondary/5 rounded-lg p-4 mt-6">
-          <p className="text-secondary/60 text-sm leading-relaxed text-center">
-            <strong className="text-secondary/80">
-              Type I (False Positive):
-            </strong>{" "}
-            Human content flagged as AI &mdash; we minimize this aggressively.
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong className="text-secondary/80">
-              Type II (False Negative):
-            </strong>{" "}
-            AI content missed &mdash; acceptable at the margin; users can always
-            re-scan manually.
-          </p>
-        </div>
-      </section>
-
-      {/* ── 8. Limitations ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          Limitations
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-8 leading-relaxed">
-          No detection system is perfect. Here&apos;s what we can&apos;t
-          reliably detect &mdash; and we think honesty about this matters more
-          than marketing claims.
-        </p>
-        <div className="max-w-2xl mx-auto space-y-4">
-          {limitations.map((lim, i) => (
-            <div key={i} className="flex gap-3">
-              <span className="text-primary font-semibold text-sm mt-0.5 shrink-0">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <p className="text-secondary/70 text-sm leading-relaxed">{lim}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 9. Safety & Ethics ── */}
+      {/* ── 5. Safety & Ethics ── */}
       <section className="max-w-4xl mx-auto px-6 py-16">
         <h2 className="font-display text-3xl text-secondary mb-8 text-center">
           Safety &amp; Ethics
@@ -531,53 +359,7 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 10. What's Next ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          What&apos;s Next
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          Baloney started as a hackathon project. Here&apos;s where we&apos;re
-          taking it.
-        </p>
-        <div className="grid sm:grid-cols-2 gap-6">
-          {[
-            {
-              title: "Developer API",
-              desc: "A REST API so any app can run AI content detection. Pay-per-scan pricing. Ship detection into your own product.",
-            },
-            {
-              title: "Enterprise Dashboard",
-              desc: "Organization-wide AI content analytics. Track AI exposure across teams, domains, and content types.",
-            },
-            {
-              title: "More Models",
-              desc: "Continuously adding detectors as new generative models emerge. Fine-tuning on the latest GPT, Claude, Gemini, and Sora outputs.",
-            },
-            {
-              title: "Browser-Native Integration",
-              desc: "Working toward deeper browser APIs for seamless, zero-install detection. Manifest V3 sidepanel is just the start.",
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6"
-            >
-              <h3
-                className="font-display text-base mb-2"
-                style={{ color: "#e8c97a" }}
-              >
-                {item.title}
-              </h3>
-              <p className="text-secondary/70 text-sm leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 11. Installation ── */}
+      {/* ── 6. Installation ── */}
       <section className="max-w-4xl mx-auto px-6 py-16">
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
           Get Started in 3 Steps
@@ -674,7 +456,7 @@ export default function ProductPage() {
             in full transparency about AI usage in our own development process.
             For a complete disclosure of AI tools used, see our{" "}
             <a
-              href="/docs/AI_CITATION.md"
+              href="https://github.com/nategarelik/baloney/blob/master/docs/AI_CITATION.md"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary underline hover:opacity-80 transition-opacity"

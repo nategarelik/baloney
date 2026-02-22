@@ -6,7 +6,7 @@ import { ChartCard } from "@/components/ChartCard";
 import { AiRateBySiteChart } from "./AiRateBySiteChart";
 import { RecentScansTable } from "./RecentScansTable";
 import { DetectionVelocity } from "./DetectionVelocity";
-import { SentinelBoard } from "./SentinelBoard";
+
 import { getAllScans } from "@/lib/api";
 import { isAiWithFloor } from "@/lib/bayesian";
 import type { ScanRecord } from "@/lib/types";
@@ -143,9 +143,6 @@ export default function DashboardPage() {
             <RecentScansTable scans={scans} />
           )}
         </div>
-
-        {/* ── Sentinel Board (personal variant) ── */}
-        <SentinelBoard userLevel="Vigilant" />
       </div>
     </main>
   );
