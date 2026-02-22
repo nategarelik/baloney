@@ -59,7 +59,7 @@ const supportedSites = [
     name: "X",
     url: "https://x.com",
     color: "#000000",
-    logo: "https://www.google.com/s2/favicons?domain=x.com&sz=64",
+    logo: "/logos/x-logo.png",
   },
   {
     name: "Instagram",
@@ -95,7 +95,7 @@ const supportedSites = [
     name: "Medium",
     url: "https://medium.com",
     color: "#000000",
-    logo: "https://www.google.com/s2/favicons?domain=medium.com&sz=64",
+    logo: "/logos/medium-logo.png",
   },
   {
     name: "Substack",
@@ -107,25 +107,7 @@ const supportedSites = [
     name: "Threads",
     url: "https://threads.net",
     color: "#000000",
-    logo: "https://www.google.com/s2/favicons?domain=threads.net&sz=64",
-  },
-  {
-    name: "Bluesky",
-    url: "https://bsky.app",
-    color: "#0085FF",
-    logo: "https://www.google.com/s2/favicons?domain=bsky.app&sz=64",
-  },
-  {
-    name: "Mastodon",
-    url: "https://mastodon.social",
-    color: "#6364FF",
-    logo: "https://www.google.com/s2/favicons?domain=mastodon.social&sz=64",
-  },
-  {
-    name: "Hacker News",
-    url: "https://news.ycombinator.com",
-    color: "#FF6600",
-    logo: "https://www.google.com/s2/favicons?domain=news.ycombinator.com&sz=64",
+    logo: "/logos/threads-logo.png",
   },
 ];
 
@@ -634,27 +616,38 @@ export default function ProductPage() {
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
           Sites We Natively Support
         </h2>
-        <div className="flex flex-wrap justify-center gap-6 max-w-2xl mx-auto">
-          {supportedSites.map((site) => (
+        <div className="flex justify-center gap-6 mb-6">
+          {supportedSites.slice(0, 5).map((site) => (
             <a
               key={site.name}
               href={site.url}
               target="_blank"
               rel="noopener noreferrer"
               title={site.name}
-              className="w-16 h-16 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
-              style={{ backgroundColor: site.color }}
+              className="w-16 h-16 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
             >
               <img
                 src={site.logo}
                 alt={site.name}
-                className="w-8 h-8 rounded-full"
-                style={{
-                  filter:
-                    site.color === "#000000"
-                      ? "brightness(0) invert(1)"
-                      : "none",
-                }}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            </a>
+          ))}
+        </div>
+        <div className="flex justify-center gap-6">
+          {supportedSites.slice(5, 9).map((site) => (
+            <a
+              key={site.name}
+              href={site.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={site.name}
+              className="w-16 h-16 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
+            >
+              <img
+                src={site.logo}
+                alt={site.name}
+                className="w-16 h-16 rounded-full object-cover"
               />
             </a>
           ))}
