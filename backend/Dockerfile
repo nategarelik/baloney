@@ -2,7 +2,12 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install CPU-only PyTorch first (much smaller than full CUDA build)
+# Install system dependencies for image processing
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx libglib2.0-0 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install PyTorch (CPU for Docker — Mac Studio uses native MPS outside Docker)
 RUN pip install --no-cache-dir torch==2.5.1+cpu --index-url https://download.pytorch.org/whl/cpu
 
 # Install remaining dependencies
@@ -12,9 +17,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Pre-download the DeBERTa model at build time (cached in Docker layer)
-# This avoids a 30+ second cold start on first request
-RUN python -c "from app.services.text_detector import load_model; load_model()"
+# Pre-download ALL models at build time (cached in Docker layer)
+# This avoids 60+ second cold start on first request
+RUN python -c "\
+from app.services.text_detector import load_all_models; \
+load_all_models(); \
+print('Text models loaded.'); \
+from app.services.image_detector import load_all_image_models; \
+load_all_image_models(); \
+print('Image models loaded.'); \
+print('All 9 models cached successfully.')"
 
 EXPOSE 8000
 
