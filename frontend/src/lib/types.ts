@@ -42,6 +42,22 @@ export interface DetectionResult {
   classification: Verdict;
   edit_magnitude: number;
   scan_id?: string;
+  method_scores?: Record<string, MethodScore>;
+}
+
+export interface MethodScore {
+  score: number;
+  weight: number;
+  label: string;
+  available: boolean;
+}
+
+export interface PangramWindow {
+  start: number;
+  end: number;
+  ai_assistance_score: number;
+  classification: string;
+  confidence: number;
 }
 
 export interface TextDetectionResult {
@@ -57,6 +73,10 @@ export interface TextDetectionResult {
   feature_vector: FeatureVector;
   sentence_scores: SentenceScore[];
   scan_id?: string;
+  method_scores?: Record<string, MethodScore>;
+  pangram_classification?: string;
+  pangram_windows?: PangramWindow[];
+  synthid_text_result?: "watermarked" | "not_watermarked" | "uncertain" | null;
 }
 
 export interface TextStats {
@@ -77,6 +97,8 @@ export interface VideoDetectionResult {
   model_used: string;
   duration_seconds: number;
   scan_id?: string;
+  method_scores?: Record<string, MethodScore>;
+  sightengine_native?: boolean;
 }
 
 // ──────────────────────────────────────────────
