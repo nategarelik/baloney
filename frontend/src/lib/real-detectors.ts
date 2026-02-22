@@ -14,6 +14,7 @@ import type {
   Verdict,
   SentenceScore,
   FeatureVector,
+  MethodScore,
 } from "./types";
 import { computeTextStats, mockTextResult, mockImageResult } from "./mock-detectors";
 
@@ -469,6 +470,67 @@ function buildFeatureVector(stats: StatisticalSignal): FeatureVector {
 // Sentence scoring (v2.0 — multi-feature per-sentence analysis)
 // ──────────────────────────────────────────────
 
+// ──────────────────────────────────────────────
+// METHOD P: Pangram Commercial API (99.85% accuracy)
+// Emi & Spero, 2024 — arXiv:2402.14873v3
+// 4-tier: Fully Human / Lightly AI-Assisted / Moderately AI-Assisted / Fully AI-Generated
+// Endpoint: POST https://text.api.pangram.com/v3
+// Auth: x-api-key header
+// Returns: fraction_ai (0-1), classification, windows[] with ai_assistance_score + confidence
+// ──────────────────────────────────────────────
+
+interface PangramWindow {
+  text: string;
+  label: string;
+  ai_assistance_score: number;
+  confidence: "High" | "Medium" | "Low";
+}
+
+interface PangramResult {
+  score: number;
+  classification: string;
+  windows: PangramWindow[];
+}
+
+async function methodP_pangram(text: string): Promise<PangramResult | null> {
+  const apiKey = process.env.PANGRAM_API_KEY;
+  if (!apiKey) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch("https://text.api.pangram.com/v3", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+      },
+      body: JSON.stringify({ text: text.slice(0, 5000) }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        console.warn("[Baloney] Pangram rate limit reached (4-5/day free tier)");
+        return null;
+      }
+      throw new Error(`Pangram API ${response.status}`);
+    }
+
+    const data = await response.json();
+    return {
+      score: data.fraction_ai as number,
+      classification: data.classification as string,
+      windows: (data.windows ?? []) as PangramWindow[],
+    };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 function scoreSentencesReal(text: string, aiProbability: number): SentenceScore[] {
   const sentences = splitSentences(text).filter((s) => s.length > 10);
   const wordCounts = sentences.map((s) => s.split(/\s+/).filter((w) => w.length > 0).length);
@@ -688,29 +750,57 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
     const backendResult = await backendTextDetection(text);
     if (backendResult) return backendResult;
 
-    // Fallback to HuggingFace Inference API — v2.0: 4-method ensemble
+    // Fallback to HuggingFace Inference API — v3.0: 6+ signal ensemble
     const client = getHFClient();
     const sentences = splitSentences(text).filter((s) => s.length > 10);
 
     // Method D: Statistical features (runs locally, no API, always first)
     const stats = methodD_statistical(text, textStats);
 
-    // v2.0: Run all API methods in parallel for max speed
-    // Method A (RoBERTa/GPT-2) + Method C (ChatGPT-detector) + Method B (Embeddings)
-    const [hfScore, chatgptScore, embeddingScore] = await Promise.all([
+    // v3.0: Run ALL API methods in parallel — Pangram + SynthID + HuggingFace
+    const [hfScore, chatgptScore, embeddingScore, pangramResult, synthidResult] = await Promise.all([
       methodA_roberta(client, text).catch(() => null),
       methodC_chatgptDetector(client, text).catch(() => null),
       methodB_embeddings(client, sentences).catch(() => 0.5),
+      methodP_pangram(text).catch(() => null),
+      methodSynthID_text(text).catch(() => null),
     ]);
 
-    // v2.0: Dynamic weight allocation — if a model fails, redistribute weight
+    const pangramScore = pangramResult?.score ?? null;
+
+    // v3.0: Dynamic weight allocation — prioritize Pangram (99.85% accuracy)
     let aiProbability: number;
     let modelName: string;
 
-    if (hfScore !== null && chatgptScore !== null) {
-      // Both transformer models available: full 4-method ensemble
-      // Weights: A (30%) + C (25%) + B (15%) + D (30%)
-      // Two independent classifiers covering GPT-2 era AND ChatGPT era
+    if (pangramScore !== null && hfScore !== null && chatgptScore !== null) {
+      // Full 6-signal ensemble: Pangram leads
+      aiProbability = precise(
+        pangramScore * 0.38 +
+        hfScore * 0.17 +
+        chatgptScore * 0.14 +
+        embeddingScore * 0.06 +
+        stats.signal * 0.18 +
+        (synthidResult === "watermarked" ? 0.95 : synthidResult === "not_watermarked" ? 0.0 : stats.signal) * 0.07
+      );
+      modelName = "pangram+roberta+chatgpt+minilm+statistical" + (synthidResult ? "+synthid" : "");
+    } else if (pangramScore !== null && hfScore !== null) {
+      aiProbability = precise(
+        pangramScore * 0.40 +
+        hfScore * 0.20 +
+        embeddingScore * 0.10 +
+        stats.signal * 0.30
+      );
+      modelName = "pangram+roberta+minilm+statistical";
+    } else if (pangramScore !== null) {
+      // Pangram only (no HF models)
+      aiProbability = precise(
+        pangramScore * 0.55 +
+        embeddingScore * 0.10 +
+        stats.signal * 0.35
+      );
+      modelName = "pangram+minilm+statistical";
+    } else if (hfScore !== null && chatgptScore !== null) {
+      // No Pangram — original 4-method ensemble
       aiProbability = precise(
         hfScore * 0.30 +
         chatgptScore * 0.25 +
@@ -719,7 +809,6 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       );
       modelName = "hf:roberta+chatgpt-detector+minilm+statistical";
     } else if (hfScore !== null) {
-      // Only RoBERTa available: redistribute ChatGPT weight
       aiProbability = precise(
         hfScore * 0.45 +
         embeddingScore * 0.20 +
@@ -727,7 +816,6 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       );
       modelName = "hf:roberta+minilm+statistical";
     } else if (chatgptScore !== null) {
-      // Only ChatGPT-detector available: redistribute RoBERTa weight
       aiProbability = precise(
         chatgptScore * 0.40 +
         embeddingScore * 0.20 +
@@ -735,7 +823,6 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       );
       modelName = "hf:chatgpt-detector+minilm+statistical";
     } else {
-      // No transformer models available: embeddings + statistical only
       aiProbability = precise(
         embeddingScore * 0.35 +
         stats.signal * 0.65
@@ -743,15 +830,50 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       modelName = "hf:minilm+statistical";
     }
 
+    // v3.0: SynthID override — if watermark detected, override to high AI probability
+    if (synthidResult === "watermarked") {
+      aiProbability = Math.max(aiProbability, 0.95);
+      modelName += "+synthid:watermarked";
+    }
+
     // v2.0: Short text confidence scaling — reduce confidence for texts < 200 chars
     if (text.length < 200) {
-      const lengthPenalty = text.length / 200; // 0.1 to 1.0
-      // Pull probability toward 0.5 (uncertain) proportionally
+      const lengthPenalty = text.length / 200;
       aiProbability = precise(0.5 + (aiProbability - 0.5) * lengthPenalty);
     }
 
-    // Sentence scoring
-    const sentenceScores = scoreSentencesReal(text, aiProbability);
+    // v3.0: Build method_scores map for UI breakdown
+    const methodScores: Record<string, MethodScore> = {};
+    const hasPangram = pangramScore !== null;
+    if (hasPangram) methodScores.pangram = { score: pangramScore, weight: 0.38, label: "Pangram (99.85%)", available: true };
+    if (hfScore !== null) methodScores.roberta = { score: hfScore, weight: hasPangram ? 0.17 : 0.30, label: "RoBERTa GPT-2", available: true };
+    if (chatgptScore !== null) methodScores.chatgpt = { score: chatgptScore, weight: hasPangram ? 0.14 : 0.25, label: "ChatGPT Detector", available: true };
+    methodScores.embeddings = { score: embeddingScore, weight: hasPangram ? 0.06 : 0.15, label: "Sentence Embeddings", available: true };
+    methodScores.statistical = { score: stats.signal, weight: hasPangram ? 0.18 : 0.30, label: "Statistical (12 features)", available: true };
+    if (synthidResult && synthidResult !== "uncertain") {
+      methodScores.synthid_text = {
+        score: synthidResult === "watermarked" ? 1.0 : 0.0,
+        weight: 0.07,
+        label: "SynthID (Google Watermark)",
+        available: true,
+      };
+    }
+
+    // Sentence scoring — enhanced with Pangram windows if available
+    let sentenceScores = scoreSentencesReal(text, aiProbability);
+    if (pangramResult?.windows && pangramResult.windows.length > 0) {
+      // Map Pangram windows to sentence scores for enhanced highlighting
+      const pangramSentences: SentenceScore[] = pangramResult.windows.map((w) => {
+        const startIdx = text.indexOf(w.text);
+        return {
+          text: w.text,
+          ai_probability: w.ai_assistance_score,
+          start_index: startIdx >= 0 ? startIdx : 0,
+          end_index: startIdx >= 0 ? startIdx + w.text.length : w.text.length,
+        };
+      });
+      if (pangramSentences.length > 0) sentenceScores = pangramSentences;
+    }
 
     // Verdict mapping
     const mapping = mapVerdict(aiProbability, text.length);
@@ -771,6 +893,16 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       edit_magnitude: mapping.edit_magnitude,
       feature_vector: featureVector,
       sentence_scores: sentenceScores,
+      method_scores: methodScores,
+      pangram_classification: pangramResult?.classification,
+      pangram_windows: pangramResult?.windows?.map((w) => ({
+        start: text.indexOf(w.text),
+        end: text.indexOf(w.text) + w.text.length,
+        ai_assistance_score: w.ai_assistance_score,
+        classification: w.label,
+        confidence: w.confidence === "High" ? 0.9 : w.confidence === "Medium" ? 0.7 : 0.5,
+      })),
+      synthid_text_result: synthidResult,
     };
   } catch (error) {
     console.warn("[Baloney] Real text detection failed, using mock fallback:", error);
@@ -1101,6 +1233,246 @@ function methodG_metadata(base64Image: string): number {
 }
 
 // ──────────────────────────────────────────────
+// METHOD S: SightEngine Commercial API (98.3% accuracy, ARIA benchmark #1)
+// Covers 120+ AI generators: DALL-E, Midjourney, SD, Flux, Sora
+// Endpoint: POST https://api.sightengine.com/1.0/check.json
+// Auth: api_user + api_secret as form params
+// Returns: type.ai_generated (0-1 float)
+// ──────────────────────────────────────────────
+
+async function methodS_sightEngine(imageBytes: Buffer): Promise<number | null> {
+  const apiUser = process.env.SIGHTENGINE_API_USER;
+  const apiSecret = process.env.SIGHTENGINE_API_SECRET;
+  if (!apiUser || !apiSecret) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const formData = new FormData();
+    formData.append("media", new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }), "image.jpg");
+    formData.append("models", "genai");
+    formData.append("api_user", apiUser);
+    formData.append("api_secret", apiSecret);
+
+    const response = await fetch("https://api.sightengine.com/1.0/check.json", {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        console.warn("[Baloney] SightEngine rate limit reached");
+        return null;
+      }
+      throw new Error(`SightEngine ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.type?.ai_generated ?? null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// URL-based variant (faster for web images — avoids uploading bytes)
+async function methodS_sightEngineURL(imageUrl: string): Promise<number | null> {
+  const apiUser = process.env.SIGHTENGINE_API_USER;
+  const apiSecret = process.env.SIGHTENGINE_API_SECRET;
+  if (!apiUser || !apiSecret) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const params = new URLSearchParams({
+      url: imageUrl,
+      models: "genai",
+      api_user: apiUser,
+      api_secret: apiSecret,
+    });
+
+    const response = await fetch(
+      `https://api.sightengine.com/1.0/check.json?${params}`,
+      { signal: controller.signal },
+    );
+
+    if (!response.ok) throw new Error(`SightEngine ${response.status}`);
+    const data = await response.json();
+    return data.type?.ai_generated ?? null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// SightEngine native video endpoint (60s max, full server-side analysis)
+export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
+  ai_generated_score: number;
+  frames: Array<{ timestamp: number; ai_score: number }>;
+} | null> {
+  const apiUser = process.env.SIGHTENGINE_API_USER;
+  const apiSecret = process.env.SIGHTENGINE_API_SECRET;
+  if (!apiUser || !apiSecret) return null;
+
+  const formData = new FormData();
+  formData.append("media", videoBlob);
+  formData.append("models", "genai");
+  formData.append("api_user", apiUser);
+  formData.append("api_secret", apiSecret);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch("https://api.sightengine.com/1.0/video/check-sync.json", {
+      method: "POST",
+      body: formData,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) throw new Error(`SightEngine Video ${response.status}`);
+    const data = await response.json();
+
+    const frames = (data.data?.frames || []).map((f: { time?: number; type?: { ai_generated?: number } }) => ({
+      timestamp: f.time ?? 0,
+      ai_score: f.type?.ai_generated ?? 0,
+    }));
+
+    const avgScore = frames.length > 0
+      ? frames.reduce((s: number, f: { ai_score: number }) => s + f.ai_score, 0) / frames.length
+      : null;
+
+    return avgScore !== null ? { ai_generated_score: avgScore, frames } : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ──────────────────────────────────────────────
+// METHOD SynthID: Google SynthID Text Watermark Detection
+// Detects Gemini-generated text watermarks via Railway Python backend
+// Binary signal: watermarked / not_watermarked / uncertain
+// ──────────────────────────────────────────────
+
+async function methodSynthID_text(text: string): Promise<"watermarked" | "not_watermarked" | "uncertain" | null> {
+  const backendUrl = process.env.RAILWAY_BACKEND_URL;
+  if (!backendUrl) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(`${backendUrl}/api/synthid-text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.synthid_detected ?? null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ──────────────────────────────────────────────
+// METHOD SynthID Image: Google Vertex AI Watermark Detection
+// Detects Google Imagen-generated image watermarks
+// ──────────────────────────────────────────────
+
+async function methodSynthID_image(imageBytes: Buffer): Promise<"Detected" | "Not Detected" | "Possibly Detected" | null> {
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+  const region = process.env.GOOGLE_CLOUD_REGION || "us-central1";
+  const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
+  if (!projectId || !apiKey) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const base64Image = imageBytes.toString("base64");
+    const response = await fetch(
+      `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/publishers/google/models/imageverification:predict?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          instances: [{ image: { bytesBase64Encoded: base64Image } }],
+        }),
+        signal: controller.signal,
+      },
+    );
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    const prediction = data.predictions?.[0];
+    if (!prediction) return null;
+
+    const verdict = prediction.decision as string | undefined;
+    if (verdict === "ACCEPT") return "Detected";
+    if (verdict === "REJECT") return "Not Detected";
+    return "Possibly Detected";
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ──────────────────────────────────────────────
+// Reality Defender: Deepfake Escalation (for ambiguous images)
+// Triggers when composite score is 0.4-0.7 (uncertain range)
+// ──────────────────────────────────────────────
+
+async function escalate_realityDefender(imageBytes: Buffer): Promise<{
+  is_deepfake: boolean;
+  confidence: number;
+  models_used: string[];
+} | null> {
+  const apiKey = process.env.REALITY_DEFENDER_API_KEY;
+  if (!apiKey) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const formData = new FormData();
+    formData.append("media", new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }), "image.jpg");
+
+    const response = await fetch("https://api.realitydefender.com/v2/detect", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}` },
+      body: formData,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+
+    return {
+      is_deepfake: data.is_deepfake ?? false,
+      confidence: data.confidence ?? 0,
+      models_used: data.models_used ?? [],
+    };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// ──────────────────────────────────────────────
 // Image Verdict Mapping
 // ──────────────────────────────────────────────
 
@@ -1158,7 +1530,7 @@ export async function realImageDetection(base64Image: string): Promise<Detection
     const backendResult = await backendImageDetection(base64Image);
     if (backendResult) return backendResult;
 
-    // Fallback: HuggingFace Inference API
+    // Fallback: HuggingFace + SightEngine + SynthID Image ensemble
     const client = getHFClient();
 
     // Prepare image blob with content type
@@ -1168,69 +1540,112 @@ export async function realImageDetection(base64Image: string): Promise<Detection
     const bytes = Buffer.from(raw, "base64");
     const blob = new Blob([bytes], { type: mimeType });
 
-    // v2.0: Run both classifiers in parallel + sync methods
-    const [vitScore, sdxlScore] = await Promise.all([
+    // v3.0: Run ALL classifiers in parallel — HF + SightEngine + SynthID
+    const [vitScore, sdxlScore, sightEngineScore, synthidImageResult] = await Promise.all([
       methodE_vitClassifier(client, blob).catch(() => null),
       methodE2_sdxlDetector(client, blob).catch(() => null),
+      methodS_sightEngine(bytes).catch(() => null),
+      methodSynthID_image(bytes).catch(() => null),
     ]);
 
     const freqScore = methodF_frequency(bytes);
     const metaScore = methodG_metadata(base64Image);
 
-    // v2.0: Dynamic weight allocation based on available classifiers
+    // v3.0: Dynamic weight allocation — prioritize SightEngine (98.3% accuracy)
     let compositeScore: number;
     let modelName: string;
+    const hasSE = sightEngineScore !== null;
 
-    if (vitScore !== null && sdxlScore !== null) {
-      // Both classifiers available: full 4-method ensemble
-      // v2.0: Confidence-aware weighting — give more weight to the more confident classifier
-      const vitConfidence = Math.abs(vitScore - 0.5) * 2; // 0=uncertain, 1=confident
+    if (hasSE && vitScore !== null && sdxlScore !== null) {
+      // Full 6-signal ensemble: SightEngine leads
+      compositeScore = precise(
+        sightEngineScore * 0.32 +
+        vitScore * 0.18 +
+        sdxlScore * 0.09 +
+        freqScore * 0.18 +
+        metaScore * 0.13 +
+        (synthidImageResult === "Detected" ? 0.95 : 0) * 0.10
+      );
+      modelName = "sightengine+vit+sdxl+dct-fft+metadata" + (synthidImageResult ? "+synthid-image" : "");
+    } else if (hasSE && vitScore !== null) {
+      compositeScore = precise(
+        sightEngineScore * 0.35 +
+        vitScore * 0.25 +
+        freqScore * 0.22 +
+        metaScore * 0.18
+      );
+      modelName = "sightengine+vit+dct-fft+metadata";
+    } else if (hasSE) {
+      compositeScore = precise(
+        sightEngineScore * 0.45 +
+        freqScore * 0.30 +
+        metaScore * 0.25
+      );
+      modelName = "sightengine+dct-fft+metadata";
+    } else if (vitScore !== null && sdxlScore !== null) {
+      // No SightEngine — original HF ensemble
+      const vitConfidence = Math.abs(vitScore - 0.5) * 2;
       const sdxlConfidence = Math.abs(sdxlScore - 0.5) * 2;
       const classifierTotal = vitConfidence + sdxlConfidence + 0.001;
-
-      // Base weights: ViT (35%) + SDXL (20%) — adjust by relative confidence
       const vitWeight = 0.35 * (0.5 + vitConfidence / classifierTotal * 0.5);
       const sdxlWeight = 0.20 * (0.5 + sdxlConfidence / classifierTotal * 0.5);
-
-      // Normalize all weights to sum to 1
       const totalWeight = vitWeight + sdxlWeight + 0.25 + 0.20;
       compositeScore = precise(
-        (vitScore * vitWeight +
-         sdxlScore * sdxlWeight +
-         freqScore * 0.25 +
-         metaScore * 0.20) / totalWeight
+        (vitScore * vitWeight + sdxlScore * sdxlWeight + freqScore * 0.25 + metaScore * 0.20) / totalWeight
       );
       modelName = "hf:vit-ai-detector+sdxl-detector+dct-fft+metadata";
-
-      // v2.0: Agreement bonus — if both classifiers agree strongly, boost confidence
       if ((vitScore > 0.7 && sdxlScore > 0.7) || (vitScore < 0.3 && sdxlScore < 0.3)) {
-        // Strong agreement: nudge composite score slightly toward the consensus
         const classifierAvg = (vitScore + sdxlScore) / 2;
         compositeScore = precise(compositeScore * 0.85 + classifierAvg * 0.15);
       }
     } else if (vitScore !== null) {
-      // Only ViT available
-      compositeScore = precise(
-        vitScore * 0.50 +
-        freqScore * 0.28 +
-        metaScore * 0.22
-      );
+      compositeScore = precise(vitScore * 0.50 + freqScore * 0.28 + metaScore * 0.22);
       modelName = "hf:vit-ai-detector+dct-fft+metadata";
     } else if (sdxlScore !== null) {
-      // Only SDXL detector available
-      compositeScore = precise(
-        sdxlScore * 0.45 +
-        freqScore * 0.30 +
-        metaScore * 0.25
-      );
+      compositeScore = precise(sdxlScore * 0.45 + freqScore * 0.30 + metaScore * 0.25);
       modelName = "hf:sdxl-detector+dct-fft+metadata";
     } else {
-      // No classifiers available — rely on local methods only
-      compositeScore = precise(
-        freqScore * 0.55 +
-        metaScore * 0.45
-      );
+      compositeScore = precise(freqScore * 0.55 + metaScore * 0.45);
       modelName = "local:dct-fft+metadata";
+    }
+
+    // v3.0: SynthID Image override — if watermark detected, boost AI probability
+    if (synthidImageResult === "Detected") {
+      compositeScore = Math.max(compositeScore, 0.90);
+      modelName += "+synthid-image:detected";
+    }
+
+    // v3.0: Reality Defender escalation for ambiguous images (0.4-0.7 range)
+    const methodScores: Record<string, MethodScore> = {};
+    if (compositeScore >= 0.4 && compositeScore <= 0.7) {
+      const rdResult = await escalate_realityDefender(bytes).catch(() => null);
+      if (rdResult) {
+        compositeScore = precise(
+          compositeScore * 0.7 + (rdResult.is_deepfake ? rdResult.confidence : (1 - rdResult.confidence)) * 0.3
+        );
+        methodScores.reality_defender = {
+          score: rdResult.confidence,
+          weight: 0.30,
+          label: "Reality Defender (Deep Scan)",
+          available: true,
+        };
+        modelName += "+reality-defender";
+      }
+    }
+
+    // v3.0: Build method_scores for UI
+    if (hasSE) methodScores.sightengine = { score: sightEngineScore, weight: 0.32, label: "SightEngine (98.3%)", available: true };
+    if (vitScore !== null) methodScores.vit = { score: vitScore, weight: hasSE ? 0.18 : 0.35, label: "ViT AI Detector", available: true };
+    if (sdxlScore !== null) methodScores.sdxl = { score: sdxlScore, weight: hasSE ? 0.09 : 0.20, label: "SDXL Detector", available: true };
+    methodScores.frequency = { score: freqScore, weight: hasSE ? 0.18 : 0.25, label: "Frequency/DCT Analysis", available: true };
+    methodScores.metadata = { score: metaScore, weight: hasSE ? 0.13 : 0.20, label: "Metadata/EXIF/C2PA", available: true };
+    if (synthidImageResult && synthidImageResult !== "Possibly Detected") {
+      methodScores.synthid_image = {
+        score: synthidImageResult === "Detected" ? 1.0 : 0.0,
+        weight: 0.10,
+        label: "SynthID Image (Google)",
+        available: true,
+      };
     }
 
     const mapping = mapImageVerdict(compositeScore);
@@ -1239,12 +1654,13 @@ export async function realImageDetection(base64Image: string): Promise<Detection
       verdict: mapping.verdict,
       confidence: mapping.confidence,
       primary_score: precise(vitScore ?? freqScore),
-      secondary_score: precise(sdxlScore ?? freqScore),
+      secondary_score: precise(sightEngineScore ?? sdxlScore ?? freqScore),
       model_used: modelName,
       ensemble_used: true,
       trust_score: mapping.trust_score,
       classification: mapping.verdict,
       edit_magnitude: mapping.edit_magnitude,
+      method_scores: methodScores,
     };
   } catch (error) {
     console.warn("[Baloney] Real image detection failed, using mock fallback:", error);
