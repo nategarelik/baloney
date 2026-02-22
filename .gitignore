@@ -83,4 +83,7 @@ frontend/.vercel/
 .worktrees/
 *.zip
 
-.vercel
+# ──────────────────────────────────────────────
+# Private / IP strategy (NEVER commit)
+# ──────────────────────────────────────────────
+private/
