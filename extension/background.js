@@ -198,6 +198,53 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 });
 
 // ──────────────────────────────────────────────
+// Shared text analysis flow (used by context menu + keyboard shortcut)
+// ──────────────────────────────────────────────
+
+async function analyzeAndSendTextResult(tab, text) {
+  const textPreview = text.slice(0, 80);
+
+  // Show loading toast immediately
+  chrome.tabs.sendMessage(tab.id, {
+    type: "show-text-toast-loading",
+    textPreview,
+  });
+
+  const userId = await getUserId();
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+    const response = await fetch(`${API_URL}/api/detect/text`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+      body: JSON.stringify({
+        text,
+        user_id: userId,
+        platform: detectPlatform(tab?.url),
+      }),
+    });
+    clearTimeout(timeoutId);
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const result = await response.json();
+
+    chrome.tabs.sendMessage(tab.id, {
+      type: "show-text-toast-result",
+      result,
+      text,
+      textPreview,
+    });
+  } catch (err) {
+    console.warn("[Baloney] Text check API unavailable:", err.message);
+    chrome.tabs.sendMessage(tab.id, {
+      type: "show-text-toast-error",
+      errorMsg: err.message || "Analysis failed",
+      text,
+    });
+  }
+}
+
+// ──────────────────────────────────────────────
 // Context menus
 // ──────────────────────────────────────────────
 
@@ -221,42 +268,29 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 
   if (info.menuItemId === "check-text" && info.selectionText) {
-    const userId = await getUserId();
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-      const response = await fetch(`${API_URL}/api/detect/text`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          text: info.selectionText,
-          user_id: userId,
-          platform: detectPlatform(tab?.url),
-        }),
-      });
-      clearTimeout(timeoutId);
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
-      const result = await response.json();
-      chrome.tabs.sendMessage(tab.id, {
-        type: "show-text-result",
-        result,
-        text: info.selectionText,
-      });
-    } catch (err) {
-      console.warn("[Baloney] Text check API unavailable:", err.message);
-      const result = {
-        verdict: "human",
-        confidence: 0,
-        ai_probability: 0,
-        model: "offline-fallback",
-      };
-      chrome.tabs.sendMessage(tab.id, {
-        type: "show-text-result",
-        result,
-        text: info.selectionText,
-      });
+    analyzeAndSendTextResult(tab, info.selectionText);
+  }
+});
+
+// ──────────────────────────────────────────────
+// Keyboard shortcut (Alt+B)
+// ──────────────────────────────────────────────
+
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== "scan-selected-text") return;
+
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) return;
+
+  try {
+    const response = await chrome.tabs.sendMessage(tab.id, {
+      type: "get-selected-text",
+    });
+    if (response?.text && response.text.trim().length > 0) {
+      analyzeAndSendTextResult(tab, response.text.trim());
     }
+  } catch (err) {
+    console.warn("[Baloney] Could not get selected text:", err.message);
   }
 });
 

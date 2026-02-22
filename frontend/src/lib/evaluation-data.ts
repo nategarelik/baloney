@@ -492,16 +492,20 @@ function computeSummaryStats(
       ? humanSignals.reduce((a, b) => a + b, 0) / humanSignals.length
       : 0;
   const aiVar =
-    aiSignals.length > 0
+    aiSignals.length > 1
       ? aiSignals.reduce((s, v) => s + Math.pow(v - aiMean, 2), 0) /
-        aiSignals.length
+        (aiSignals.length - 1)
       : 0;
   const humanVar =
-    humanSignals.length > 0
+    humanSignals.length > 1
       ? humanSignals.reduce((s, v) => s + Math.pow(v - humanMean, 2), 0) /
-        humanSignals.length
+        (humanSignals.length - 1)
       : 0;
-  const pooledStd = Math.sqrt((aiVar + humanVar) / 2);
+  // Weighted pooled SD (correct for unequal group sizes)
+  const pooledVar =
+    ((aiSignals.length - 1) * aiVar + (humanSignals.length - 1) * humanVar) /
+    (aiSignals.length + humanSignals.length - 2);
+  const pooledStd = Math.sqrt(pooledVar);
   const cohensD = pooledStd > 0 ? (aiMean - humanMean) / pooledStd : 0;
 
   return [
@@ -556,3 +560,106 @@ export const diagonalData = [
   { fpr: 0, random: 0 },
   { fpr: 1, random: 1 },
 ];
+
+// ══════════════════════════════════════════════════════════
+// PANGRAM VALIDATION DATA — imported from pipeline results
+// (static data for build-time rendering)
+// ══════════════════════════════════════════════════════════
+
+// These will be populated when the validation pipeline runs.
+// For now, use placeholder data that the page can render.
+// After running `npx tsx scripts/validation-pipeline.ts`,
+// replace with: import results from "../../scripts/data/validation-report.json"
+
+export interface PangramModelAccuracy {
+  model: string;
+  accuracy: number;
+  detection_rate: number;
+  avg_confidence: number;
+  avg_ai_assisted: number;
+  avg_window_high_conf: number;
+  n: number;
+}
+
+export interface PangramPlatformAccuracy {
+  platform: string;
+  accuracy: number;
+  detection_rate: number;
+  avg_confidence: number;
+  avg_ai_assisted: number;
+  avg_window_high_conf: number;
+  n: number;
+}
+
+export interface PangramConfidenceBucket {
+  bucket: string;
+  ai_count: number;
+  human_count: number;
+}
+
+export interface PangramValidationData {
+  rocData: RocPoint[];
+  aucRoc: number;
+  confusionMatrix: ConfusionMatrix;
+  optimalThreshold: number;
+  perModelAccuracy: PangramModelAccuracy[];
+  perPlatformAccuracy: PangramPlatformAccuracy[];
+  confidenceDistribution: PangramConfidenceBucket[];
+  totalSamples: number;
+  aiSamples: number;
+  humanSamples: number;
+  summaryStats: { metric: string; value: string }[];
+  isPlaceholder?: boolean;
+  isSynthetic?: boolean;
+}
+
+// Real pipeline results from validation-report.json
+export const pangramValidationData: PangramValidationData = {
+  isPlaceholder: false,
+  isSynthetic: false,
+  rocData: [
+    { fpr: 0, tpr: 0 },
+    { fpr: 0.92, tpr: 1 },
+    { fpr: 1, tpr: 1 },
+  ],
+  aucRoc: 0.54,
+  confusionMatrix: { tp: 36, fp: 46, fn: 0, tn: 4 },
+  optimalThreshold: 0.01,
+  perModelAccuracy: [
+    { model: "gemini", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 36 },
+  ],
+  perPlatformAccuracy: [
+    { platform: "x", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 15 },
+    { platform: "facebook", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 14 },
+    { platform: "linkedin", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 7 },
+  ],
+  confidenceDistribution: [
+    { bucket: "0.0-0.1", ai_count: 0, human_count: 4 },
+    { bucket: "0.1-0.2", ai_count: 0, human_count: 0 },
+    { bucket: "0.2-0.3", ai_count: 0, human_count: 0 },
+    { bucket: "0.3-0.4", ai_count: 0, human_count: 0 },
+    { bucket: "0.4-0.5", ai_count: 0, human_count: 0 },
+    { bucket: "0.5-0.6", ai_count: 0, human_count: 0 },
+    { bucket: "0.6-0.7", ai_count: 0, human_count: 0 },
+    { bucket: "0.7-0.8", ai_count: 0, human_count: 0 },
+    { bucket: "0.8-0.9", ai_count: 0, human_count: 0 },
+    { bucket: "0.9-1.0", ai_count: 36, human_count: 46 },
+  ],
+  totalSamples: 86,
+  aiSamples: 36,
+  humanSamples: 50,
+  summaryStats: [
+    { metric: "Accuracy", value: "46.5%" },
+    { metric: "Precision", value: "43.9%" },
+    { metric: "Recall (Sensitivity)", value: "100.0%" },
+    { metric: "Specificity", value: "8.0%" },
+    { metric: "F1 Score", value: "61.0%" },
+    { metric: "False Positive Rate", value: "92.0%" },
+    { metric: "AUC-ROC", value: "0.5400" },
+    { metric: "AUC-ROC 95% CI", value: "[0.5088, 0.5834]" },
+    { metric: "PR-AUC", value: "0.0000" },
+    { metric: "Cohen's d (effect size)", value: "0.3822 (small)" },
+    { metric: "Optimal Threshold (Youden's J)", value: "0.01" },
+    { metric: "Total Samples", value: "86" },
+  ],
+};

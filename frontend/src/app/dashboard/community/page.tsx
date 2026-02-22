@@ -16,6 +16,8 @@ import { ChartCard } from "@/components/ChartCard";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { getCommunityAnalytics } from "@/lib/api";
 import type { CommunityAnalytics } from "@/lib/types";
+import { SlopIndexCard } from "../SlopIndexCard";
+import { InformationDietCard } from "../InformationDietCard";
 
 const PLATFORM_LABELS: Record<string, string> = {
   x: "X",
@@ -222,6 +224,12 @@ export default function CommunityDashboardPage() {
               </ResponsiveContainer>
             )}
           </ChartCard>
+        </div>
+
+        {/* ── AI Slop Index + Information Diet Score ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <SlopIndexCard />
+          <InformationDietCard />
         </div>
       </div>
     </main>
