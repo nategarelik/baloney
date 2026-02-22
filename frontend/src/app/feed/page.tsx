@@ -52,30 +52,19 @@ export default function FeedPage() {
         }
         return detectionResult;
       } catch {
-        const fallbackVerdict = post.isAiGenerated
-          ? "ai_generated"
-          : post.expectedConfidence < 0.55
-            ? "light_edit"
-            : "human";
-        const fallback: DetectionResult = {
-          verdict: fallbackVerdict,
-          confidence: post.expectedConfidence,
-          primary_score: post.expectedConfidence,
-          secondary_score: post.expectedConfidence,
-          model_used: "fallback",
+        const errorResult: DetectionResult = {
+          verdict: "human" as const,
+          confidence: 0,
+          primary_score: 0,
+          secondary_score: 0,
+          model_used: "error",
           ensemble_used: false,
-          trust_score: post.isAiGenerated ? 0.1 : post.expectedConfidence,
-          classification: fallbackVerdict,
-          edit_magnitude: post.isAiGenerated
-            ? 0.9
-            : 1 - post.expectedConfidence,
+          trust_score: 0,
+          classification: "human" as const,
+          edit_magnitude: 0,
         };
-        setResults((prev) => new Map(prev).set(postId, fallback));
-        setScannedCount((c) => c + 1);
-        if (fallback.verdict === "ai_generated") {
-          setFlaggedCount((c) => c + 1);
-        }
-        return fallback;
+        setResults((prev) => new Map(prev).set(postId, errorResult));
+        return null;
       }
     },
     [userId],

@@ -1,6 +1,9 @@
 // Animated count-up
 function animateCount(el, target) {
-  if (target === 0) { el.textContent = "0"; return; }
+  if (target === 0) {
+    el.textContent = "0";
+    return;
+  }
   const duration = 600;
   const start = performance.now();
   function tick(now) {
@@ -39,11 +42,17 @@ const toggleMap = {
   "toggle-videos": "autoScanVideos",
 };
 
-chrome.storage.local.get(["autoScanText", "autoScanImages", "autoScanVideos"], (data) => {
-  document.querySelector("#toggle-text input").checked = data.autoScanText === true;
-  document.querySelector("#toggle-images input").checked = data.autoScanImages !== false;
-  document.querySelector("#toggle-videos input").checked = data.autoScanVideos !== false;
-});
+chrome.storage.local.get(
+  ["autoScanText", "autoScanImages", "autoScanVideos"],
+  (data) => {
+    document.querySelector("#toggle-text input").checked =
+      data.autoScanText === true;
+    document.querySelector("#toggle-images input").checked =
+      data.autoScanImages !== false;
+    document.querySelector("#toggle-videos input").checked =
+      data.autoScanVideos !== false;
+  },
+);
 
 Object.entries(toggleMap).forEach(([elId, storageKey]) => {
   const input = document.querySelector(`#${elId} input`);
@@ -73,7 +82,12 @@ segmentBtns.forEach((btn) => {
 
 // ── Load stats ──
 chrome.storage.local.get("sessionStats", (data) => {
-  const stats = data.sessionStats || { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
+  const stats = data.sessionStats || {
+    scanned: 0,
+    flaggedAI: 0,
+    textScanned: 0,
+    textFlagged: 0,
+  };
   const totalScanned = stats.scanned + (stats.textScanned || 0);
   const totalFlagged = stats.flaggedAI + (stats.textFlagged || 0);
 
@@ -147,5 +161,5 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 
 // ── Edit allowed websites link ──
 document.getElementById("edit-sites").addEventListener("click", () => {
-  chrome.tabs.create({ url: "https://trustlens-nu.vercel.app/allowed-sites" });
+  chrome.tabs.create({ url: "https://baloney.app/allowed-sites" });
 });
