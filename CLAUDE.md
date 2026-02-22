@@ -18,7 +18,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 
 | Service | URL | Status |
 |---------|-----|--------|
-| Frontend (Vercel) | https://trustlens-nu.vercel.app | Live |
+| Frontend (Vercel) | https://baloney.app | Live |
 | Supabase | https://xpeubpqbqlyxawjovxuy.supabase.co | Live |
 | GitHub | https://github.com/nategarelik/baloney | Live (private) |
 
@@ -42,7 +42,7 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 
 Hit the seed endpoint once after deploying:
 ```bash
-curl -X POST "https://trustlens-nu.vercel.app/api/seed?secret=$SEED_SECRET"
+curl -X POST "https://baloney.app/api/seed" -H "x-seed-secret: $SEED_SECRET"
 ```
 
 This creates 50 users, 535 scans, computes slop index and exposure scores.
@@ -229,7 +229,7 @@ npm run dev
 
 1. Open `chrome://extensions`, enable Developer Mode
 2. Click "Load unpacked" → select the `extension/` folder
-3. Extension points at https://trustlens-nu.vercel.app (production API)
+3. Extension points at https://baloney.app (production API)
 
 ### Verification
 
@@ -256,9 +256,10 @@ npm run build        # Production build (must succeed)
 
 ## Deployment Notes
 
-- Vercel auto-deploy from GitHub broke when repo was renamed from `trustlens` to `baloney`
-- Use `cd frontend && npx vercel --prod --yes` from the repo root to deploy manually
-- Or run from the project root: `npx vercel --prod --yes` (Vercel config is in `frontend/.vercel/`)
+- Vercel `frontend` project (serves `baloney.app`) has GitHub auto-deploy connected
+- Root directory must be set to `frontend` in Vercel dashboard (Settings → General → Root Directory)
+- Manual deploy: `cd frontend && npx vercel --prod --yes`
+- Old `trustlens` Vercel project still exists but is obsolete — safe to delete once root directory is confirmed
 
 ## Known Limitations
 
@@ -268,7 +269,7 @@ npm run build        # Production build (must succeed)
 - `compute_slop_index()` uses `ROUND(...::numeric, 2)` — Postgres requires numeric cast for 2-arg ROUND
 - `information_diet_scores` table has RLS disabled (only table without it)
 - `daily_snapshots` table is empty (never populated)
-- Extension hardcodes API URL to `https://trustlens-nu.vercel.app` (no local dev support)
+- Extension hardcodes API URL to `https://baloney.app` (no local dev support)
 - Pangram API: 5 free requests/day — use sparingly, live demo only
 - SightEngine: 2000 ops/month — budget for eval + demos
 - Video analysis uses SightEngine native endpoint only (no multi-frame fallback)

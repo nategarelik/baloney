@@ -392,10 +392,7 @@ function ConfusionMatrixCard({
         <p className="text-xs text-secondary/50 mt-3">
           Overall accuracy:{" "}
           <span className="font-semibold text-secondary">
-            {total > 0
-              ? (((tp + tn) / total) * 100).toFixed(1)
-              : "0.0"}
-            %
+            {total > 0 ? (((tp + tn) / total) * 100).toFixed(1) : "0.0"}%
           </span>
         </p>
       </div>
@@ -454,9 +451,13 @@ export default function EvaluationPage() {
         <h1 className="text-3xl font-display text-secondary mb-2">
           Evaluation Results
         </h1>
-        <p className="text-secondary/50 text-sm mb-6">
+        <p className="text-secondary/50 text-sm mb-1">
           {totalSamples}-sample benchmark across {domainData.length}+ categories
-          -- real metrics computed from methodD statistical analysis
+        </p>
+        <p className="text-xs text-secondary/40 mb-6">
+          Three evaluation pipelines: statistical analysis (local), Pangram API
+          (commercial), and cross-model ensemble (5 methods). See Honest Caveats
+          in Ensemble tab for known limitations.
         </p>
 
         {/* Tab Navigation */}
@@ -485,7 +486,7 @@ export default function EvaluationPage() {
             <div className="mb-6">
               <ChartCard
                 title="ROC Curve"
-                subtitle={`Receiver Operating Characteristic -- AUC = ${aucRoc.toFixed(3)}`}
+                subtitle={`Statistical method only (12 features, local) -- AUC = ${aucRoc.toFixed(3)}`}
               >
                 <ResponsiveContainer width="100%" height={340}>
                   <LineChart
@@ -867,11 +868,17 @@ export default function EvaluationPage() {
                         <td className="py-2.5 text-right font-display text-secondary text-base">
                           {row.pangram_only}%
                         </td>
-                        <td className="py-2.5 text-right font-display text-base" style={{ color: ENSEMBLE_PURPLE }}>
+                        <td
+                          className="py-2.5 text-right font-display text-base"
+                          style={{ color: ENSEMBLE_PURPLE }}
+                        >
                           {row.ensemble}%
                         </td>
-                        <td className={`py-2.5 text-right text-sm font-medium ${row.delta >= 0 ? "text-green-600" : "text-red-500"}`}>
-                          {row.delta >= 0 ? "+" : ""}{row.delta}
+                        <td
+                          className={`py-2.5 text-right text-sm font-medium ${row.delta >= 0 ? "text-green-600" : "text-red-500"}`}
+                        >
+                          {row.delta >= 0 ? "+" : ""}
+                          {row.delta}
                         </td>
                       </tr>
                     ))}
@@ -896,9 +903,9 @@ export default function EvaluationPage() {
                   </p>
                   <p>
                     Pangram alone flags almost everything as AI (high recall,
-                    terrible specificity). The ensemble is extremely conservative
-                    -- it barely flags anything, but when it does, it is usually
-                    right (precision 76.9%).
+                    terrible specificity). The ensemble is extremely
+                    conservative -- it barely flags anything, but when it does,
+                    it is usually right (precision 76.9%).
                   </p>
                   <p className="text-xs text-secondary/40 mt-4">
                     Neither configuration is production-ready at threshold 0.5.
@@ -1027,7 +1034,12 @@ export default function EvaluationPage() {
                       name="Pangram Accuracy"
                       stroke={CHART_COLORS.ai}
                       strokeWidth={2.5}
-                      dot={{ r: 4, fill: CHART_COLORS.ai, stroke: "#fff", strokeWidth: 2 }}
+                      dot={{
+                        r: 4,
+                        fill: CHART_COLORS.ai,
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                      }}
                       activeDot={{ r: 5 }}
                     />
                     <Line
@@ -1035,7 +1047,12 @@ export default function EvaluationPage() {
                       name="Ensemble Accuracy"
                       stroke={ENSEMBLE_PURPLE}
                       strokeWidth={2.5}
-                      dot={{ r: 4, fill: ENSEMBLE_PURPLE, stroke: "#fff", strokeWidth: 2 }}
+                      dot={{
+                        r: 4,
+                        fill: ENSEMBLE_PURPLE,
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                      }}
                       activeDot={{ r: 5 }}
                     />
                   </LineChart>
@@ -1075,7 +1092,11 @@ export default function EvaluationPage() {
                       {ensembleFeatureImportance.map((entry) => (
                         <Cell
                           key={entry.feature}
-                          fill={entry.cohens_d >= 0 ? CHART_COLORS.ai : ENSEMBLE_PURPLE}
+                          fill={
+                            entry.cohens_d >= 0
+                              ? CHART_COLORS.ai
+                              : ENSEMBLE_PURPLE
+                          }
                         />
                       ))}
                     </Bar>
@@ -1143,7 +1164,8 @@ export default function EvaluationPage() {
                   Claude Evasion Analysis
                 </h3>
                 <p className="text-xs text-secondary/50 mt-0.5">
-                  Claude-generated short-form social media content represents the hardest detection challenge
+                  Claude-generated short-form social media content represents
+                  the hardest detection challenge
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-4 mb-4">
@@ -1156,7 +1178,10 @@ export default function EvaluationPage() {
                   </p>
                 </div>
                 <div className="bg-secondary/5 rounded-lg p-3 text-center">
-                  <p className="text-2xl font-display" style={{ color: CHART_COLORS.ai }}>
+                  <p
+                    className="text-2xl font-display"
+                    style={{ color: CHART_COLORS.ai }}
+                  >
                     {ensembleClaudeEvasion.pangram_evasion_rate}%
                   </p>
                   <p className="text-xs text-secondary/50 mt-1">
@@ -1164,7 +1189,10 @@ export default function EvaluationPage() {
                   </p>
                 </div>
                 <div className="bg-secondary/5 rounded-lg p-3 text-center">
-                  <p className="text-2xl font-display" style={{ color: ENSEMBLE_PURPLE }}>
+                  <p
+                    className="text-2xl font-display"
+                    style={{ color: ENSEMBLE_PURPLE }}
+                  >
                     {ensembleClaudeEvasion.ensemble_recovery_rate}%
                   </p>
                   <p className="text-xs text-secondary/50 mt-1">
@@ -1202,7 +1230,10 @@ export default function EvaluationPage() {
                       </span>
                       <span className="text-secondary/50">
                         Ensemble:{" "}
-                        <span className="font-medium" style={{ color: ENSEMBLE_PURPLE }}>
+                        <span
+                          className="font-medium"
+                          style={{ color: ENSEMBLE_PURPLE }}
+                        >
                           {sample.ensemble.toFixed(3)}
                         </span>
                       </span>

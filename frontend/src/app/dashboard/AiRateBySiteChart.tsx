@@ -24,8 +24,8 @@ const PLATFORM_COLORS: Record<string, string> = {
   manual_upload: "#4a3728",
   demo_feed: "#94a3b8",
   facebook: "#1877F2",
-  medium: "#000000",
-  threads: "#000000",
+  medium: "#292929",
+  threads: "#8134AF",
   other: "#6b7280",
 };
 

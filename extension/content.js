@@ -1,12 +1,23 @@
-// extension/content.js — Baloney Content Script (v0.4.0 — Dot UI + Gating + Underlines)
+// extension/content.js — Baloney Content Script (v0.5.0)
 // Images/videos: auto-scan in viewport with discrete detection dots.
 // Text: scan on user selection, inline insight popup + colored underlines.
 // All scanning gated by master toggle, allowed sites, and per-type toggles.
 
+const API_URL = "https://baloney.app";
 const MIN_IMAGE_SIZE = 200;
 const MAX_CONCURRENT = 3; // v2.0: increased from 2 for faster scanning
 const MIN_SELECTION_LENGTH = 20;
 const VIDEO_MAX_FRAMES = 5; // v2.0: multi-frame video analysis
+
+// HTML escape helper
+function esc(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 // ──────────────────────────────────────────────
 // Settings cache (populated from chrome.storage)
@@ -132,16 +143,41 @@ function canManualScanText() {
 
 function isTargetImage(img) {
   const src = img.src || img.currentSrc || "";
-  if (!src || src.startsWith("data:")) return false;
-  if (img.naturalWidth < MIN_IMAGE_SIZE || img.naturalHeight < MIN_IMAGE_SIZE)
-    return false;
-  if (
-    src.includes("/icon") ||
-    src.includes("/logo") ||
-    src.includes("/avatar") ||
-    src.includes("/emoji")
-  )
-    return false;
+  if (!src) return false;
+
+  // Allow large data: URIs (likely AI-generated inline images), skip small ones
+  if (src.startsWith("data:")) return src.length > 10000;
+
+  // Check dimensions — use computed style as fallback when naturalWidth is 0
+  let w = img.naturalWidth;
+  let h = img.naturalHeight;
+  if (!w || !h) {
+    const style = window.getComputedStyle(img);
+    w = parseInt(style.width, 10) || 0;
+    h = parseInt(style.height, 10) || 0;
+  }
+  if (w < MIN_IMAGE_SIZE || h < MIN_IMAGE_SIZE) return false;
+
+  // Path-segment filtering (exact segment match, not substring)
+  try {
+    const pathSegments = new URL(src).pathname.split("/");
+    const skipSegments = [
+      "icon",
+      "icons",
+      "logo",
+      "logos",
+      "avatar",
+      "avatars",
+      "emoji",
+      "emojis",
+      "favicon",
+    ];
+    if (pathSegments.some((seg) => skipSegments.includes(seg.toLowerCase())))
+      return false;
+  } catch {
+    // Invalid URL — allow through
+  }
+
   return true;
 }
 
@@ -376,7 +412,7 @@ function buildInsightHTML(result, type) {
     sourceUrl: result.sourceUrl,
     sourcePageUrl: result.sourcePageUrl,
   });
-  const analyzeUrl = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
+  const analyzeUrl = `${API_URL}/analyze?result=${encodeURIComponent(resultData)}`;
   html += `<a href="${analyzeUrl}" target="_blank" class="baloney-insight__fulldata">View Full Data \u2192</a>`;
 
   return html;
@@ -406,11 +442,13 @@ function createDetectionDot(el, result) {
   const color = VERDICT_COLORS[result.verdict] || getDotColor(confidence);
   const opacity = getDotOpacity(confidence);
 
-  // Ensure parent is positioned
-  const parent = el.parentElement;
-  if (parent) {
-    const pos = window.getComputedStyle(parent).position;
-    if (pos === "static") parent.style.position = "relative";
+  // For images/videos, attach dot to parent; for text elements, attach to the element itself
+  const isMedia = el.tagName === "IMG" || el.tagName === "VIDEO";
+  const dotContainer = isMedia ? el.parentElement : el;
+
+  if (dotContainer) {
+    const pos = window.getComputedStyle(dotContainer).position;
+    if (pos === "static") dotContainer.style.position = "relative";
   }
 
   // Extract top method names for tooltip
@@ -462,8 +500,8 @@ function createDetectionDot(el, result) {
     openSidepanel(result, type);
   });
 
-  if (parent) {
-    parent.appendChild(dot);
+  if (dotContainer) {
+    dotContainer.appendChild(dot);
   }
 
   return dot;
@@ -681,8 +719,12 @@ function togglePagePanel() {
   const isOpen = pagePanel.classList.contains("open");
   if (isOpen) {
     pagePanel.classList.remove("open");
-  } else if (flaggedItems.length > 0) {
-    pagePanel.classList.add("open");
+  } else {
+    // Only open if at least one scan has completed on this page
+    const totalScanned = sessionStats.scanned + sessionStats.textScanned;
+    if (totalScanned > 0) {
+      pagePanel.classList.add("open");
+    }
   }
 }
 
@@ -738,6 +780,22 @@ async function analyzeImage(img) {
   } catch (error) {
     console.error("[Baloney] Image analysis failed:", error);
     img.dataset.baloneyScanned = "error";
+
+    // Retry once when the image successfully loads later
+    const retries = parseInt(img.dataset.baloneyRetries || "0", 10);
+    if (retries < 1) {
+      img.dataset.baloneyRetries = String(retries + 1);
+      img.addEventListener(
+        "load",
+        () => {
+          if (img.dataset.baloneyScanned === "error") {
+            delete img.dataset.baloneyScanned;
+            analyzeImage(img);
+          }
+        },
+        { once: true },
+      );
+    }
   }
 }
 
@@ -804,24 +862,39 @@ async function analyzeVideo(video) {
       video.duration > 0 &&
       isFinite(video.duration)
     ) {
-      const savedTime = video.currentTime;
-      const numFrames = Math.min(
-        VIDEO_MAX_FRAMES,
-        Math.ceil(video.duration / 2),
-      );
-      const interval = video.duration / (numFrames + 1);
+      if (!video.paused) {
+        // Video is playing — capture only the current frame to avoid visible playback jump
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth || video.clientWidth || 320;
+          canvas.height = video.videoHeight || video.clientHeight || 240;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          frameUrls.push(canvas.toDataURL("image/jpeg", 0.7));
+        } catch {
+          // Cross-origin or security error — skip
+        }
+      } else {
+        // Video is paused — safe to seek for multi-frame analysis
+        const savedTime = video.currentTime;
+        const numFrames = Math.min(
+          VIDEO_MAX_FRAMES,
+          Math.ceil(video.duration / 2),
+        );
+        const interval = video.duration / (numFrames + 1);
 
-      for (let i = 1; i <= numFrames; i++) {
-        const seekTime = interval * i;
-        const frameUrl = await captureVideoFrame(video, seekTime);
-        if (frameUrl) frameUrls.push(frameUrl);
-      }
+        for (let i = 1; i <= numFrames; i++) {
+          const seekTime = interval * i;
+          const frameUrl = await captureVideoFrame(video, seekTime);
+          if (frameUrl) frameUrls.push(frameUrl);
+        }
 
-      // Restore original playback position
-      try {
-        video.currentTime = savedTime;
-      } catch {
-        /* ignore */
+        // Restore original playback position
+        try {
+          video.currentTime = savedTime;
+        } catch {
+          /* ignore */
+        }
       }
     } else if (frameUrls.length === 0) {
       // Fallback: capture current frame
@@ -996,8 +1069,25 @@ function autoScanTextNodes(elements) {
           );
         });
 
-        if (result && result.verdict) {
+        if (result && result.verdict && result.verdict !== "unavailable") {
+          result.sourcePageUrl = window.location.href;
+
+          // Ensure parent is positioned for detection dot
+          const pos = window.getComputedStyle(el).position;
+          if (pos === "static") el.style.position = "relative";
+
           createDetectionDot(el, result);
+
+          // Add colored left border to flagged text blocks for visibility
+          if (
+            result.verdict === "ai_generated" ||
+            result.verdict === "heavy_edit"
+          ) {
+            const color = VERDICT_COLORS[result.verdict] || "#d4456b";
+            el.style.borderLeft = `3px solid ${color}`;
+            el.style.paddingLeft = el.style.paddingLeft || "8px";
+          }
+
           addFlaggedItem(
             el,
             result.verdict,
@@ -1043,6 +1133,74 @@ function stopTextAutoScan() {
 }
 
 // ──────────────────────────────────────────────
+// CSS Background Image Detection
+// ──────────────────────────────────────────────
+
+const BG_SELECTORS =
+  ".hero, [class*='cover'], [class*='banner'], header, [role='banner'], " +
+  "[class*='background'], [class*='hero'], [class*='jumbotron'], [class*='masthead']";
+
+const scannedBgElements = new WeakSet();
+let bgScanTimer = null;
+
+function scanBackgroundImages() {
+  if (!canScanImages()) return;
+
+  let found = 0;
+  const elements = document.querySelectorAll(BG_SELECTORS);
+
+  for (const el of elements) {
+    if (found >= 10) break;
+    if (scannedBgElements.has(el)) continue;
+
+    const bgImage = window.getComputedStyle(el).backgroundImage;
+    if (!bgImage || bgImage === "none") continue;
+
+    const urlMatch = bgImage.match(/url\(["']?([^"')]+)["']?\)/);
+    if (!urlMatch || !urlMatch[1]) continue;
+
+    const url = urlMatch[1];
+    if (url.startsWith("data:") && url.length < 10000) continue;
+
+    scannedBgElements.add(el);
+    found++;
+
+    // Analyze the background image URL
+    requestQueue.add(async () => {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage(
+            { type: "analyze-image", url },
+            (response) => {
+              if (chrome.runtime.lastError)
+                reject(new Error(chrome.runtime.lastError.message));
+              else resolve(response);
+            },
+          );
+        });
+
+        if (result && result.verdict) {
+          result.sourceUrl = url;
+          result.sourcePageUrl = window.location.href;
+          createDetectionDot(el, result);
+          addFlaggedItem(el, result.verdict, "Background: " + url.slice(0, 40));
+          applyContentMode(el, result.verdict);
+          updateStats(result.verdict);
+          updatePageStats("images", result.verdict);
+        }
+      } catch (error) {
+        console.warn("[Baloney] Background image scan failed:", error);
+      }
+    });
+  }
+}
+
+function debouncedBgScan() {
+  if (bgScanTimer) clearTimeout(bgScanTimer);
+  bgScanTimer = setTimeout(scanBackgroundImages, 1000);
+}
+
+// ──────────────────────────────────────────────
 // Viewport observer (images + videos)
 // ──────────────────────────────────────────────
 
@@ -1059,7 +1217,23 @@ const viewportObserver = new IntersectionObserver(
         } else if (el.tagName === "VIDEO") {
           const w = el.videoWidth || el.clientWidth;
           if (w > 200 && !el.dataset.baloneyScanned) {
-            analyzeVideo(el);
+            if (el.readyState >= 2) {
+              analyzeVideo(el);
+            } else {
+              // Video hasn't loaded metadata yet — retry once on loadedmetadata
+              const retries = parseInt(el.dataset.baloneyRetries || "0", 10);
+              if (retries < 1) {
+                el.dataset.baloneyRetries = String(retries + 1);
+                el.addEventListener(
+                  "loadedmetadata",
+                  () => {
+                    if (!el.dataset.baloneyScanned)
+                      viewportObserver.observe(el);
+                  },
+                  { once: true },
+                );
+              }
+            }
           }
         }
 
@@ -1067,8 +1241,35 @@ const viewportObserver = new IntersectionObserver(
       }
     }
   },
-  { threshold: 0.5 },
+  { threshold: 0.1, rootMargin: "200px 0px" },
 );
+
+// ──────────────────────────────────────────────
+// Attribute observer (watch src changes on lazy-loaded images)
+// ──────────────────────────────────────────────
+
+const attributeObserver = new MutationObserver((mutations) => {
+  for (const mutation of mutations) {
+    if (mutation.type !== "attributes") continue;
+    const img = mutation.target;
+    if (img.tagName !== "IMG") continue;
+
+    const scanned = img.dataset.baloneyScanned;
+    if (scanned && scanned !== "error") continue;
+
+    if (isTargetImage(img)) {
+      delete img.dataset.baloneyScanned;
+      viewportObserver.observe(img);
+    }
+  }
+});
+
+function watchImageAttributes(img) {
+  attributeObserver.observe(img, {
+    attributes: true,
+    attributeFilter: ["src", "srcset"],
+  });
+}
 
 // ──────────────────────────────────────────────
 // DOM observer (watch for new images/videos)
@@ -1079,16 +1280,34 @@ const domObserver = new MutationObserver((mutations) => {
     for (const node of mutation.addedNodes) {
       if (node.nodeType !== Node.ELEMENT_NODE) continue;
 
-      if (node.tagName === "IMG") viewportObserver.observe(node);
+      if (node.tagName === "IMG") {
+        viewportObserver.observe(node);
+        watchImageAttributes(node);
+      }
       if (node.tagName === "VIDEO") viewportObserver.observe(node);
+      if (node.tagName === "PICTURE") {
+        const innerImg = node.querySelector("img");
+        if (innerImg) {
+          viewportObserver.observe(innerImg);
+          watchImageAttributes(innerImg);
+        }
+      }
 
       if (node.querySelectorAll) {
-        node
-          .querySelectorAll("img")
-          .forEach((img) => viewportObserver.observe(img));
+        node.querySelectorAll("img").forEach((img) => {
+          viewportObserver.observe(img);
+          watchImageAttributes(img);
+        });
         node
           .querySelectorAll("video")
           .forEach((vid) => viewportObserver.observe(vid));
+        node.querySelectorAll("picture").forEach((pic) => {
+          const innerImg = pic.querySelector("img");
+          if (innerImg) {
+            viewportObserver.observe(innerImg);
+            watchImageAttributes(innerImg);
+          }
+        });
 
         // Auto-scan new text elements if enabled
         if (textObserver) {
@@ -1099,6 +1318,9 @@ const domObserver = new MutationObserver((mutations) => {
       }
     }
   }
+
+  // Re-scan for background images after DOM changes
+  debouncedBgScan();
 });
 
 // ──────────────────────────────────────────────
@@ -1106,19 +1328,8 @@ const domObserver = new MutationObserver((mutations) => {
 // ──────────────────────────────────────────────
 
 function init() {
-  if (!isEnabled()) {
-    console.log("[Baloney] Extension is disabled");
-    return;
-  }
-
-  if (!isSiteAllowed()) {
-    console.log("[Baloney] Site not in allowed list:", pageHostname);
-    return;
-  }
-
-  console.log(
-    "[Baloney] Content script loaded (v0.4.0 \u2014 dot UI + gating)",
-  );
+  if (!isEnabled()) return;
+  if (!isSiteAllowed()) return;
 
   createLoadingIndicator();
 
@@ -1128,9 +1339,18 @@ function init() {
     subtree: true,
   });
 
-  // Scan existing images
+  // Scan existing images (including inside <picture> elements)
   document.querySelectorAll("img").forEach((img) => {
     viewportObserver.observe(img);
+    watchImageAttributes(img);
+  });
+
+  document.querySelectorAll("picture").forEach((pic) => {
+    const innerImg = pic.querySelector("img");
+    if (innerImg) {
+      viewportObserver.observe(innerImg);
+      watchImageAttributes(innerImg);
+    }
   });
 
   // Scan existing videos
@@ -1142,6 +1362,9 @@ function init() {
   if (canAutoScanText()) {
     startTextAutoScan();
   }
+
+  // Scan CSS background images on hero/cover elements
+  scanBackgroundImages();
 
   ensurePageIndicator();
 }
@@ -1164,6 +1387,12 @@ function dismissTextToast(animate = true) {
     toastAutoDismissTimer = null;
   }
   if (!activeToastCard) return;
+
+  // Clean up escape key listener
+  if (activeToastCard._escHandler) {
+    document.removeEventListener("keydown", activeToastCard._escHandler);
+    activeToastCard._escHandler = null;
+  }
 
   if (animate) {
     activeToastCard.style.animation = "baloney-card-out 0.2s ease forwards";
@@ -1294,8 +1523,13 @@ function showTextToastResult(result, textPreview) {
     /</g,
     "&lt;",
   );
-  const resultData = JSON.stringify({ result, type: "text" });
-  const analyzeUrl = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
+  const resultData = JSON.stringify({
+    result,
+    type: "text",
+    sourceUrl: result.sourceUrl,
+    sourcePageUrl: result.sourcePageUrl,
+  });
+  const analyzeUrl = `${API_URL}/analyze?result=${encodeURIComponent(resultData)}`;
 
   // Method mini-bars (top 2 methods)
   let methodsHTML = "";
@@ -1311,7 +1545,7 @@ function showTextToastResult(result, textPreview) {
         const mColor =
           m.score > 0.65 ? "#d4456b" : m.score > 0.35 ? "#f59e0b" : "#16a34a";
         methodsHTML += `<div class="baloney-toast-method-row">
-          <span class="baloney-toast-method-label">${m.label}</span>
+          <span class="baloney-toast-method-label">${esc(m.label)}</span>
           <div class="baloney-toast-method-bar"><div style="width:${pct}%;background:${mColor}"></div></div>
           <span class="baloney-toast-method-pct">${pct}%</span>
         </div>`;
@@ -1407,14 +1641,14 @@ function showTextToastResult(result, textPreview) {
     verdictEl.addEventListener("click", () => openSidepanel(result, "text"));
   }
 
-  // Escape to dismiss
+  // Escape to dismiss (stored on card for cleanup in dismissTextToast)
   const escHandler = (e) => {
     if (e.key === "Escape") {
       dismissTextToast(true);
-      document.removeEventListener("keydown", escHandler);
     }
   };
   document.addEventListener("keydown", escHandler);
+  card._escHandler = escHandler;
 
   // Stats
   updateTextStats(result.verdict);
@@ -1558,12 +1792,133 @@ function verdictLabel(result) {
 // ──────────────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // Image context menu result (kept as-is)
+  // Image context menu result — attach dot + show interactive toast
   if (message.type === "show-result" && message.result) {
-    showToast(
-      ["Baloney: Image Scan", verdictLabel(message.result)],
-      message.result.verdict,
+    const result = message.result;
+    result.sourceUrl = message.srcUrl;
+    result.sourcePageUrl = window.location.href;
+
+    // Find the matching <img> element and attach a detection dot
+    if (message.srcUrl) {
+      const imgs = document.querySelectorAll("img");
+      for (const img of imgs) {
+        const imgSrc = img.src || img.currentSrc || "";
+        if (imgSrc === message.srcUrl) {
+          if (!img.dataset.baloneyScanned) {
+            img.dataset.baloneyScanned = result.verdict;
+            img.dataset.baloneyResult = JSON.stringify(result);
+            createDetectionDot(img, result);
+            addFlaggedItem(
+              img,
+              result.verdict,
+              "Image: " + (img.alt || imgSrc.slice(0, 40) || "unknown"),
+            );
+            applyContentMode(img, result.verdict);
+            updateStats(result.verdict);
+            updatePageStats("images", result.verdict);
+          }
+          break;
+        }
+      }
+    }
+
+    // Show interactive toast that navigates to analysis page on click
+    const color = VERDICT_COLORS[result.verdict] || "#4a3728";
+    const label = VERDICT_LABELS[result.verdict] || result.verdict;
+    const confidence = Math.round((result.confidence || 0) * 100);
+    const reasons = getImageReasons(result).slice(0, 2);
+    const resultData = JSON.stringify({
+      result,
+      type: "image",
+      sourceUrl: result.sourceUrl,
+      sourcePageUrl: result.sourcePageUrl,
+    });
+    const analyzeUrl = `${API_URL}/analyze?result=${encodeURIComponent(resultData)}`;
+
+    const card = createToastCardShell();
+    card.style.borderLeftColor = color;
+
+    let reasonsHTML = "";
+    if (reasons.length > 0) {
+      reasonsHTML = `<div class="baloney-toast-card__reasons">${reasons.map((r) => `<div class="baloney-toast-card__reason">\u2022 ${r}</div>`).join("")}</div>`;
+    }
+
+    // Method mini-bars
+    let methodsHTML = "";
+    if (result.method_scores) {
+      const methods = Object.entries(result.method_scores)
+        .filter(([, m]) => m.available)
+        .sort((a, b) => b[1].weight - a[1].weight)
+        .slice(0, 2);
+      if (methods.length > 0) {
+        methodsHTML = '<div class="baloney-toast-methods">';
+        methods.forEach(([, m]) => {
+          const pct = Math.round(m.score * 100);
+          const mColor =
+            m.score > 0.65 ? "#d4456b" : m.score > 0.35 ? "#f59e0b" : "#16a34a";
+          methodsHTML += `<div class="baloney-toast-method-row">
+            <span class="baloney-toast-method-label">${esc(m.label)}</span>
+            <div class="baloney-toast-method-bar"><div style="width:${pct}%;background:${mColor}"></div></div>
+            <span class="baloney-toast-method-pct">${pct}%</span>
+          </div>`;
+        });
+        methodsHTML += "</div>";
+      }
+    }
+
+    const model = (result.model_used || result.model || "unknown").replace(
+      /</g,
+      "&lt;",
     );
+
+    card.innerHTML = `
+      <div class="baloney-toast-card__header">
+        <span class="baloney-toast-card__icon">\uD83D\uDC37</span>
+        <span class="baloney-toast-card__title">Baloney Image Scan</span>
+        <button class="baloney-toast-card__close" id="baloney-toast-close">\u00D7</button>
+      </div>
+      <div class="baloney-toast-card__verdict" id="baloney-toast-verdict" style="cursor:pointer">
+        <div class="baloney-toast-card__verdict-dot" style="background:${color}"></div>
+        <span class="baloney-toast-card__verdict-label">${label}</span>
+        <span class="baloney-toast-card__verdict-pct">${confidence}%</span>
+      </div>
+      <div class="baloney-toast-card__bar">
+        <div class="baloney-toast-card__bar-fill" style="background:${color}" id="baloney-toast-bar-fill"></div>
+      </div>
+      ${methodsHTML}
+      ${reasonsHTML}
+      <div class="baloney-toast-card__footer">
+        <span class="baloney-toast-card__model">${model}</span>
+        <a href="${analyzeUrl}" target="_blank" class="baloney-toast-card__link">View Full Data \u2192</a>
+      </div>
+    `;
+
+    // Animate confidence bar
+    requestAnimationFrame(() => {
+      const barFill = document.getElementById("baloney-toast-bar-fill");
+      if (barFill) {
+        requestAnimationFrame(() => {
+          barFill.style.width = `${confidence}%`;
+        });
+      }
+    });
+
+    // Close button
+    const closeBtn = document.getElementById("baloney-toast-close");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dismissTextToast(true);
+      });
+    }
+
+    // Click verdict → open analysis page
+    const verdictEl = document.getElementById("baloney-toast-verdict");
+    if (verdictEl) {
+      verdictEl.addEventListener("click", () => openSidepanel(result, "image"));
+    }
+
+    startAutoDismiss(12000);
   }
 
   // Keyboard shortcut: return selected text

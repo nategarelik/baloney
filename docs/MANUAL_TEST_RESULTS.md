@@ -12,7 +12,7 @@
 
 **Root Cause:** GitHub repo was renamed from `trustlens` to `baloney`, which broke the Vercel GitHub integration webhook.
 
-**Fix:** Manual `vercel --prod` deployment from CLI. All pages now live at https://trustlens-nu.vercel.app.
+**Fix:** Manual `vercel --prod` deployment from CLI. All pages now live at https://baloney.app.
 
 ## Live Page Verification (Post-Deploy)
 
@@ -95,7 +95,7 @@
 | T5.5 — This Page section | Hostname + image/text/flagged counts | **PASS** | `popup.html` L475-492: queries active tab, looks up `pageStats[hostname]`, shows section if data exists |
 | T5.6 — Top Pages mini-list | Up to 5 sites sorted by total | **PASS** | `popup.html` L494-521: sorts entries by total descending, slices to 5, renders with color-coded bars |
 | T5.7 — Session timer | Elapsed time from extension load | **PASS** | `popup.html` L392-405: reads `sessionStartTime` from storage, updates every 1s; `background.js` L292: sets `sessionStartTime: Date.now()` on init |
-| T5.8 — Dashboard link | Opens dashboard in new tab | **PASS** | `popup.html` L359: `<a href="https://trustlens-nu.vercel.app/dashboard" target="_blank">` |
+| T5.8 — Dashboard link | Opens dashboard in new tab | **PASS** | `popup.html` L359: `<a href="https://baloney.app/dashboard" target="_blank">` |
 
 ---
 
@@ -208,7 +208,7 @@
 - [x] /my-diet: gauge + 4 cards + tips + recent scans table
 - [x] /extension: hero + 6 features + 3 steps + CTA
 - [x] Navbar: 6 links with active highlighting
-- [x] **VERIFIED:** All 7 frontend pages load on https://trustlens-nu.vercel.app (post-redeploy)
+- [x] **VERIFIED:** All 7 frontend pages load on https://baloney.app (post-redeploy)
 - [x] **VERIFIED:** Navbar shows all 6 links on every page
 - [x] **VERIFIED:** /my-diet has heading + loading state + data fetch
 - [x] **VERIFIED:** /extension has v0.2.0 badge, 6 features, 3 steps, CTA

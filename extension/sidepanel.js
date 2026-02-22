@@ -441,9 +441,13 @@ function renderProvenance(result) {
 // ──────────────────────────────────────────────
 
 function renderFullAnalysisButton(data) {
-  const type = data.type || "image";
-  const scanId = data.result && data.result.scan_id ? data.result.scan_id : "";
-  const url = `https://baloney.app/analyze?type=${encodeURIComponent(type)}${scanId ? "&scan=" + encodeURIComponent(scanId) : ""}`;
+  const resultData = JSON.stringify({
+    result: data.result,
+    type: data.type || "image",
+    sourceUrl: data.sourceUrl || data.result?.sourceUrl,
+    sourcePageUrl: data.sourcePageUrl || data.result?.sourcePageUrl,
+  });
+  const url = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
 
   return `<a class="open-full-btn" href="${url}" target="_blank" rel="noopener noreferrer">Open Full Analysis</a>`;
 }

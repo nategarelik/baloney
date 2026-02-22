@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { methodS_sightEngineVideo } from "@/lib/real-detectors";
-import { errorResponse } from "@/lib/api-utils";
+import { errorResponse, validatePlatform } from "@/lib/api-utils";
 import crypto from "crypto";
 import type { VideoDetectionResult, Verdict } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { video, frames, user_id, platform = "manual_upload" } = body;
+    const { video, frames, user_id } = body;
+    const platform = validatePlatform(body.platform);
 
     // v2.0: Accept either a single video base64 or an array of frame base64s
     const frameBase64s: string[] = [];

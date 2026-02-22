@@ -2011,7 +2011,7 @@ Extension popup footer      "TrustLens v0.1.0"           "Baloney v1.0.0"
 Extension manifest name     "TrustLens --..."            "Baloney -- AI Content Detector"
 Extension styles classes    ".trustlens-badge"           ".baloney-badge"
 Extension content.js refs   "trustlens-"                 "baloney-"
-Dashboard link (popup)      "trustlens-nu.vercel.app"    new Vercel URL
+Dashboard link (popup)      "trustlens-nu.vercel.app"    "baloney.app"
 Footer                      "Built at MadData26"         "Built at MadData26" (keep)
 ```
 
