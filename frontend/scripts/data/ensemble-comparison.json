@@ -1,0 +1,26 @@
+{
+  "pangram_only": {
+    "accuracy": 63,
+    "precision": 64,
+    "recall": 94.1,
+    "f1": 76.2,
+    "fpr": 90,
+    "specificity": 10
+  },
+  "ensemble": {
+    "accuracy": 49,
+    "precision": 76.9,
+    "recall": 7.2,
+    "f1": 13.2,
+    "fpr": 2.5,
+    "specificity": 97.5
+  },
+  "delta": {
+    "accuracy": -14,
+    "precision": 12.9,
+    "recall": -86.9,
+    "f1": -63,
+    "fpr": -87.5,
+    "specificity": 87.5
+  }
+}

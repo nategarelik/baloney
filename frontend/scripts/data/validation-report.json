@@ -1,0 +1,340 @@
+{
+  "generated_at": "2026-02-22T09:22:14.408Z",
+  "total_samples": 86,
+  "ai_samples": 36,
+  "human_samples": 50,
+  "roc_data": [
+    {
+      "fpr": 0,
+      "tpr": 0
+    },
+    {
+      "fpr": 0.92,
+      "tpr": 1
+    },
+    {
+      "fpr": 1,
+      "tpr": 1
+    }
+  ],
+  "auc_roc": 0.54,
+  "optimal_threshold": 0.01,
+  "confusion_matrix": {
+    "tp": 36,
+    "fp": 46,
+    "fn": 0,
+    "tn": 4
+  },
+  "per_model": [
+    {
+      "model": "gemini",
+      "accuracy": 100,
+      "detection_rate": 100,
+      "detection_rate_ci": {
+        "lower": 90.4,
+        "upper": 100
+      },
+      "avg_confidence": 1,
+      "avg_ai_assisted": 0,
+      "avg_window_high_conf": 100,
+      "n": 36
+    }
+  ],
+  "per_platform": [
+    {
+      "platform": "x",
+      "accuracy": 100,
+      "detection_rate": 100,
+      "detection_rate_ci": {
+        "lower": 79.6,
+        "upper": 100
+      },
+      "avg_confidence": 1,
+      "avg_ai_assisted": 0,
+      "avg_window_high_conf": 100,
+      "n": 15
+    },
+    {
+      "platform": "facebook",
+      "accuracy": 100,
+      "detection_rate": 100,
+      "detection_rate_ci": {
+        "lower": 78.5,
+        "upper": 100
+      },
+      "avg_confidence": 1,
+      "avg_ai_assisted": 0,
+      "avg_window_high_conf": 100,
+      "n": 14
+    },
+    {
+      "platform": "linkedin",
+      "accuracy": 100,
+      "detection_rate": 100,
+      "detection_rate_ci": {
+        "lower": 64.6,
+        "upper": 100
+      },
+      "avg_confidence": 1,
+      "avg_ai_assisted": 0,
+      "avg_window_high_conf": 100,
+      "n": 7
+    }
+  ],
+  "confidence_distribution": [
+    {
+      "bucket": "0.0-0.1",
+      "ai_count": 0,
+      "human_count": 4
+    },
+    {
+      "bucket": "0.1-0.2",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.2-0.3",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.3-0.4",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.4-0.5",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.5-0.6",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.6-0.7",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.7-0.8",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.8-0.9",
+      "ai_count": 0,
+      "human_count": 0
+    },
+    {
+      "bucket": "0.9-1.0",
+      "ai_count": 36,
+      "human_count": 46
+    }
+  ],
+  "summary_stats": [
+    {
+      "metric": "Accuracy",
+      "value": "46.5%"
+    },
+    {
+      "metric": "Precision",
+      "value": "43.9%"
+    },
+    {
+      "metric": "Recall (Sensitivity)",
+      "value": "100.0%"
+    },
+    {
+      "metric": "Specificity",
+      "value": "8.0%"
+    },
+    {
+      "metric": "F1 Score",
+      "value": "61.0%"
+    },
+    {
+      "metric": "False Positive Rate",
+      "value": "92.0%"
+    },
+    {
+      "metric": "AUC-ROC",
+      "value": "0.5400"
+    },
+    {
+      "metric": "AUC-ROC 95% CI",
+      "value": "[0.5088, 0.5834]"
+    },
+    {
+      "metric": "PR-AUC",
+      "value": "0.0000"
+    },
+    {
+      "metric": "Cohen's d (effect size)",
+      "value": "0.3822 (small)"
+    },
+    {
+      "metric": "Optimal Threshold (Youden's J)",
+      "value": "0.01"
+    },
+    {
+      "metric": "Total Samples",
+      "value": "86"
+    }
+  ],
+  "pr_data": [
+    {
+      "recall": 1,
+      "precision": 0.439
+    },
+    {
+      "recall": 1,
+      "precision": 0.4186
+    }
+  ],
+  "pr_auc": 0,
+  "calibration": [
+    {
+      "bin_midpoint": 0.05,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 4
+    },
+    {
+      "bin_midpoint": 0.15,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.25,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.35,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.45,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.55,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.65,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.75,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.85,
+      "avg_predicted": 0,
+      "actual_positive_rate": 0,
+      "count": 0
+    },
+    {
+      "bin_midpoint": 0.95,
+      "avg_predicted": 1,
+      "actual_positive_rate": 0.439,
+      "count": 82
+    }
+  ],
+  "threshold_sensitivity": [
+    {
+      "threshold": 0.3,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.4,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.5,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.6,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.7,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.8,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    },
+    {
+      "threshold": 0.9,
+      "accuracy": 0.4651,
+      "precision": 0.439,
+      "recall": 1,
+      "f1": 0.6102,
+      "fpr": 0.92,
+      "specificity": 0.08
+    }
+  ],
+  "auc_ci": {
+    "lower": 0.5088,
+    "upper": 0.5834,
+    "mean": 0.5394
+  },
+  "ai_assisted_analysis": {
+    "avg_fraction_ai_assisted_on_ai": 0,
+    "avg_fraction_ai_assisted_on_human": 0,
+    "texts_with_mixed_classification": 0
+  },
+  "window_analysis": {
+    "avg_windows_per_text": 1,
+    "avg_high_confidence_pct": 88.4,
+    "avg_ai_score_on_ai_windows": 0.9593
+  },
+  "isSynthetic": false
+}

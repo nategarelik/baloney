@@ -1,0 +1,42 @@
+[
+  {
+    "platform": "mixed",
+    "n": 225,
+    "pangram_accuracy": 0.1,
+    "pangram_fpr": 0.9,
+    "pangram_f1": 0,
+    "ensemble_accuracy": 0.5556,
+    "ensemble_fpr": 0.025,
+    "ensemble_f1": 0.1379
+  },
+  {
+    "platform": "facebook",
+    "n": 12,
+    "pangram_accuracy": 1,
+    "pangram_fpr": 0,
+    "pangram_f1": 1,
+    "ensemble_accuracy": 0.0833,
+    "ensemble_fpr": 0,
+    "ensemble_f1": 0.1538
+  },
+  {
+    "platform": "linkedin",
+    "n": 12,
+    "pangram_accuracy": 1,
+    "pangram_fpr": 0,
+    "pangram_f1": 1,
+    "ensemble_accuracy": 0.0833,
+    "ensemble_fpr": 0,
+    "ensemble_f1": 0.1538
+  },
+  {
+    "platform": "x",
+    "n": 10,
+    "pangram_accuracy": 0.8,
+    "pangram_fpr": 0,
+    "pangram_f1": 0.8889,
+    "ensemble_accuracy": 0,
+    "ensemble_fpr": 0,
+    "ensemble_f1": 0
+  }
+]

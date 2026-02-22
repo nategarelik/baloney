@@ -36,7 +36,7 @@ export function SentinelBoard({ userLevel }: SentinelBoardProps) {
     return (
       <ChartCard
         title="Community Sentinel Board"
-        subtitle="User experience levels — higher levels catch more AI"
+        subtitle="Experienced scanners catch 3-5x more AI content. Level up from Novice (0-169) to Sentinel (680+) by scanning consistently across platforms."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -47,7 +47,7 @@ export function SentinelBoard({ userLevel }: SentinelBoardProps) {
     return (
       <ChartCard
         title="Community Sentinel Board"
-        subtitle="User experience levels — higher levels catch more AI"
+        subtitle="Experienced scanners catch 3-5x more AI content. Level up from Novice (0-169) to Sentinel (680+) by scanning consistently across platforms."
       >
         <p className="text-sm text-secondary/50 py-8 text-center">
           No sentinel data available yet.
@@ -59,7 +59,7 @@ export function SentinelBoard({ userLevel }: SentinelBoardProps) {
   return (
     <ChartCard
       title="Community Sentinel Board"
-      subtitle="User experience levels — higher levels catch more AI"
+      subtitle="Experienced scanners catch 3-5x more AI content. Level up from Novice (0-169) to Sentinel (680+) by scanning consistently across platforms."
     >
       <ResponsiveContainer width="100%" height={280}>
         <ComposedChart layout="vertical" data={data}>

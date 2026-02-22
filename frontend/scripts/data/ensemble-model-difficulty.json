@@ -1,0 +1,100 @@
+[
+  {
+    "model": "claude",
+    "n": 28,
+    "pangram_detection_rate": 0.3571,
+    "ensemble_detection_rate": 0,
+    "score_distribution": {
+      "min": 0.0956,
+      "q1": 0.114725,
+      "median": 0.1449,
+      "q3": 0.413,
+      "max": 0.4474
+    },
+    "evasion_count": 18
+  },
+  {
+    "model": "human",
+    "n": 120,
+    "pangram_detection_rate": 0,
+    "ensemble_detection_rate": 0,
+    "score_distribution": {
+      "min": 0,
+      "q1": 0,
+      "median": 0,
+      "q3": 0,
+      "max": 0
+    },
+    "evasion_count": 0
+  },
+  {
+    "model": "llama",
+    "n": 5,
+    "pangram_detection_rate": 0,
+    "ensemble_detection_rate": 0,
+    "score_distribution": {
+      "min": 0.0932,
+      "q1": 0.0973,
+      "median": 0.0984,
+      "q3": 0.0998,
+      "max": 0.1181
+    },
+    "evasion_count": 5
+  },
+  {
+    "model": "mistral",
+    "n": 5,
+    "pangram_detection_rate": 0,
+    "ensemble_detection_rate": 0,
+    "score_distribution": {
+      "min": 0.1373,
+      "q1": 0.1451,
+      "median": 0.1502,
+      "q3": 0.1694,
+      "max": 0.2115
+    },
+    "evasion_count": 5
+  },
+  {
+    "model": "chatgpt",
+    "n": 17,
+    "pangram_detection_rate": 0.7059,
+    "ensemble_detection_rate": 0.0588,
+    "score_distribution": {
+      "min": 0.1667,
+      "q1": 0.4094,
+      "median": 0.4195,
+      "q3": 0.4254,
+      "max": 0.7288
+    },
+    "evasion_count": 4
+  },
+  {
+    "model": "gemini",
+    "n": 20,
+    "pangram_detection_rate": 0.5,
+    "ensemble_detection_rate": 0.1,
+    "score_distribution": {
+      "min": 0.0851,
+      "q1": 0.13082500000000002,
+      "median": 0.2818,
+      "q3": 0.43195,
+      "max": 0.6097
+    },
+    "evasion_count": 10
+  },
+  {
+    "model": "mixed",
+    "n": 64,
+    "pangram_detection_rate": 0,
+    "ensemble_detection_rate": 0.1094,
+    "score_distribution": {
+      "min": 0.0763,
+      "q1": 0.108425,
+      "median": 0.1592,
+      "q3": 0.32442499999999996,
+      "max": 0.763
+    },
+    "evasion_count": 57
+  }
+]

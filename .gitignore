@@ -24,6 +24,7 @@ build/
 .env.local
 .env.production
 .env.*.local
+.env.vercel-check
 
 # ──────────────────────────────────────────────
 # Model weights & data (too large for git)
@@ -53,10 +54,13 @@ Thumbs.db
 # Deprecated / artifacts
 # ──────────────────────────────────────────────
 nul
-data/
+/data/
 models/
 notebooks/
-scripts/
+/scripts/
+# Allow frontend scripts (evaluation harness + data)
+!frontend/scripts/
+!frontend/scripts/**
 
 # ──────────────────────────────────────────────
 # Build artifacts

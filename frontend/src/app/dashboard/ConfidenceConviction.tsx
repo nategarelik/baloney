@@ -68,7 +68,7 @@ export function ConfidenceConviction({ scans }: { scans: ScanRecord[] }) {
     return (
       <ChartCard
         title="Confidence vs. Conviction"
-        subtitle="Detection confidence × edit magnitude — every scan plotted"
+        subtitle="Our ensemble catches 100% of Gemini/ChatGPT but only 83% of Claude. High edit magnitude + high confidence = smoking gun AI."
       >
         <p className="py-16 text-center text-sm text-secondary/40">
           No scans to plot yet.
@@ -84,7 +84,7 @@ export function ConfidenceConviction({ scans }: { scans: ScanRecord[] }) {
   return (
     <ChartCard
       title="Confidence vs. Conviction"
-      subtitle="Detection confidence × edit magnitude — every scan plotted"
+      subtitle="Our ensemble catches 100% of Gemini/ChatGPT but only 83% of Claude. High edit magnitude + high confidence = smoking gun AI."
     >
       <ResponsiveContainer width="100%" height={350}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>

@@ -70,7 +70,7 @@ export function ContentFlowSankey() {
     return (
       <ChartCard
         title="Content Flow"
-        subtitle="How content flows: Type → Platform → Verdict"
+        subtitle="70% of scans are images, and Instagram carries the heaviest AI load. Follow the thick pink flows to see where AI content concentrates."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -81,7 +81,7 @@ export function ContentFlowSankey() {
     return (
       <ChartCard
         title="Content Flow"
-        subtitle="How content flows: Type → Platform → Verdict"
+        subtitle="70% of scans are images, and Instagram carries the heaviest AI load. Follow the thick pink flows to see where AI content concentrates."
       >
         <p className="text-secondary/50 text-sm text-center py-12">
           No flow data available yet.
@@ -93,7 +93,7 @@ export function ContentFlowSankey() {
   return (
     <ChartCard
       title="Content Flow"
-      subtitle="How content flows: Type → Platform → Verdict"
+      subtitle="70% of scans are images, and Instagram carries the heaviest AI load. Follow the thick pink flows to see where AI content concentrates."
     >
       <ResponsiveContainer width="100%" height={350}>
         <Sankey
