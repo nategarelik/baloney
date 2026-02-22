@@ -1,11 +1,10 @@
-// frontend/src/lib/real-detectors.ts — Real AI detection (v3.0 — Mac Studio Local Inference)
-// Primary:  Mac Studio backend — 9-model local ensemble on Apple Silicon MPS
-//   Text:  DeBERTa-v3-large + RoBERTa-OpenAI + RoBERTa-ChatGPT + MiniLM + Statistical (5 models)
-//   Image: ViT-AI-detector + SDXL-detector + FFT + EXIF (4 signals)
-// Fallback: HuggingFace API ensemble (if Mac Studio backend unavailable)
-// Video:    Multi-frame analysis with temporal consistency scoring
+// frontend/src/lib/real-detectors.ts — Real AI detection (v5.0 — Primary APIs Only)
+// Text:  SynthID Text (Google Gemini watermark) → Pangram (99.85%) → Statistical (12 features)
+// Image: SynthID Image (Google Imagen watermark) → SightEngine (98.3%) → Frequency/DCT → Metadata/EXIF
+// Video: SightEngine native video endpoint only
+// Secondary/backup code (HuggingFace, Mac Studio, Reality Defender) commented out below
 
-import { InferenceClient } from "@huggingface/inference";
+// import { InferenceClient } from "@huggingface/inference";
 import type {
   DetectionResult,
   TextDetectionResult,
@@ -18,8 +17,8 @@ import type {
 } from "./types";
 import {
   computeTextStats,
-  mockTextResult,
-  mockImageResult,
+  // mockTextResult,
+  // mockImageResult,
 } from "./mock-detectors";
 
 // ──────────────────────────────────────────────
@@ -75,16 +74,16 @@ function standardDeviation(values: number[]): number {
 }
 
 // ──────────────────────────────────────────────
-// HuggingFace client
+// HuggingFace client — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-function getHFClient(): InferenceClient {
-  const apiKey = process.env.HUGGINGFACE_API_KEY;
-  if (!apiKey) {
-    throw new Error("HUGGINGFACE_API_KEY not configured");
-  }
-  return new InferenceClient(apiKey);
-}
+// function getHFClient(): InferenceClient {
+//   const apiKey = process.env.HUGGINGFACE_API_KEY;
+//   if (!apiKey) {
+//     throw new Error("HUGGINGFACE_API_KEY not configured");
+//   }
+//   return new InferenceClient(apiKey);
+// }
 
 // ──────────────────────────────────────────────
 // Verdict mapping
@@ -145,170 +144,127 @@ function mapVerdict(aiProbability: number, textLength: number): VerdictMapping {
 }
 
 // ──────────────────────────────────────────────
-// METHOD A: Transformer-Based Binary Classification
-// RoBERTa fine-tuned on GPT-2 outputs (Spec §3.1 Method A)
+// METHOD A: RoBERTa — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function methodA_roberta(
-  client: InferenceClient,
-  text: string,
-): Promise<number> {
-  const result = await client.textClassification({
-    model: "openai-community/roberta-base-openai-detector",
-    inputs: text.slice(0, 2000),
-    provider: "hf-inference",
-  });
-
-  const classifications = Array.isArray(result) ? result : [result];
-  const aiLabel = classifications.find(
-    (c) => c.label === "Fake" || c.label === "LABEL_1",
-  );
-
-  if (!aiLabel) {
-    throw new Error(
-      "AI label not found in RoBERTa response: " +
-        JSON.stringify(classifications),
-    );
-  }
-
-  return aiLabel.score;
-}
+// async function methodA_roberta(
+//   client: InferenceClient,
+//   text: string,
+// ): Promise<number> {
+//   const result = await client.textClassification({
+//     model: "openai-community/roberta-base-openai-detector",
+//     inputs: text.slice(0, 2000),
+//     provider: "hf-inference",
+//   });
+//   const classifications = Array.isArray(result) ? result : [result];
+//   const aiLabel = classifications.find(
+//     (c) => c.label === "Fake" || c.label === "LABEL_1",
+//   );
+//   if (!aiLabel) {
+//     throw new Error(
+//       "AI label not found in RoBERTa response: " +
+//         JSON.stringify(classifications),
+//     );
+//   }
+//   return aiLabel.score;
+// }
 
 // ──────────────────────────────────────────────
-// METHOD C: ChatGPT-era Detector (covers GPT-3.5/4, Claude, Gemini)
-// Hello-SimpleAI/chatgpt-detector-roberta — RoBERTa fine-tuned on
-// ChatGPT outputs (HC3 dataset), complementing Method A's GPT-2 training.
-// Cross-model coverage: trained on ChatGPT but generalizes to Claude/Gemini
-// due to shared transformer output characteristics.
-// (Added v2.0 — addresses GPT-2-only blind spot in Method A)
+// METHOD C: ChatGPT Detector — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function methodC_chatgptDetector(
-  client: InferenceClient,
-  text: string,
-): Promise<number> {
-  const result = await client.textClassification({
-    model: "Hello-SimpleAI/chatgpt-detector-roberta",
-    inputs: text.slice(0, 2000),
-    provider: "hf-inference",
-  });
-
-  const classifications = Array.isArray(result) ? result : [result];
-  // This model uses "ChatGPT" label for AI-generated text
-  const aiLabel = classifications.find(
-    (c) => c.label === "ChatGPT" || c.label === "LABEL_1" || c.label === "Fake",
-  );
-
-  if (!aiLabel) {
-    // If no AI label found, look for the human label and invert
-    const humanLabel = classifications.find(
-      (c) => c.label === "Human" || c.label === "LABEL_0" || c.label === "Real",
-    );
-    if (humanLabel) return precise(1 - humanLabel.score);
-    throw new Error(
-      "Labels not found in chatgpt-detector response: " +
-        JSON.stringify(classifications),
-    );
-  }
-
-  return aiLabel.score;
-}
+// async function methodC_chatgptDetector(
+//   client: InferenceClient,
+//   text: string,
+// ): Promise<number> {
+//   const result = await client.textClassification({
+//     model: "Hello-SimpleAI/chatgpt-detector-roberta",
+//     inputs: text.slice(0, 2000),
+//     provider: "hf-inference",
+//   });
+//   const classifications = Array.isArray(result) ? result : [result];
+//   const aiLabel = classifications.find(
+//     (c) => c.label === "ChatGPT" || c.label === "LABEL_1" || c.label === "Fake",
+//   );
+//   if (!aiLabel) {
+//     const humanLabel = classifications.find(
+//       (c) => c.label === "Human" || c.label === "LABEL_0" || c.label === "Real",
+//     );
+//     if (humanLabel) return precise(1 - humanLabel.score);
+//     throw new Error(
+//       "Labels not found in chatgpt-detector response: " +
+//         JSON.stringify(classifications),
+//     );
+//   }
+//   return aiLabel.score;
+// }
 
 // ──────────────────────────────────────────────
-// METHOD B: Sentence Embedding Analysis (EditLens-inspired, v2.0 enhanced)
-// Uses all-MiniLM-L6-v2 to compute inter-sentence cosine distances
-// AI text has more uniform embeddings (lower variance in distances)
-// v2.0: Samples up to 15 sentences uniformly across the doc,
-//        adds std-dev of distances + semantic clustering signal
-// (Spec §3.1 Method B)
+// METHOD B: Sentence Embeddings — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function methodB_embeddings(
-  client: InferenceClient,
-  sentences: string[],
-): Promise<number> {
-  if (sentences.length < 2) return 0.5;
-
-  // v2.0: Sample up to 15 sentences uniformly across the document
-  // This captures structure from beginning, middle, and end
-  const maxSentences = 15;
-  let sampled: string[];
-  if (sentences.length <= maxSentences) {
-    sampled = sentences;
-  } else {
-    const step = sentences.length / maxSentences;
-    sampled = Array.from(
-      { length: maxSentences },
-      (_, i) => sentences[Math.min(Math.floor(i * step), sentences.length - 1)],
-    );
-  }
-
-  // Get embeddings for each sentence (batch them for efficiency)
-  const embeddings: number[][] = [];
-  for (const sentence of sampled) {
-    const embedding = await client.featureExtraction({
-      model: "sentence-transformers/all-MiniLM-L6-v2",
-      inputs: sentence,
-      provider: "hf-inference",
-    });
-    // featureExtraction returns number[] for single input
-    if (Array.isArray(embedding) && typeof embedding[0] === "number") {
-      embeddings.push(embedding as number[]);
-    }
-  }
-
-  if (embeddings.length < 2) return 0.5;
-
-  // Compute pairwise cosine distances between consecutive sentences
-  const consecutiveDistances: number[] = [];
-  for (let i = 0; i < embeddings.length - 1; i++) {
-    const sim = cosineSimilarity(embeddings[i], embeddings[i + 1]);
-    consecutiveDistances.push(1 - sim); // Convert similarity to distance
-  }
-
-  // AI text has LOWER inter-sentence distance (more uniform embeddings)
-  const avgDistance =
-    consecutiveDistances.reduce((a, b) => a + b, 0) /
-    consecutiveDistances.length;
-  const distanceVariance =
-    consecutiveDistances.reduce(
-      (sum, d) => sum + Math.pow(d - avgDistance, 2),
-      0,
-    ) / consecutiveDistances.length;
-
-  // v2.0: Standard deviation of distances — AI text clusters tighter
-  const distanceStdDev = standardDeviation(consecutiveDistances);
-
-  // v2.0: Semantic clustering — compute all-pairs similarity for non-adjacent sentences
-  // AI text maintains unnaturally high similarity even across distant sentences
-  const skipDistances: number[] = [];
-  for (let i = 0; i < embeddings.length - 2; i += 2) {
-    const sim = cosineSimilarity(embeddings[i], embeddings[i + 2]);
-    skipDistances.push(1 - sim);
-  }
-  const avgSkipDistance =
-    skipDistances.length > 0
-      ? skipDistances.reduce((a, b) => a + b, 0) / skipDistances.length
-      : avgDistance;
-
-  // Low average distance + low variance → more AI-like
-  // High average distance + high variance → more human-like
-  const uniformitySignal = clamp(1 - avgDistance * 2, 0, 1); // Higher = more AI
-  const consistencySignal = clamp(1 - distanceVariance * 10, 0, 1); // Higher = more AI
-
-  // v2.0: Low std-dev in distances means rigid structure → AI
-  const rigiditySignal = clamp(1 - distanceStdDev * 5, 0, 1);
-
-  // v2.0: High semantic coherence across non-adjacent sentences → AI
-  const longRangeCoherence = clamp(1 - avgSkipDistance * 2, 0, 1);
-
-  return precise(
-    uniformitySignal * 0.35 +
-      consistencySignal * 0.25 +
-      rigiditySignal * 0.2 +
-      longRangeCoherence * 0.2,
-  );
-}
+// async function methodB_embeddings(
+//   client: InferenceClient,
+//   sentences: string[],
+// ): Promise<number> {
+//   if (sentences.length < 2) return 0.5;
+//   const maxSentences = 15;
+//   let sampled: string[];
+//   if (sentences.length <= maxSentences) {
+//     sampled = sentences;
+//   } else {
+//     const step = sentences.length / maxSentences;
+//     sampled = Array.from(
+//       { length: maxSentences },
+//       (_, i) => sentences[Math.min(Math.floor(i * step), sentences.length - 1)],
+//     );
+//   }
+//   const embeddings: number[][] = [];
+//   for (const sentence of sampled) {
+//     const embedding = await client.featureExtraction({
+//       model: "sentence-transformers/all-MiniLM-L6-v2",
+//       inputs: sentence,
+//       provider: "hf-inference",
+//     });
+//     if (Array.isArray(embedding) && typeof embedding[0] === "number") {
+//       embeddings.push(embedding as number[]);
+//     }
+//   }
+//   if (embeddings.length < 2) return 0.5;
+//   const consecutiveDistances: number[] = [];
+//   for (let i = 0; i < embeddings.length - 1; i++) {
+//     const sim = cosineSimilarity(embeddings[i], embeddings[i + 1]);
+//     consecutiveDistances.push(1 - sim);
+//   }
+//   const avgDistance =
+//     consecutiveDistances.reduce((a, b) => a + b, 0) /
+//     consecutiveDistances.length;
+//   const distanceVariance =
+//     consecutiveDistances.reduce(
+//       (sum, d) => sum + Math.pow(d - avgDistance, 2),
+//       0,
+//     ) / consecutiveDistances.length;
+//   const distanceStdDev = standardDeviation(consecutiveDistances);
+//   const skipDistances: number[] = [];
+//   for (let i = 0; i < embeddings.length - 2; i += 2) {
+//     const sim = cosineSimilarity(embeddings[i], embeddings[i + 2]);
+//     skipDistances.push(1 - sim);
+//   }
+//   const avgSkipDistance =
+//     skipDistances.length > 0
+//       ? skipDistances.reduce((a, b) => a + b, 0) / skipDistances.length
+//       : avgDistance;
+//   const uniformitySignal = clamp(1 - avgDistance * 2, 0, 1);
+//   const consistencySignal = clamp(1 - distanceVariance * 10, 0, 1);
+//   const rigiditySignal = clamp(1 - distanceStdDev * 5, 0, 1);
+//   const longRangeCoherence = clamp(1 - avgSkipDistance * 2, 0, 1);
+//   return precise(
+//     uniformitySignal * 0.35 +
+//       consistencySignal * 0.25 +
+//       rigiditySignal * 0.2 +
+//       longRangeCoherence * 0.2,
+//   );
+// }
 
 // ──────────────────────────────────────────────
 // METHOD D: Statistical Feature Extraction (v2.0 — 12 features)
@@ -705,138 +661,92 @@ function scoreSentencesReal(
 }
 
 // ──────────────────────────────────────────────
-// Mac Studio Backend Integration (v3.0)
-// 9-model local ensemble on Apple Silicon MPS
-// Env: BACKEND_URL (Mac Studio) or RAILWAY_BACKEND_URL (Railway fallback)
+// Mac Studio Backend Integration — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-function getBackendUrl(): string | null {
-  return process.env.BACKEND_URL || process.env.RAILWAY_BACKEND_URL || null;
-}
+// function getBackendUrl(): string | null {
+//   return process.env.BACKEND_URL || process.env.RAILWAY_BACKEND_URL || null;
+// }
 
-async function backendTextDetection(
-  text: string,
-): Promise<TextDetectionResult | null> {
-  const backendUrl = getBackendUrl();
-  if (!backendUrl) return null;
+// async function backendTextDetection(
+//   text: string,
+// ): Promise<TextDetectionResult | null> {
+//   const backendUrl = getBackendUrl();
+//   if (!backendUrl) return null;
+//   const controller = new AbortController();
+//   const timeoutId = setTimeout(() => controller.abort(), 30000);
+//   try {
+//     const response = await fetch(`${backendUrl}/api/analyze`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ text }),
+//       signal: controller.signal,
+//     });
+//     if (!response.ok) throw new Error(`Backend API error: ${response.status}`);
+//     const data = await response.json();
+//     const aiProbability = data.final_score as number;
+//     const textStats = computeTextStats(text);
+//     const mapping = mapVerdict(aiProbability, text.length);
+//     const stats = methodD_statistical(text, textStats);
+//     const featureVector = buildFeatureVector(stats);
+//     const sentenceScores = scoreSentencesReal(text, aiProbability);
+//     const mlDetection = data.ml_detection || {};
+//     const modelCount = data.model_count || mlDetection.model_count || 5;
+//     const device = data.device || mlDetection.device || "unknown";
+//     const modelUsed = `local:${modelCount}-model-ensemble(${device})`;
+//     return {
+//       verdict: mapping.verdict, confidence: mapping.confidence,
+//       ai_probability: aiProbability, model_used: modelUsed,
+//       text_stats: textStats, caveat: mapping.caveat,
+//       trust_score: mapping.trust_score, classification: mapping.verdict,
+//       edit_magnitude: mapping.edit_magnitude, feature_vector: featureVector,
+//       sentence_scores: sentenceScores,
+//     };
+//   } catch (error) {
+//     console.warn("[Baloney] Backend unavailable, falling back:", error);
+//     return null;
+//   } finally { clearTimeout(timeoutId); }
+// }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for local ensemble
-
-  try {
-    const response = await fetch(`${backendUrl}/api/analyze`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const aiProbability = data.final_score as number;
-    const textStats = computeTextStats(text);
-
-    // Map backend response to TextDetectionResult format
-    const mapping = mapVerdict(aiProbability, text.length);
-    const stats = methodD_statistical(text, textStats);
-    const featureVector = buildFeatureVector(stats);
-    const sentenceScores = scoreSentencesReal(text, aiProbability);
-
-    // Extract model info from backend response
-    const mlDetection = data.ml_detection || {};
-    const methodScores = mlDetection.method_scores || {};
-    const modelCount = data.model_count || mlDetection.model_count || 5;
-    const device = data.device || mlDetection.device || "unknown";
-    const inferenceMs = data.inference_ms || mlDetection.inference_ms || 0;
-
-    // Build model_used string showing local ensemble
-    const modelUsed = `local:${modelCount}-model-ensemble(${device})`;
-
-    return {
-      verdict: mapping.verdict,
-      confidence: mapping.confidence,
-      ai_probability: aiProbability,
-      model_used: modelUsed,
-      text_stats: textStats,
-      caveat: mapping.caveat,
-      trust_score: mapping.trust_score,
-      classification: mapping.verdict,
-      edit_magnitude: mapping.edit_magnitude,
-      feature_vector: featureVector,
-      sentence_scores: sentenceScores,
-      method_scores: methodScores,
-      primaryAvailable: true,
-      confidenceCapped: false,
-    };
-  } catch (error) {
-    console.warn("[Baloney] Backend unavailable, falling back:", error);
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
-
-async function backendImageDetection(
-  base64Image: string,
-): Promise<DetectionResult | null> {
-  const backendUrl = getBackendUrl();
-  if (!backendUrl) return null;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-  try {
-    const response = await fetch(`${backendUrl}/api/analyze-image-b64`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64Image }),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend image API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const compositeScore = data.ai_score as number;
-    const mapping = mapImageVerdict(compositeScore);
-
-    const methods = data.methods || {};
-    const vitScore = methods.vit_ai_detector?.score ?? compositeScore;
-    const sdxlScore = methods.sdxl_detector?.score ?? compositeScore;
-    const device = data.device || "unknown";
-    const modelCount = data.model_count || 4;
-
-    return {
-      verdict: mapping.verdict,
-      confidence: mapping.confidence,
-      primary_score: precise(vitScore),
-      secondary_score: precise(sdxlScore),
-      model_used: `local:${modelCount}-signal-ensemble(${device})`,
-      ensemble_used: true,
-      trust_score: mapping.trust_score,
-      classification: mapping.verdict,
-      edit_magnitude: mapping.edit_magnitude,
-      primaryAvailable: true,
-      confidenceCapped: false,
-    };
-  } catch (error) {
-    console.warn(
-      "[Baloney] Backend image detection unavailable, falling back:",
-      error,
-    );
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
+// async function backendImageDetection(
+//   base64Image: string,
+// ): Promise<DetectionResult | null> {
+//   const backendUrl = getBackendUrl();
+//   if (!backendUrl) return null;
+//   const controller = new AbortController();
+//   const timeoutId = setTimeout(() => controller.abort(), 30000);
+//   try {
+//     const response = await fetch(`${backendUrl}/api/analyze-image-b64`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ image: base64Image }),
+//       signal: controller.signal,
+//     });
+//     if (!response.ok) throw new Error(`Backend image API error: ${response.status}`);
+//     const data = await response.json();
+//     const compositeScore = data.ai_score as number;
+//     const mapping = mapImageVerdict(compositeScore);
+//     const methods = data.methods || {};
+//     const vitScore = methods.vit_ai_detector?.score ?? compositeScore;
+//     const sdxlScore = methods.sdxl_detector?.score ?? compositeScore;
+//     const device = data.device || "unknown";
+//     const modelCount = data.model_count || 4;
+//     return {
+//       verdict: mapping.verdict, confidence: mapping.confidence,
+//       primary_score: precise(vitScore), secondary_score: precise(sdxlScore),
+//       model_used: `local:${modelCount}-signal-ensemble(${device})`,
+//       ensemble_used: true, trust_score: mapping.trust_score,
+//       classification: mapping.verdict, edit_magnitude: mapping.edit_magnitude,
+//     };
+//   } catch (error) {
+//     console.warn("[Baloney] Backend image detection unavailable:", error);
+//     return null;
+//   } finally { clearTimeout(timeoutId); }
+// }
 
 // ══════════════════════════════════════════════
-// REAL TEXT DETECTION — Cascading Pipeline (v4.0)
-// Priority: Mac Studio → SynthID (early exit) → Pangram (early exit) → HF Ensemble fallback
+// REAL TEXT DETECTION — Cascading Pipeline (v5.0 — Primary APIs Only)
+// Priority: SynthID (early exit) → Pangram (early exit) → Error if both fail
 // ══════════════════════════════════════════════
 
 export async function realTextDetection(
@@ -865,12 +775,8 @@ export async function realTextDetection(
       };
     }
 
-    // v3.0: Try Mac Studio backend first (9-model local ensemble on MPS)
-    const backendResult = await backendTextDetection(text);
-    if (backendResult) return backendResult;
-
-    // v4.0: Cascading pipeline — sequential with early exits
-    // Stage 1: SynthID (near-zero false positive watermark) → Stage 2: Pangram (99.85%) → Stage 3: HF Ensemble fallback
+    // v5.0: Cascading pipeline — primary APIs only
+    // Stage 1: SynthID (near-zero false positive watermark) → Stage 2: Pangram (99.85%) → Error if both fail
 
     // ── Stage 1: SynthID Text (Google Gemini watermark detection) ──
     const synthidResult = await methodSynthID_text(text).catch(() => null);
@@ -900,7 +806,6 @@ export async function realTextDetection(
             label: "Pangram (99.85%)",
             available: false,
             status: "not_run",
-            tier: "primary",
           },
           synthid_text: {
             score: 1.0,
@@ -908,31 +813,6 @@ export async function realTextDetection(
             label: "SynthID (Google Watermark)",
             available: true,
             status: "success",
-            tier: "watermark",
-          },
-          roberta: {
-            score: 0,
-            weight: 0.17,
-            label: "RoBERTa GPT-2",
-            available: false,
-            status: "not_run",
-            tier: "fallback",
-          },
-          chatgpt: {
-            score: 0,
-            weight: 0.14,
-            label: "ChatGPT Detector",
-            available: false,
-            status: "not_run",
-            tier: "fallback",
-          },
-          embeddings: {
-            score: 0,
-            weight: 0.06,
-            label: "Sentence Embeddings",
-            available: false,
-            status: "not_run",
-            tier: "fallback",
           },
           statistical: {
             score: stats.signal,
@@ -940,11 +820,8 @@ export async function realTextDetection(
             label: "Statistical (12 features)",
             available: true,
             status: "success",
-            tier: "fallback",
           },
         },
-        primaryAvailable: true,
-        confidenceCapped: false,
         synthid_text_result: "watermarked",
       };
     }
@@ -994,7 +871,6 @@ export async function realTextDetection(
           label: "Pangram (99.85%)",
           available: true,
           status: "success",
-          tier: "primary",
         },
         synthid_text: {
           score: synthidAvailable
@@ -1006,31 +882,6 @@ export async function realTextDetection(
           label: "SynthID (Google Watermark)",
           available: synthidAvailable,
           status: synthidAvailable ? "success" : "unavailable",
-          tier: "watermark",
-        },
-        roberta: {
-          score: 0,
-          weight: 0.17,
-          label: "RoBERTa GPT-2",
-          available: false,
-          status: "not_run",
-          tier: "fallback",
-        },
-        chatgpt: {
-          score: 0,
-          weight: 0.14,
-          label: "ChatGPT Detector",
-          available: false,
-          status: "not_run",
-          tier: "fallback",
-        },
-        embeddings: {
-          score: 0,
-          weight: 0.06,
-          label: "Sentence Embeddings",
-          available: false,
-          status: "not_run",
-          tier: "fallback",
         },
         statistical: {
           score: stats.signal,
@@ -1038,7 +889,6 @@ export async function realTextDetection(
           label: "Statistical (12 features)",
           available: true,
           status: "success",
-          tier: "fallback",
         },
       };
 
@@ -1056,8 +906,6 @@ export async function realTextDetection(
         feature_vector: featureVector,
         sentence_scores: sentenceScores,
         method_scores: methodScores,
-        primaryAvailable: true,
-        confidenceCapped: false,
         pangram_classification: pangramResult.classification,
         pangram_windows: pangramResult.windows?.map((w) => ({
           start: text.indexOf(w.text),
@@ -1075,148 +923,13 @@ export async function realTextDetection(
       };
     }
 
-    // ── Stage 3: HF Ensemble Fallback (SynthID unavailable + Pangram failed) ──
-    const client = getHFClient();
-    const sentences = splitSentences(text).filter((s) => s.length > 10);
-    const stats = methodD_statistical(text, textStats);
-
-    const [hfScore, chatgptScore, embeddingScore] = await Promise.all([
-      methodA_roberta(client, text).catch(() => null),
-      methodC_chatgptDetector(client, text).catch(() => null),
-      methodB_embeddings(client, sentences).catch(() => 0.5),
-    ]);
-
-    // Dynamic weight allocation among fallback methods
-    let aiProbability: number;
-    let modelName: string;
-
-    if (hfScore !== null && chatgptScore !== null) {
-      aiProbability = precise(
-        hfScore * 0.3 +
-          chatgptScore * 0.25 +
-          embeddingScore * 0.15 +
-          stats.signal * 0.3,
-      );
-      modelName = "hf:roberta+chatgpt-detector+minilm+statistical";
-    } else if (hfScore !== null) {
-      aiProbability = precise(
-        hfScore * 0.45 + embeddingScore * 0.2 + stats.signal * 0.35,
-      );
-      modelName = "hf:roberta+minilm+statistical";
-    } else if (chatgptScore !== null) {
-      aiProbability = precise(
-        chatgptScore * 0.4 + embeddingScore * 0.2 + stats.signal * 0.4,
-      );
-      modelName = "hf:chatgpt-detector+minilm+statistical";
-    } else {
-      aiProbability = precise(embeddingScore * 0.35 + stats.signal * 0.65);
-      modelName = "hf:minilm+statistical";
-    }
-
-    // Short text confidence scaling
-    if (text.length < 200) {
-      const lengthPenalty = text.length / 200;
-      aiProbability = precise(0.5 + (aiProbability - 0.5) * lengthPenalty);
-    }
-
-    // Build method_scores for UI — always include ALL methods
-    const synthidAvailable =
-      synthidResult !== null && synthidResult !== undefined;
-    const methodScores: Record<string, MethodScore> = {
-      pangram: {
-        score: 0,
-        weight: 0.38,
-        label: "Pangram (99.85%)",
-        available: false,
-        status: "unavailable",
-        tier: "primary",
-      },
-      synthid_text: {
-        score: synthidAvailable
-          ? synthidResult === "not_watermarked"
-            ? 0.0
-            : 0.5
-          : 0,
-        weight: 0.0,
-        label: "SynthID (Google Watermark)",
-        available: synthidAvailable,
-        status: synthidAvailable ? "success" : "unavailable",
-        tier: "watermark",
-      },
-      roberta: {
-        score: hfScore ?? 0,
-        weight: 0.3,
-        label: "RoBERTa GPT-2",
-        available: hfScore !== null,
-        status: hfScore !== null ? "success" : "error",
-        tier: "fallback",
-      },
-      chatgpt: {
-        score: chatgptScore ?? 0,
-        weight: 0.25,
-        label: "ChatGPT Detector",
-        available: chatgptScore !== null,
-        status: chatgptScore !== null ? "success" : "error",
-        tier: "fallback",
-      },
-      embeddings: {
-        score: embeddingScore,
-        weight: 0.15,
-        label: "Sentence Embeddings",
-        available: true,
-        status: "success",
-        tier: "fallback",
-      },
-      statistical: {
-        score: stats.signal,
-        weight: 0.3,
-        label: "Statistical (12 features)",
-        available: true,
-        status: "success",
-        tier: "fallback",
-      },
-    };
-
-    const sentenceScores = scoreSentencesReal(text, aiProbability);
-    const mapping = mapVerdict(aiProbability, text.length);
-    const featureVector = buildFeatureVector(stats);
-
-    // Cap fallback confidence at 60%
-    const FALLBACK_MAX_CONFIDENCE = 0.6;
-    let confidenceCapped = false;
-    let finalConfidence = mapping.confidence;
-    if (finalConfidence > FALLBACK_MAX_CONFIDENCE) {
-      finalConfidence = FALLBACK_MAX_CONFIDENCE;
-      confidenceCapped = true;
-    }
-    const caveat = /reduced|confidence is reduced/i.test(mapping.caveat)
-      ? mapping.caveat
-      : "Primary model unavailable — reduced confidence. " + mapping.caveat;
-
-    return {
-      verdict: mapping.verdict,
-      confidence: finalConfidence,
-      ai_probability: aiProbability,
-      model_used:
-        modelName + (synthidResult ? "+synthid:" + synthidResult : ""),
-      text_stats: textStats,
-      caveat,
-      trust_score: mapping.trust_score,
-      classification: mapping.verdict,
-      edit_magnitude: mapping.edit_magnitude,
-      feature_vector: featureVector,
-      sentence_scores: sentenceScores,
-      method_scores: methodScores,
-      primaryAvailable: false,
-      confidenceCapped,
-      synthid_text_result: synthidResult,
-    };
-  } catch (error) {
-    console.warn(
-      "[Baloney] Real text detection failed, using mock fallback:",
-      error,
+    // Stage 3 (HF Ensemble) commented out — primary APIs only
+    throw new Error(
+      "Primary text detection APIs unavailable (SynthID + Pangram both failed)",
     );
-    return mockTextResult(text);
+  } catch (error) {
+    console.error("[Baloney] Real text detection failed:", error);
+    throw error;
   }
 }
 
@@ -1225,80 +938,54 @@ export async function realTextDetection(
 // ══════════════════════════════════════════════
 
 // ──────────────────────────────────────────────
-// METHOD E: ViT-Based Classification (CLIP-style)
-// umm-maybe/AI-image-detector — ViT fine-tuned to detect AI images
-// Generalizes across GAN and diffusion models (Spec §3.2 Method E)
+// METHOD E: ViT Classifier — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function methodE_vitClassifier(
-  client: InferenceClient,
-  blob: Blob,
-): Promise<number> {
-  const result = await client.imageClassification({
-    model: "umm-maybe/AI-image-detector",
-    data: blob,
-    provider: "hf-inference",
-  });
-
-  const classifications = Array.isArray(result) ? result : [result];
-  const aiLabel = classifications.find(
-    (c) =>
-      c.label === "artificial" || c.label === "Fake" || c.label === "LABEL_1",
-  );
-
-  if (!aiLabel) {
-    throw new Error(
-      "AI label not found in image response: " +
-        JSON.stringify(classifications),
-    );
-  }
-
-  return aiLabel.score;
-}
+// async function methodE_vitClassifier(
+//   client: InferenceClient,
+//   blob: Blob,
+// ): Promise<number> {
+//   const result = await client.imageClassification({
+//     model: "umm-maybe/AI-image-detector",
+//     data: blob,
+//     provider: "hf-inference",
+//   });
+//   const classifications = Array.isArray(result) ? result : [result];
+//   const aiLabel = classifications.find(
+//     (c) => c.label === "artificial" || c.label === "Fake" || c.label === "LABEL_1",
+//   );
+//   if (!aiLabel) {
+//     throw new Error("AI label not found in image response: " + JSON.stringify(classifications));
+//   }
+//   return aiLabel.score;
+// }
 
 // ──────────────────────────────────────────────
-// METHOD E2: SDXL/Flux-era Detector (v2.0)
-// Organika/sdxl-detector — fine-tuned on SDXL, Midjourney, DALL-E 3 outputs
-// Complements Method E's ViT which is better at GAN-era images
+// METHOD E2: SDXL Detector — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function methodE2_sdxlDetector(
-  client: InferenceClient,
-  blob: Blob,
-): Promise<number> {
-  const result = await client.imageClassification({
-    model: "Organika/sdxl-detector",
-    data: blob,
-    provider: "hf-inference",
-  });
-
-  const classifications = Array.isArray(result) ? result : [result];
-  const aiLabel = classifications.find(
-    (c) =>
-      c.label === "artificial" ||
-      c.label === "Fake" ||
-      c.label === "LABEL_1" ||
-      c.label === "ai",
-  );
-
-  if (!aiLabel) {
-    // Try inverting the human/real label
-    const humanLabel = classifications.find(
-      (c) =>
-        c.label === "human" ||
-        c.label === "Real" ||
-        c.label === "LABEL_0" ||
-        c.label === "real",
-    );
-    if (humanLabel) return precise(1 - humanLabel.score);
-    throw new Error(
-      "AI label not found in SDXL detector response: " +
-        JSON.stringify(classifications),
-    );
-  }
-
-  return aiLabel.score;
-}
+// async function methodE2_sdxlDetector(
+//   client: InferenceClient,
+//   blob: Blob,
+// ): Promise<number> {
+//   const result = await client.imageClassification({
+//     model: "Organika/sdxl-detector",
+//     data: blob,
+//     provider: "hf-inference",
+//   });
+//   const classifications = Array.isArray(result) ? result : [result];
+//   const aiLabel = classifications.find(
+//     (c) => c.label === "artificial" || c.label === "Fake" || c.label === "LABEL_1" || c.label === "ai",
+//   );
+//   if (!aiLabel) {
+//     const humanLabel = classifications.find(
+//       (c) => c.label === "human" || c.label === "Real" || c.label === "LABEL_0" || c.label === "real",
+//     );
+//     if (humanLabel) return precise(1 - humanLabel.score);
+//     throw new Error("AI label not found in SDXL detector response: " + JSON.stringify(classifications));
+//   }
+//   return aiLabel.score;
+// }
 
 // ──────────────────────────────────────────────
 // METHOD F: Frequency Domain Analysis (v2.0 — DCT + multi-scale FFT)
@@ -1855,50 +1542,41 @@ async function methodSynthID_image(
 }
 
 // ──────────────────────────────────────────────
-// Reality Defender: Deepfake Escalation (for ambiguous images)
-// Triggers when composite score is 0.4-0.7 (uncertain range)
+// Reality Defender — COMMENTED OUT (primary APIs only)
 // ──────────────────────────────────────────────
 
-async function escalate_realityDefender(imageBytes: Buffer): Promise<{
-  is_deepfake: boolean;
-  confidence: number;
-  models_used: string[];
-} | null> {
-  const apiKey = process.env.REALITY_DEFENDER_API_KEY;
-  if (!apiKey) return null;
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
-
-  try {
-    const formData = new FormData();
-    formData.append(
-      "media",
-      new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }),
-      "image.jpg",
-    );
-
-    const response = await fetch("https://api.realitydefender.com/v2/detect", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}` },
-      body: formData,
-      signal: controller.signal,
-    });
-
-    if (!response.ok) return null;
-    const data = await response.json();
-
-    return {
-      is_deepfake: data.is_deepfake ?? false,
-      confidence: data.confidence ?? 0,
-      models_used: data.models_used ?? [],
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(timeoutId);
-  }
-}
+// async function escalate_realityDefender(imageBytes: Buffer): Promise<{
+//   is_deepfake: boolean;
+//   confidence: number;
+//   models_used: string[];
+// } | null> {
+//   const apiKey = process.env.REALITY_DEFENDER_API_KEY;
+//   if (!apiKey) return null;
+//   const controller = new AbortController();
+//   const timeoutId = setTimeout(() => controller.abort(), 30000);
+//   try {
+//     const formData = new FormData();
+//     formData.append(
+//       "media",
+//       new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }),
+//       "image.jpg",
+//     );
+//     const response = await fetch("https://api.realitydefender.com/v2/detect", {
+//       method: "POST",
+//       headers: { Authorization: `Bearer ${apiKey}` },
+//       body: formData,
+//       signal: controller.signal,
+//     });
+//     if (!response.ok) return null;
+//     const data = await response.json();
+//     return {
+//       is_deepfake: data.is_deepfake ?? false,
+//       confidence: data.confidence ?? 0,
+//       models_used: data.models_used ?? [],
+//     };
+//   } catch { return null; }
+//   finally { clearTimeout(timeoutId); }
+// }
 
 // ──────────────────────────────────────────────
 // Image Verdict Mapping
@@ -1946,21 +1624,16 @@ function mapImageVerdict(compositeScore: number): {
 }
 
 // ══════════════════════════════════════════════
-// REAL IMAGE DETECTION — Cascading Pipeline (v4.0)
-// Priority: Mac Studio → SynthID Image (early exit) → SightEngine (early exit) → HF Ensemble fallback
+// REAL IMAGE DETECTION — Cascading Pipeline (v5.0 — Primary APIs Only)
+// Priority: SynthID Image (early exit) → SightEngine (early exit) → Error if both fail
 // ══════════════════════════════════════════════
 
 export async function realImageDetection(
   base64Image: string,
-  { skipExpensiveApis = false }: { skipExpensiveApis?: boolean } = {},
 ): Promise<DetectionResult> {
   try {
-    // Try Mac Studio backend first (4-signal local ensemble on MPS)
-    const backendResult = await backendImageDetection(base64Image);
-    if (backendResult) return backendResult;
-
-    // v4.0: Cascading pipeline — sequential with early exits
-    // Stage 1: SynthID Image → Stage 2: SightEngine → Stage 3: HF Ensemble fallback
+    // v5.0: Cascading pipeline — primary APIs only
+    // Stage 1: SynthID Image → Stage 2: SightEngine → Error if both fail
 
     // Prepare image bytes (needed by all stages)
     const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
@@ -1969,10 +1642,9 @@ export async function realImageDetection(
     const bytes = Buffer.from(raw, "base64");
 
     // ── Stage 1: SynthID Image (Google Imagen watermark detection) ──
-    // Skipped for video frames — wasteful to call per-frame when SightEngine native video already tried
-    const synthidImageResult = skipExpensiveApis
-      ? null
-      : await methodSynthID_image(bytes).catch(() => null);
+    const synthidImageResult = await methodSynthID_image(bytes).catch(
+      () => null,
+    );
 
     if (synthidImageResult === "Detected") {
       // SynthID confirmed — high-confidence AI, no need for further analysis
@@ -1996,7 +1668,6 @@ export async function realImageDetection(
             label: "SynthID Image (Google)",
             available: true,
             status: "success",
-            tier: "watermark",
           },
           sightengine: {
             score: 0,
@@ -2004,23 +1675,6 @@ export async function realImageDetection(
             label: "SightEngine (98.3%)",
             available: false,
             status: "not_run",
-            tier: "primary",
-          },
-          vit: {
-            score: 0,
-            weight: 0.18,
-            label: "ViT AI Detector",
-            available: false,
-            status: "not_run",
-            tier: "fallback",
-          },
-          sdxl: {
-            score: 0,
-            weight: 0.09,
-            label: "SDXL Detector",
-            available: false,
-            status: "not_run",
-            tier: "fallback",
           },
           frequency: {
             score: freqScore,
@@ -2028,7 +1682,6 @@ export async function realImageDetection(
             label: "Frequency/DCT Analysis",
             available: true,
             status: "success",
-            tier: "fallback",
           },
           metadata: {
             score: metaScore,
@@ -2036,19 +1689,13 @@ export async function realImageDetection(
             label: "Metadata/EXIF/C2PA",
             available: true,
             status: "success",
-            tier: "fallback",
           },
         },
-        primaryAvailable: true,
-        confidenceCapped: false,
       };
     }
 
     // ── Stage 2: SightEngine API (98.3% accuracy) ──
-    // Skipped for video frames — SightEngine native video endpoint already tried at route level
-    const sightEngineScore = skipExpensiveApis
-      ? null
-      : await methodS_sightEngine(bytes).catch(() => null);
+    const sightEngineScore = await methodS_sightEngine(bytes).catch(() => null);
 
     if (sightEngineScore !== null) {
       // SightEngine returned a result — use it as primary verdict
@@ -2064,7 +1711,6 @@ export async function realImageDetection(
           label: "SightEngine (98.3%)",
           available: true,
           status: "success",
-          tier: "primary",
         },
         synthid_image: {
           score: synthidAvail
@@ -2078,23 +1724,6 @@ export async function realImageDetection(
           label: "SynthID Image (Google)",
           available: synthidAvail,
           status: synthidAvail ? "success" : "unavailable",
-          tier: "watermark",
-        },
-        vit: {
-          score: 0,
-          weight: 0.18,
-          label: "ViT AI Detector",
-          available: false,
-          status: "not_run",
-          tier: "fallback",
-        },
-        sdxl: {
-          score: 0,
-          weight: 0.09,
-          label: "SDXL Detector",
-          available: false,
-          status: "not_run",
-          tier: "fallback",
         },
         frequency: {
           score: freqScore,
@@ -2102,7 +1731,6 @@ export async function realImageDetection(
           label: "Frequency/DCT Analysis",
           available: true,
           status: "success",
-          tier: "fallback",
         },
         metadata: {
           score: metaScore,
@@ -2110,46 +1738,13 @@ export async function realImageDetection(
           label: "Metadata/EXIF/C2PA",
           available: true,
           status: "success",
-          tier: "fallback",
         },
       };
-      let modelName =
+      const modelName =
         "sightengine" +
         (synthidImageResult ? "+synthid-image:" + synthidImageResult : "");
 
-      // Reality Defender escalation for ambiguous SightEngine results
-      if (compositeScore >= 0.4 && compositeScore <= 0.7) {
-        const rdResult = await escalate_realityDefender(bytes).catch(
-          () => null,
-        );
-        if (rdResult) {
-          compositeScore = precise(
-            compositeScore * 0.7 +
-              (rdResult.is_deepfake
-                ? rdResult.confidence
-                : 1 - rdResult.confidence) *
-                0.3,
-          );
-          methodScores.reality_defender = {
-            score: rdResult.confidence,
-            weight: 0.3,
-            label: "Reality Defender (Deep Scan)",
-            available: true,
-            status: "success",
-            tier: "escalation",
-          };
-          modelName += "+reality-defender";
-        } else {
-          methodScores.reality_defender = {
-            score: 0,
-            weight: 0.0,
-            label: "Reality Defender (Deep Scan)",
-            available: false,
-            status: "error",
-            tier: "escalation",
-          };
-        }
-      }
+      // Reality Defender escalation — COMMENTED OUT (primary APIs only)
 
       const mapping = mapImageVerdict(compositeScore);
       return {
@@ -2163,304 +1758,76 @@ export async function realImageDetection(
         classification: mapping.verdict,
         edit_magnitude: mapping.edit_magnitude,
         method_scores: methodScores,
-        primaryAvailable: true,
-        confidenceCapped: false,
       };
     }
 
-    // ── Stage 3: HF Ensemble Fallback (SynthID unavailable + SightEngine failed) ──
-    const client = getHFClient();
-    const blob = new Blob([bytes], { type: mimeType });
-
-    const [vitScore, sdxlScore] = await Promise.all([
-      methodE_vitClassifier(client, blob).catch(() => null),
-      methodE2_sdxlDetector(client, blob).catch(() => null),
-    ]);
-
-    const freqScore = methodF_frequency(bytes);
-    const metaScore = methodG_metadata(base64Image);
-
-    // Dynamic weight allocation among fallback methods
-    let compositeScore: number;
-    let modelName: string;
-
-    if (vitScore !== null && sdxlScore !== null) {
-      const vitConfidence = Math.abs(vitScore - 0.5) * 2;
-      const sdxlConfidence = Math.abs(sdxlScore - 0.5) * 2;
-      const classifierTotal = vitConfidence + sdxlConfidence + 0.001;
-      const vitWeight = 0.35 * (0.5 + (vitConfidence / classifierTotal) * 0.5);
-      const sdxlWeight = 0.2 * (0.5 + (sdxlConfidence / classifierTotal) * 0.5);
-      const totalWeight = vitWeight + sdxlWeight + 0.25 + 0.2;
-      compositeScore = precise(
-        (vitScore * vitWeight +
-          sdxlScore * sdxlWeight +
-          freqScore * 0.25 +
-          metaScore * 0.2) /
-          totalWeight,
-      );
-      modelName = "hf:vit-ai-detector+sdxl-detector+dct-fft+metadata";
-      if (
-        (vitScore > 0.7 && sdxlScore > 0.7) ||
-        (vitScore < 0.3 && sdxlScore < 0.3)
-      ) {
-        const classifierAvg = (vitScore + sdxlScore) / 2;
-        compositeScore = precise(compositeScore * 0.85 + classifierAvg * 0.15);
-      }
-    } else if (vitScore !== null) {
-      compositeScore = precise(
-        vitScore * 0.5 + freqScore * 0.28 + metaScore * 0.22,
-      );
-      modelName = "hf:vit-ai-detector+dct-fft+metadata";
-    } else if (sdxlScore !== null) {
-      compositeScore = precise(
-        sdxlScore * 0.45 + freqScore * 0.3 + metaScore * 0.25,
-      );
-      modelName = "hf:sdxl-detector+dct-fft+metadata";
-    } else {
-      compositeScore = precise(freqScore * 0.55 + metaScore * 0.45);
-      modelName = "local:dct-fft+metadata";
-    }
-
-    // Build method_scores for UI — always include ALL methods
-    const synthidAvail =
-      synthidImageResult !== null && synthidImageResult !== undefined;
-    const methodScores: Record<string, MethodScore> = {
-      sightengine: {
-        score: 0,
-        weight: 0.32,
-        label: "SightEngine (98.3%)",
-        available: false,
-        status: "unavailable",
-        tier: "primary",
-      },
-      synthid_image: {
-        score: synthidAvail
-          ? synthidImageResult === "Not Detected"
-            ? 0.0
-            : 0.5
-          : 0,
-        weight: 0.1,
-        label: "SynthID Image (Google)",
-        available: synthidAvail,
-        status: synthidAvail ? "success" : "unavailable",
-        tier: "watermark",
-      },
-      vit: {
-        score: vitScore ?? 0,
-        weight: 0.35,
-        label: "ViT AI Detector",
-        available: vitScore !== null,
-        status: vitScore !== null ? "success" : "error",
-        tier: "fallback",
-      },
-      sdxl: {
-        score: sdxlScore ?? 0,
-        weight: 0.2,
-        label: "SDXL Detector",
-        available: sdxlScore !== null,
-        status: sdxlScore !== null ? "success" : "error",
-        tier: "fallback",
-      },
-      frequency: {
-        score: freqScore,
-        weight: 0.25,
-        label: "Frequency/DCT Analysis",
-        available: true,
-        status: "success",
-        tier: "fallback",
-      },
-      metadata: {
-        score: metaScore,
-        weight: 0.2,
-        label: "Metadata/EXIF/C2PA",
-        available: true,
-        status: "success",
-        tier: "fallback",
-      },
-    };
-
-    // Reality Defender escalation for ambiguous Stage 3 results
-    if (compositeScore >= 0.4 && compositeScore <= 0.7) {
-      const rdResult = await escalate_realityDefender(bytes).catch(() => null);
-      if (rdResult) {
-        compositeScore = precise(
-          compositeScore * 0.7 +
-            (rdResult.is_deepfake
-              ? rdResult.confidence
-              : 1 - rdResult.confidence) *
-              0.3,
-        );
-        methodScores.reality_defender = {
-          score: rdResult.confidence,
-          weight: 0.3,
-          label: "Reality Defender (Deep Scan)",
-          available: true,
-          status: "success",
-          tier: "escalation",
-        };
-        modelName += "+reality-defender";
-      } else {
-        methodScores.reality_defender = {
-          score: 0,
-          weight: 0.0,
-          label: "Reality Defender (Deep Scan)",
-          available: false,
-          status: "error",
-          tier: "escalation",
-        };
-      }
-    }
-
-    modelName += synthidImageResult
-      ? "+synthid-image:" + synthidImageResult
-      : "";
-
-    const mapping = mapImageVerdict(compositeScore);
-
-    // Cap fallback confidence at 60%
-    const FALLBACK_MAX_CONFIDENCE = 0.6;
-    let confidenceCapped = false;
-    let finalConfidence = mapping.confidence;
-    if (finalConfidence > FALLBACK_MAX_CONFIDENCE) {
-      finalConfidence = FALLBACK_MAX_CONFIDENCE;
-      confidenceCapped = true;
-    }
-
-    return {
-      verdict: mapping.verdict,
-      confidence: finalConfidence,
-      primary_score: precise(vitScore ?? freqScore),
-      secondary_score: precise(sdxlScore ?? freqScore),
-      model_used: modelName,
-      ensemble_used: true,
-      trust_score: mapping.trust_score,
-      classification: mapping.verdict,
-      edit_magnitude: mapping.edit_magnitude,
-      method_scores: methodScores,
-      primaryAvailable: false,
-      confidenceCapped,
-    };
-  } catch (error) {
-    console.error(
-      "[Baloney] Real image detection failed, using mock fallback:",
-      error,
+    // Stage 3 (HF Ensemble) commented out — primary APIs only
+    throw new Error(
+      "Primary image detection APIs unavailable (SynthID Image + SightEngine both failed)",
     );
-    return mockImageResult();
+  } catch (error) {
+    console.error("[Baloney] Real image detection failed:", error);
+    throw error;
   }
 }
 
 // ══════════════════════════════════════════════
-// REAL VIDEO DETECTION — Multi-Frame Ensemble (v2.0)
-// Extracts multiple frames, runs image detection on each,
-// then combines with temporal consistency analysis
+// REAL VIDEO DETECTION — COMMENTED OUT (primary APIs only)
+// Was: Multi-frame ensemble calling realImageDetection per-frame with skipExpensiveApis.
+// Now video detection uses only SightEngine native video endpoint (in video/route.ts).
 // ══════════════════════════════════════════════
 
-export async function realVideoDetection(
-  frameBase64s: string[],
-): Promise<VideoDetectionResult> {
-  if (frameBase64s.length === 0) {
-    return {
-      verdict: "human",
-      confidence: 0,
-      frames_analyzed: 0,
-      frames_flagged_ai: 0,
-      ai_frame_percentage: 0,
-      frame_scores: [],
-      model_used: "none",
-      duration_seconds: 0,
-      primaryAvailable: false,
-      confidenceCapped: false,
-    };
-  }
-
-  const startTime = Date.now();
-  const frameResults: DetectionResult[] = [];
-
-  // Analyze each frame (limit to 8 frames for API rate limiting)
-  // skipExpensiveApis: SightEngine native video already tried at route level,
-  // and per-frame SynthID/SightEngine calls are wasteful for video
-  const framesToAnalyze = frameBase64s.slice(0, 8);
-  for (const frameBase64 of framesToAnalyze) {
-    try {
-      const result = await realImageDetection(frameBase64, {
-        skipExpensiveApis: true,
-      });
-      frameResults.push(result);
-    } catch {
-      // Skip failed frames
-    }
-  }
-
-  if (frameResults.length === 0) {
-    return {
-      verdict: "human",
-      confidence: 0,
-      frames_analyzed: 0,
-      frames_flagged_ai: 0,
-      ai_frame_percentage: 0,
-      frame_scores: [],
-      model_used: "multi-frame:none",
-      duration_seconds: 0,
-      primaryAvailable: false,
-      confidenceCapped: false,
-    };
-  }
-
-  // Extract frame-level AI scores
-  const frameScores = frameResults.map((r) => r.confidence);
-  const frameVerdicts = frameResults.map((r) => r.verdict);
-
-  // Count AI-flagged frames (ai_generated or heavy_edit)
-  const flaggedCount = frameVerdicts.filter(
-    (v) => v === "ai_generated" || v === "heavy_edit",
-  ).length;
-  const aiFramePercentage = flaggedCount / frameResults.length;
-
-  // Temporal consistency analysis:
-  // AI-generated videos have VERY consistent scores across frames
-  // Real videos edited with AI will have inconsistent scores
-  const scoreStdDev = standardDeviation(frameScores);
-  const avgScore = frameScores.reduce((a, b) => a + b, 0) / frameScores.length;
-
-  // If scores are very consistent (stddev < 0.1) and high, more likely fully AI
-  // If scores are inconsistent (stddev > 0.2), likely mixed/edited content
-  let temporalBonus = 0;
-  if (scoreStdDev < 0.08 && avgScore > 0.6) {
-    temporalBonus = 0.05; // Very consistent AI detection across frames
-  } else if (scoreStdDev > 0.25) {
-    temporalBonus = -0.05; // Inconsistent = probably mixed content
-  }
-
-  const finalScore = clamp(avgScore + temporalBonus, 0, 1);
-
-  // Determine verdict
-  let verdict: Verdict;
-  if (aiFramePercentage > 0.6 || finalScore > 0.65) {
-    verdict = "ai_generated";
-  } else if (aiFramePercentage > 0.3 || finalScore > 0.45) {
-    verdict = "heavy_edit";
-  } else if (aiFramePercentage > 0.1 || finalScore > 0.3) {
-    verdict = "light_edit";
-  } else {
-    verdict = "human";
-  }
-
-  const duration = (Date.now() - startTime) / 1000;
-  const modelUsed =
-    frameResults.length > 0
-      ? `multi-frame:${frameResults[0].model_used}`
-      : "multi-frame:none";
-
-  return {
-    verdict,
-    confidence: precise(finalScore),
-    frames_analyzed: frameResults.length,
-    frames_flagged_ai: flaggedCount,
-    ai_frame_percentage: precise(aiFramePercentage),
-    frame_scores: frameScores.map((s) => precise(s)),
-    model_used: modelUsed,
-    duration_seconds: precise(duration, 1),
-    primaryAvailable: false,
-    confidenceCapped: false,
-  };
-}
+// export async function realVideoDetection(
+//   frameBase64s: string[],
+// ): Promise<VideoDetectionResult> {
+//   if (frameBase64s.length === 0) {
+//     return {
+//       verdict: "human", confidence: 0, frames_analyzed: 0,
+//       frames_flagged_ai: 0, ai_frame_percentage: 0,
+//       frame_scores: [], model_used: "none", duration_seconds: 0,
+//     };
+//   }
+//   const startTime = Date.now();
+//   const frameResults: DetectionResult[] = [];
+//   const framesToAnalyze = frameBase64s.slice(0, 8);
+//   for (const frameBase64 of framesToAnalyze) {
+//     try {
+//       const result = await realImageDetection(frameBase64);
+//       frameResults.push(result);
+//     } catch { /* Skip failed frames */ }
+//   }
+//   if (frameResults.length === 0) {
+//     return {
+//       verdict: "human", confidence: 0, frames_analyzed: 0,
+//       frames_flagged_ai: 0, ai_frame_percentage: 0,
+//       frame_scores: [], model_used: "multi-frame:none", duration_seconds: 0,
+//     };
+//   }
+//   const frameScores = frameResults.map((r) => r.confidence);
+//   const frameVerdicts = frameResults.map((r) => r.verdict);
+//   const flaggedCount = frameVerdicts.filter(
+//     (v) => v === "ai_generated" || v === "heavy_edit",
+//   ).length;
+//   const aiFramePercentage = flaggedCount / frameResults.length;
+//   const scoreStdDev = standardDeviation(frameScores);
+//   const avgScore = frameScores.reduce((a, b) => a + b, 0) / frameScores.length;
+//   let temporalBonus = 0;
+//   if (scoreStdDev < 0.08 && avgScore > 0.6) temporalBonus = 0.05;
+//   else if (scoreStdDev > 0.25) temporalBonus = -0.05;
+//   const finalScore = clamp(avgScore + temporalBonus, 0, 1);
+//   let verdict: Verdict;
+//   if (aiFramePercentage > 0.6 || finalScore > 0.65) verdict = "ai_generated";
+//   else if (aiFramePercentage > 0.3 || finalScore > 0.45) verdict = "heavy_edit";
+//   else if (aiFramePercentage > 0.1 || finalScore > 0.3) verdict = "light_edit";
+//   else verdict = "human";
+//   const duration = (Date.now() - startTime) / 1000;
+//   const modelUsed = frameResults.length > 0
+//     ? `multi-frame:${frameResults[0].model_used}` : "multi-frame:none";
+//   return {
+//     verdict, confidence: precise(finalScore),
+//     frames_analyzed: frameResults.length, frames_flagged_ai: flaggedCount,
+//     ai_frame_percentage: precise(aiFramePercentage),
+//     frame_scores: frameScores.map((s) => precise(s)),
+//     model_used: modelUsed, duration_seconds: precise(duration, 1),
+//   };
+// }

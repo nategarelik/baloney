@@ -28,15 +28,9 @@ function parseStage(model: string): { label: string; bg: string } {
       label: "Multi-Frame Analysis",
       bg: "bg-secondary/10 text-secondary/70",
     };
-  if (
-    lower.startsWith("hf:") ||
-    lower.includes("huggingface") ||
-    lower.includes("roberta")
-  )
-    return {
-      label: "Open-Source Ensemble",
-      bg: "bg-amber-500/10 text-amber-600",
-    };
+  // HF Ensemble badge — commented out (primary APIs only)
+  // if (lower.startsWith("hf:") || lower.includes("huggingface") || lower.includes("roberta"))
+  //   return { label: "Open-Source Ensemble", bg: "bg-amber-500/10 text-amber-600" };
   if (
     lower.startsWith("local:") ||
     lower.startsWith("backend") ||
