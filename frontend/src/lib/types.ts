@@ -14,9 +14,6 @@ export type Platform =
   | "medium"
   | "substack"
   | "threads"
-  | "bluesky"
-  | "mastodon"
-  | "hackernews"
   | "other";
 
 export type ContentType = "image" | "text" | "video";

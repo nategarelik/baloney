@@ -173,7 +173,7 @@ export const FEED_POSTS: FeedPostData[] = [
     username: "mixed_media_art",
     displayName: "Mixed Media Art",
     avatarUrl: "https://picsum.photos/seed/mixedmedia/40/40",
-    platform: "bluesky",
+    platform: "threads",
     timestamp: "6h ago",
     imageUrl: "https://picsum.photos/seed/abstract-blend/600/600",
     caption:
@@ -200,7 +200,7 @@ export const FEED_POSTS: FeedPostData[] = [
     username: "gen_art_daily",
     displayName: "Generative Art",
     avatarUrl: "https://picsum.photos/seed/genartdaily/40/40",
-    platform: "mastodon",
+    platform: "medium",
     timestamp: "7h ago",
     imageUrl: "https://picsum.photos/seed/alien-garden/600/600",
     caption:

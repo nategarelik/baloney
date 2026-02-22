@@ -73,11 +73,8 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
     tiktok: "TikTok",
     facebook: "Facebook",
     threads: "Threads",
-    bluesky: "Bluesky",
     substack: "Substack",
     medium: "Medium",
-    mastodon: "Mastodon",
-    hackernews: "HN",
   };
 
   const PlatformIcon = post.platform === "instagram" ? Instagram : XIcon;

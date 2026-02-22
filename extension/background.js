@@ -52,10 +52,6 @@ function detectPlatform(url) {
   if (url.includes("medium.com")) return "medium";
   if (url.includes("substack.com")) return "substack";
   if (url.includes("threads.net")) return "threads";
-  if (url.includes("bsky.app")) return "bluesky";
-  if (url.includes("mastodon.social") || url.includes("mastodon."))
-    return "mastodon";
-  if (url.includes("news.ycombinator.com")) return "hackernews";
   return "other";
 }
 

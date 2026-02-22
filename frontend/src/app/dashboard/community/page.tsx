@@ -38,9 +38,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   facebook: "Facebook",
   medium: "Medium",
   threads: "Threads",
-  bluesky: "Bluesky",
-  mastodon: "Mastodon",
-  hackernews: "Hacker News",
   other: "Other",
 };
 
