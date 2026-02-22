@@ -70,6 +70,7 @@ frontend/.vercel/
 *.log
 .vercel
 .railway
+.worktrees/
 *.zip
 
 .vercel
