@@ -6,6 +6,8 @@ import { useUserId } from "@/hooks/useUserId";
 import type { DetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 import { MethodBreakdown } from "./MethodBreakdown";
+import { SourceContext } from "./SourceContext";
+import { PipelineStageBadge } from "./PipelineStageBadge";
 
 const VERDICT_LABELS: Record<string, string> = {
   ai_generated: "AI Generated",
@@ -23,10 +25,14 @@ const VERDICT_COLORS: Record<string, string> = {
 
 interface ImageDetectorPanelProps {
   externalResult?: DetectionResult | null;
+  sourceUrl?: string;
+  sourcePageUrl?: string;
 }
 
 export function ImageDetectorPanel({
   externalResult,
+  sourceUrl,
+  sourcePageUrl,
 }: ImageDetectorPanelProps) {
   const userId = useUserId();
   const [preview, setPreview] = useState<string | null>(null);
@@ -35,6 +41,8 @@ export function ImageDetectorPanel({
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const hasExternalSource = !!(externalResult && sourceUrl);
 
   useEffect(() => {
     if (externalResult) setResult(externalResult);
@@ -103,50 +111,54 @@ export function ImageDetectorPanel({
 
   return (
     <div className="space-y-4" onPaste={handlePaste}>
-      {/* Drop zone */}
-      <div
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`
-          relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
-          transition-all duration-200
-          ${dragOver ? "border-primary bg-primary/5" : "border-secondary/20 hover:border-secondary/40 bg-base-dark/50"}
-        `}
-      >
-        {preview ? (
-          <img
-            src={preview}
-            alt="Uploaded image"
-            className="max-h-64 mx-auto rounded-lg"
-          />
-        ) : (
-          <div className="py-8">
-            <div className="text-4xl mb-3 opacity-50">🖼️</div>
-            <p className="text-secondary/60 font-medium">
-              Drop an image, paste from clipboard, or click to upload
-            </p>
-            <p className="text-secondary/40 text-sm mt-1">
-              PNG, JPG, WebP supported
-            </p>
-          </div>
-        )}
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFile(file);
+      {/* Source context (extension flow) or drop zone (direct flow) */}
+      {hasExternalSource ? (
+        <SourceContext sourceUrl={sourceUrl} sourcePageUrl={sourcePageUrl} type="image" />
+      ) : (
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
           }}
-        />
-      </div>
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+          className={`
+            relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
+            transition-all duration-200
+            ${dragOver ? "border-primary bg-primary/5" : "border-secondary/20 hover:border-secondary/40 bg-base-dark/50"}
+          `}
+        >
+          {preview ? (
+            <img
+              src={preview}
+              alt="Uploaded image"
+              className="max-h-64 mx-auto rounded-lg"
+            />
+          ) : (
+            <div className="py-8">
+              <div className="text-4xl mb-3 opacity-50">&#x1f5bc;&#xfe0f;</div>
+              <p className="text-secondary/60 font-medium">
+                Drop an image, paste from clipboard, or click to upload
+              </p>
+              <p className="text-secondary/40 text-sm mt-1">
+                PNG, JPG, WebP supported
+              </p>
+            </div>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleFile(file);
+            }}
+          />
+        </div>
+      )}
 
       {/* Loading */}
       {loading && (
@@ -160,10 +172,9 @@ export function ImageDetectorPanel({
 
       {error && <p className="text-primary text-sm">{error}</p>}
 
-      {/* Result */}
+      {/* Result — Tier 1: Verdict + confidence + pipeline badge */}
       {result && !loading && (
         <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 space-y-4">
-          {/* Verdict + confidence */}
           <div className="flex items-center gap-4">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center"
@@ -174,10 +185,13 @@ export function ImageDetectorPanel({
                 style={{ background: color }}
               />
             </div>
-            <div>
-              <p className="font-display text-xl" style={{ color }}>
-                {label}
-              </p>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <p className="font-display text-xl" style={{ color }}>
+                  {label}
+                </p>
+                <PipelineStageBadge modelUsed={result.model_used} />
+              </div>
               <p className="text-secondary/50 text-sm">
                 <AnimatedPercentage
                   value={result.confidence}
@@ -188,68 +202,35 @@ export function ImageDetectorPanel({
             </div>
           </div>
 
-          {/* Score bars */}
-          <div className="space-y-3">
-            <ScoreBar label="Primary Model" value={result.primary_score} />
-            <ScoreBar
-              label="Secondary Analysis"
-              value={result.secondary_score}
-            />
-            <ScoreBar label="Trust Score" value={result.trust_score} invert />
+          {/* Tier 2: Human Score — small contextualized stat */}
+          <div className="bg-base-dark/70 border border-secondary/8 rounded-lg px-4 py-3 flex items-center gap-3">
+            <div className="text-lg font-semibold text-secondary">
+              {Math.round(result.trust_score * 100)}%
+            </div>
+            <div>
+              <p className="text-secondary/50 text-xs">Human Score</p>
+              <p className="text-secondary/30 text-[10px]">How likely this content is genuine</p>
+            </div>
           </div>
 
-          {/* Model info */}
-          <p className="text-secondary/35 text-xs">
+          {/* Tier 3: Model info */}
+          <p className="text-secondary/30 text-xs">
             Model: {result.model_used}
           </p>
         </div>
       )}
 
-      {/* Method breakdown */}
+      {/* Tier 1: Method breakdown — promoted to primary position */}
       {result &&
         !loading &&
         result.method_scores &&
         Object.keys(result.method_scores).length > 0 && (
-          <MethodBreakdown methodScores={result.method_scores} type="image" />
+          <MethodBreakdown
+            methodScores={result.method_scores}
+            type="image"
+            modelUsed={result.model_used}
+          />
         )}
-    </div>
-  );
-}
-
-function ScoreBar({
-  label,
-  value,
-  invert = false,
-}: {
-  label: string;
-  value: number;
-  invert?: boolean;
-}) {
-  const pct = Math.round(value * 100);
-  const barColor = invert
-    ? value > 0.7
-      ? "#16a34a"
-      : value > 0.4
-        ? "#f59e0b"
-        : "#d4456b"
-    : value > 0.6
-      ? "#d4456b"
-      : value > 0.3
-        ? "#f59e0b"
-        : "#16a34a";
-
-  return (
-    <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-secondary/70">{label}</span>
-        <span className="text-secondary/50">{pct}%</span>
-      </div>
-      <div className="h-2 bg-secondary/8 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: barColor }}
-        />
-      </div>
     </div>
   );
 }

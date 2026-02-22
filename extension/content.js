@@ -19,6 +19,7 @@ let settings = {
   autoScanImages: true,
   autoScanVideos: true,
   contentMode: "scan",
+  // Sync: keep in sync with extension/background.js and frontend/src/app/allowed-sites/page.tsx
   allowedSites: [
     "x.com",
     "twitter.com",
@@ -359,7 +360,12 @@ function buildInsightHTML(result, type) {
   );
   html += `<div class="baloney-insight__model">Model: ${model}</div>`;
 
-  const resultData = JSON.stringify({ result, type });
+  const resultData = JSON.stringify({
+    result,
+    type,
+    sourceUrl: result.sourceUrl,
+    sourcePageUrl: result.sourcePageUrl,
+  });
   const analyzeUrl = `https://trustlens-nu.vercel.app/analyze?result=${encodeURIComponent(resultData)}`;
   html += `<a href="${analyzeUrl}" target="_blank" class="baloney-insight__fulldata">View Full Data \u2192</a>`;
 
@@ -412,7 +418,12 @@ function createDetectionDot(el, result) {
   dot.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    openSidepanel(result, result.feature_vector ? "text" : "image");
+    const type = result.feature_vector
+      ? "text"
+      : result.frames_analyzed
+        ? "video"
+        : "image";
+    openSidepanel(result, type);
   });
 
   if (parent) {
@@ -425,7 +436,12 @@ function createDetectionDot(el, result) {
 function openSidepanel(result, type) {
   chrome.runtime.sendMessage({
     type: "open-sidepanel",
-    data: { result, type },
+    data: {
+      result,
+      type,
+      sourceUrl: result.sourceUrl,
+      sourcePageUrl: result.sourcePageUrl,
+    },
   });
 }
 
@@ -603,6 +619,8 @@ async function analyzeImage(img) {
     });
 
     if (result && result.verdict) {
+      result.sourceUrl = img.src || img.currentSrc;
+      result.sourcePageUrl = window.location.href;
       img.dataset.baloneyScanned = result.verdict;
       img.dataset.baloneyResult = JSON.stringify(result);
       createDetectionDot(img, result);
@@ -799,6 +817,8 @@ async function analyzeVideo(video) {
       };
     }
 
+    aggregatedResult.sourceUrl = video.poster || video.src;
+    aggregatedResult.sourcePageUrl = window.location.href;
     video.dataset.baloneyScanned = aggregatedResult.verdict;
     video.dataset.baloneyResult = JSON.stringify(aggregatedResult);
     createDetectionDot(video, aggregatedResult);
