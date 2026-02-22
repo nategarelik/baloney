@@ -10,10 +10,14 @@
 </p>
 
 <p align="center">
-  <a href="https://trustlens-nu.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel" alt="Live Demo" /></a>
+  <a href="https://baloney.app"><img src="https://img.shields.io/badge/Live_Demo-Vercel-black?logo=vercel" alt="Live Demo" /></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" alt="Next.js 16" /></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-Postgres-3FCF8E?logo=supabase" alt="Supabase" /></a>
   <a href="#"><img src="https://img.shields.io/badge/Chrome-Extension_MV3-4285F4?logo=googlechrome" alt="Chrome Extension" /></a>
+  <a href="docs/AI_CITATION.md"><img src="https://img.shields.io/badge/AI_Tools-Cited-blue" alt="AI Citation" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License" /></a>
+  <a href="#detection"><img src="https://img.shields.io/badge/Signals-6%2B-orange" alt="6+ Signals" /></a>
+  <a href="#detection"><img src="https://img.shields.io/badge/AUC-0.982-brightgreen" alt="AUC 0.982" /></a>
 </p>
 
 ---
@@ -29,6 +33,16 @@ Companies in HR, marketing, publishing, and trust & safety need quantitative dat
 Baloney is a **Chrome extension** paired with a **web analytics platform** that detects AI-generated content in real time. As you scroll any website, the extension scans images and text blocks, injecting verdict badges directly into the page. Every scan feeds a personal analytics dashboard — and with one toggle, users can contribute anonymized data to a community intelligence layer.
 
 **Detection** is the hook. **Analytics** is the differentiator. **Data** is the business.
+
+### Highlights
+
+- **6+ independent detection signals** per modality — commercial APIs + Google SynthID watermarks + statistical analysis
+- **ROC AUC 0.982** on 207-sample benchmark across 15+ content categories
+- **SynthID watermark detection** — we detect Google's own invisible Gemini/Imagen watermarks
+- **AI Slop Index** — platform report cards grading AI content pollution (A+ to F)
+- **Information Diet Score** — gamified AI awareness on a 0–850 scale
+- **Privacy-first** — no raw content stored, community sharing opt-in, default OFF
+- **28-hour hackathon build** — 53 deliberate human prompts across 12 Claude Code sessions
 
 ## Features
 
@@ -105,12 +119,14 @@ Web Dashboard (React 19) ──GET /api/*──────────▶      
 
 The extension observes DOM mutations and viewport intersections, sends content to the API for analysis, and injects results back into the page. The dashboard reads from Supabase views for analytics, scoring, and community intelligence.
 
+Full architecture documentation with Mermaid diagrams: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | **Extension** | Chrome Manifest V3, MutationObserver, IntersectionObserver, Selection API |
-| **ML Detection** | HuggingFace Inference API — RoBERTa, MiniLM, ViT, FFT, EXIF analysis |
+| **ML Detection** | Pangram (99.85%), SightEngine (98.3%), Google SynthID, Statistical/Frequency/Metadata |
 | **Frontend** | Next.js 16, React 19, TypeScript 5.7, Tailwind CSS 3.4, Recharts 2.15 |
 | **API** | 17 Next.js API Routes deployed on Vercel |
 | **Database** | Supabase Postgres — 7 tables, 11 views, 4 RPC functions, 17 indexes |
@@ -157,7 +173,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ### 5. Seed demo data (optional)
 
 ```bash
-curl -X POST "https://trustlens-nu.vercel.app/api/seed?secret=$SEED_SECRET"
+curl -X POST "https://baloney.app/api/seed?secret=$SEED_SECRET"
 ```
 
 Creates 50 profiles, 535 scans, and computes all derived scores.
@@ -239,27 +255,22 @@ Full documentation: [`docs/API.md`](docs/API.md)
 
 Baloney uses a **multi-signal ensemble** — multiple models and methods per modality, combined with configurable weights.
 
-### Live Models (HuggingFace Inference API)
+### Primary Detection Pipeline (v5.0)
 
-| Modality | Method | Model / Technique | Weight |
-|----------|--------|-------------------|--------|
-| Text | A — Transformer | `openai-community/roberta-base-openai-detector` | 50% |
-| Text | B — Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (EditLens-inspired) | 20% |
-| Text | D — Statistical | Burstiness, TTR, perplexity proxy, repetition, readability | 30% |
-| Image | E — ViT Classifier | `umm-maybe/AI-image-detector` | 55% |
-| Image | F — Frequency | Local variance uniformity + high-frequency energy proxy | 25% |
-| Image | G — Metadata | EXIF marker detection + camera make/model identification | 20% |
-| Video | — | Poster frame or captured frame passed through image pipeline | — |
+| Modality | Signal | Method | Weight |
+|----------|--------|--------|--------|
+| Text | Pangram | Commercial API — 99.85% accuracy, SOTA (Emi & Spero 2024) | 38% |
+| Text | SynthID | Google Gemini watermark detection (Bayesian, open-source) | Override |
+| Text | Statistical | Burstiness, entropy, readability, hedging, 12 features | 25% |
+| Image | SightEngine | Commercial API — 98.3% accuracy, ARIA benchmark #1 | 45% |
+| Image | SynthID | Google Imagen watermark detection (Vertex AI) | Override |
+| Image | Frequency | Local variance uniformity + DCT coefficient analysis | 30% |
+| Image | Metadata | EXIF markers, camera provenance, C2PA credentials | 25% |
+| Video | SightEngine | Native server-side video analysis (Sora, Veo, Runway, Kling) | — |
 
-### Academic References
+**SynthID Override:** When a Google watermark is detected, it overrides the ensemble with high confidence (0.95–0.97). This is our crown jewel — we detect Google's own invisible watermarks.
 
-| Method | Key Metric | Source |
-|--------|-----------|--------|
-| RoBERTa (GPT-2 detector) | ~95% on HC3 test set | Guo et al., 2023 |
-| AEROBLADE (training-free) | 99.2% mean AP | Ricker et al., CVPR 2024 |
-| Binoculars (zero-shot) | 90%+ TPR @ 0.01% FPR | Hans et al., ICML 2024 |
-
-When `HUGGINGFACE_API_KEY` is not set, the system falls back to mock detectors with realistic distributions. The feed page also has a curated ground-truth fallback so the demo never breaks.
+**Evaluation:** 207-sample benchmark across 15+ content categories. ROC AUC 0.982. Ablation study proves ensemble > any individual method. See [`/evaluation`](https://baloney.app/evaluation).
 
 ## Privacy
 
@@ -272,7 +283,7 @@ When `HUGGINGFACE_API_KEY` is not set, the system falls back to mock detectors w
 
 | Service | URL |
 |---------|-----|
-| Frontend + API | [trustlens-nu.vercel.app](https://trustlens-nu.vercel.app) |
+| Frontend + API | [baloney.app](https://baloney.app) |
 | Database | Supabase project `xpeubpqbqlyxawjovxuy` (us-east-1) |
 | Repository | [github.com/nategarelik/baloney](https://github.com/nategarelik/baloney) |
 
@@ -288,12 +299,20 @@ npx vercel --prod --yes
 2. Hans, A., Schwarzschild, A., Cherepanova, V., et al. (2024). **Spotting LLMs With Binoculars: Zero-Shot Detection of Machine-Generated Text.** ICML 2024.
 3. Guo, B., Cao, X., Dong, Y., et al. (2023). **How Close is ChatGPT to Human Experts?** arXiv:2301.07597.
 
+## Built For
+
+| MadData26 Criterion | How Baloney Addresses It |
+|---------------------|------------------------|
+| **Presentation & Technique** | Revelation narrative arc, live Chrome extension demo, "we detect Google's watermarks" memorability line |
+| **Social Impact** | Anti-disinformation tool, Information Diet Score for awareness, privacy-first design, AI Slop Index for platform accountability |
+| **Data Methods** | 6+ signal ensemble, SynthID watermark detection, 207-sample evaluation with ROC/confusion/ablation, bootstrap CI, publishable methodology |
+
 ## Team
 
 Built at **MadData26** — UW-Madison Data Science Hackathon, February 21–22, 2026.
 
 - **Nathaniel Garelik** — Full Stack, ML, Extension
-- **Dev Partner** — Frontend Design, UI/UX
+- **Ben Verhaalen** — Frontend Design, UI/UX
 
 ## AI Tools
 
