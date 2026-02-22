@@ -5,14 +5,19 @@
 const API_URL = "https://trustlens-nu.vercel.app";
 const API_TIMEOUT_MS = 8000;
 
-// Default storage values for v0.4.0
+// Default storage values for v2.0
 const STORAGE_DEFAULTS = {
   extensionEnabled: true,
   autoScanText: false,
   autoScanImages: true,
   autoScanVideos: true,
   contentMode: "scan",
-  allowedSites: ["x.com", "twitter.com", "linkedin.com", "substack.com"],
+  allowedSites: [
+    "x.com", "twitter.com", "linkedin.com", "substack.com",
+    "reddit.com", "facebook.com", "instagram.com", "medium.com",
+    "tiktok.com", "threads.net", "bsky.app", "mastodon.social",
+    "news.ycombinator.com",
+  ],
   sidepanelData: null,
 };
 
@@ -29,7 +34,7 @@ async function getUserId() {
   return userId;
 }
 
-// Detect platform from tab URL
+// Detect platform from tab URL (v2.0: expanded coverage)
 function detectPlatform(url) {
   if (!url) return "unknown";
   if (url.includes("instagram.com")) return "instagram";
@@ -39,6 +44,11 @@ function detectPlatform(url) {
   if (url.includes("tiktok.com")) return "tiktok";
   if (url.includes("linkedin.com")) return "linkedin";
   if (url.includes("medium.com")) return "medium";
+  if (url.includes("substack.com")) return "substack";
+  if (url.includes("threads.net")) return "threads";
+  if (url.includes("bsky.app")) return "bluesky";
+  if (url.includes("mastodon.social") || url.includes("mastodon.")) return "mastodon";
+  if (url.includes("news.ycombinator.com")) return "hackernews";
   return "other";
 }
 
@@ -82,17 +92,29 @@ async function detectImage(base64Image, platform, sourceDomain) {
   }
 }
 
-// Detect with safe fallback — real API first, fallback on any failure
+// Detect with retry + safe fallback — real API first, retry on network error, fallback on persistent failure
 async function detectWithFallback(base64Image, platform, sourceDomain) {
-  try {
-    return await detectImage(base64Image, platform, sourceDomain);
-  } catch (error) {
-    console.warn(
-      "[Baloney] API unavailable, using safe fallback:",
-      error.message,
-    );
-    return { verdict: "human", confidence: 0, model: "offline-fallback" };
+  const maxRetries = 2;
+  let lastError;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await detectImage(base64Image, platform, sourceDomain);
+    } catch (error) {
+      lastError = error;
+      // Only retry on network/timeout errors, not 4xx
+      if (error.message?.includes("API error: 4")) break;
+      if (attempt < maxRetries) {
+        await new Promise((r) => setTimeout(r, 1000 * (attempt + 1))); // 1s, 2s backoff
+      }
+    }
   }
+
+  console.warn(
+    "[Baloney] API unavailable after retries, using safe fallback:",
+    lastError?.message,
+  );
+  return { verdict: "human", confidence: 0, model: "offline-fallback" };
 }
 
 // Extract domain from URL
@@ -249,6 +271,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
 
     return true; // Keep channel open for async response
+  }
+
+  // v2.0: Handle video frame analysis (already has base64 data URI)
+  if (message.type === "analyze-video-frame") {
+    const tabUrl = sender.tab?.url || "";
+    const platform = detectPlatform(tabUrl);
+    const base64 = message.base64 || message.url;
+
+    detectWithFallback(base64, platform, null)
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        console.error("[Baloney] Video frame detection error:", error);
+        sendResponse({ error: error.message });
+      });
+
+    return true;
   }
 
   if (message.type === "analyze-text") {
