@@ -24,6 +24,13 @@ const PLATFORM_COLORS: Record<string, string> = {
   facebook: "#1877F2",
   manual_upload: "#8B5CF6",
   linkedin: "#0A66C2",
+  substack: "#FF6719",
+  medium: "#000000",
+  threads: "#000000",
+  bluesky: "#0085FF",
+  mastodon: "#6364FF",
+  hackernews: "#FF6600",
+  other: "#6b7280",
 };
 
 const AXIS_KEYS: { key: keyof RadarAxisData; label: string }[] = [
@@ -113,7 +120,10 @@ export function AuthenticityRadar() {
           />
         </RadarChart>
       </ResponsiveContainer>
-      <p className="text-xs text-secondary/40 mt-3 italic">Larger polygons = more suspicious platforms. Overlap between polygons reveals which platforms share detection profiles.</p>
+      <p className="text-xs text-secondary/40 mt-3 italic">
+        Larger polygons = more suspicious platforms. Overlap between polygons
+        reveals which platforms share detection profiles.
+      </p>
     </ChartCard>
   );
 }

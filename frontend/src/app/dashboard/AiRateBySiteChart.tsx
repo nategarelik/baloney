@@ -24,6 +24,12 @@ const PLATFORM_COLORS: Record<string, string> = {
   manual_upload: "#4a3728",
   demo_feed: "#94a3b8",
   facebook: "#1877F2",
+  medium: "#000000",
+  threads: "#000000",
+  bluesky: "#0085FF",
+  mastodon: "#6364FF",
+  hackernews: "#FF6600",
+  other: "#6b7280",
 };
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -36,6 +42,12 @@ const PLATFORM_LABELS: Record<string, string> = {
   manual_upload: "Upload",
   demo_feed: "Demo Feed",
   facebook: "Facebook",
+  medium: "Medium",
+  threads: "Threads",
+  bluesky: "Bluesky",
+  mastodon: "Mastodon",
+  hackernews: "Hacker News",
+  other: "Other",
 };
 
 interface AiRateBySiteChartProps {

@@ -65,7 +65,24 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
 
   const showError = result?.model_used === "error" && state === "complete";
 
+  const platformLabel: Record<string, string> = {
+    instagram: "Instagram",
+    x: "X",
+    reddit: "Reddit",
+    linkedin: "LinkedIn",
+    tiktok: "TikTok",
+    facebook: "Facebook",
+    threads: "Threads",
+    bluesky: "Bluesky",
+    substack: "Substack",
+    medium: "Medium",
+    mastodon: "Mastodon",
+    hackernews: "HN",
+  };
+
   const PlatformIcon = post.platform === "instagram" ? Instagram : XIcon;
+  const showPlatformLabel =
+    post.platform !== "instagram" && post.platform !== "x";
 
   return (
     <div
@@ -86,7 +103,13 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
             <span className="text-sm font-semibold text-white truncate">
               {post.displayName}
             </span>
-            <PlatformIcon className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+            {showPlatformLabel ? (
+              <span className="text-[10px] font-medium text-slate-500 bg-slate-700/50 px-1.5 py-0.5 rounded shrink-0">
+                {platformLabel[post.platform] ?? post.platform}
+              </span>
+            ) : (
+              <PlatformIcon className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+            )}
           </div>
           <span className="text-xs text-slate-500">
             @{post.username} &middot; {post.timestamp}

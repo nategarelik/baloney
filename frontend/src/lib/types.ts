@@ -9,7 +9,15 @@ export type Platform =
   | "demo_feed"
   | "tiktok"
   | "reddit"
-  | "facebook";
+  | "facebook"
+  | "linkedin"
+  | "medium"
+  | "substack"
+  | "threads"
+  | "bluesky"
+  | "mastodon"
+  | "hackernews"
+  | "other";
 
 export type ContentType = "image" | "text" | "video";
 
@@ -349,7 +357,7 @@ export interface FeedPostData {
   username: string;
   displayName: string;
   avatarUrl: string;
-  platform: "instagram" | "x";
+  platform: Platform;
   timestamp: string;
   imageUrl: string;
   caption: string;

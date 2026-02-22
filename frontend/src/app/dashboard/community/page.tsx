@@ -36,6 +36,12 @@ const PLATFORM_LABELS: Record<string, string> = {
   manual_upload: "Upload",
   demo_feed: "Demo Feed",
   facebook: "Facebook",
+  medium: "Medium",
+  threads: "Threads",
+  bluesky: "Bluesky",
+  mastodon: "Mastodon",
+  hackernews: "Hacker News",
+  other: "Other",
 };
 
 const CONTENT_TYPE_LABELS: Record<string, string> = {

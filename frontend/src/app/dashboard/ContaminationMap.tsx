@@ -22,6 +22,12 @@ function platformLabel(id: string): string {
     demo_feed: "Demo",
     linkedin: "LinkedIn",
     substack: "Substack",
+    medium: "Medium",
+    threads: "Threads",
+    bluesky: "Bluesky",
+    mastodon: "Mastodon",
+    hackernews: "HN",
+    other: "Other",
   };
   return labels[id] ?? id;
 }

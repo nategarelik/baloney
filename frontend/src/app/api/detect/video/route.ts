@@ -95,7 +95,43 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Multi-frame fallback commented out — primary APIs only
+    // Fallback: analyze first frame as image when native video fails
+    if (!result && frameBase64s.length > 0) {
+      try {
+        const { realImageDetection } = await import("@/lib/real-detectors");
+        const imgResult = await realImageDetection(frameBase64s[0]);
+        const score = imgResult.confidence;
+        let verdict: Verdict;
+        if (score > 0.65) verdict = "ai_generated";
+        else if (score > 0.45) verdict = "heavy_edit";
+        else if (score > 0.3) verdict = "light_edit";
+        else verdict = "human";
+
+        result = {
+          verdict,
+          confidence: parseFloat(score.toFixed(4)),
+          frames_analyzed: 1,
+          frames_flagged_ai: score > 0.5 ? 1 : 0,
+          ai_frame_percentage: score > 0.5 ? 1 : 0,
+          frame_scores: [parseFloat(score.toFixed(4))],
+          model_used: `frame-fallback:${imgResult.model_used}`,
+          duration_seconds: 0,
+          sightengine_native: false,
+          primaryAvailable: imgResult.primaryAvailable ?? true,
+          method_scores: imgResult.method_scores
+            ? Object.fromEntries(
+                Object.entries(imgResult.method_scores).map(([k, v]) => [
+                  k,
+                  { ...v },
+                ]),
+              )
+            : {},
+        };
+      } catch (e) {
+        console.warn("[Baloney] Frame fallback also failed:", e);
+      }
+    }
+
     if (!result) {
       return errorResponse("Video detection unavailable", 500);
     }

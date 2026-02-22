@@ -5,25 +5,34 @@ import crypto from "crypto";
 const SEED_SECRET = process.env.SEED_SECRET || "baloney-hackathon-2026";
 
 const PLATFORMS: Record<string, { weight: number; ai_rate: number }> = {
-  instagram: { weight: 0.45, ai_rate: 0.35 },
-  x: { weight: 0.30, ai_rate: 0.25 },
-  manual_upload: { weight: 0.15, ai_rate: 0.50 },
-  demo_feed: { weight: 0.10, ai_rate: 0.40 },
+  instagram: { weight: 0.2, ai_rate: 0.35 },
+  x: { weight: 0.18, ai_rate: 0.25 },
+  reddit: { weight: 0.1, ai_rate: 0.4 },
+  facebook: { weight: 0.08, ai_rate: 0.3 },
+  tiktok: { weight: 0.08, ai_rate: 0.45 },
+  linkedin: { weight: 0.07, ai_rate: 0.15 },
+  threads: { weight: 0.05, ai_rate: 0.32 },
+  bluesky: { weight: 0.04, ai_rate: 0.2 },
+  substack: { weight: 0.03, ai_rate: 0.18 },
+  medium: { weight: 0.03, ai_rate: 0.22 },
+  mastodon: { weight: 0.02, ai_rate: 0.28 },
+  manual_upload: { weight: 0.08, ai_rate: 0.5 },
+  demo_feed: { weight: 0.04, ai_rate: 0.4 },
 };
 
 const DOMAINS: Record<string, { weight: number; ai_rate: number }> = {
   "cdninstagram.com": { weight: 0.35, ai_rate: 0.35 },
   "pbs.twimg.com": { weight: 0.25, ai_rate: 0.25 },
-  "i.redd.it": { weight: 0.10, ai_rate: 0.45 },
-  "pbs.medium.com": { weight: 0.08, ai_rate: 0.20 },
+  "i.redd.it": { weight: 0.1, ai_rate: 0.45 },
+  "pbs.medium.com": { weight: 0.08, ai_rate: 0.2 },
   "images.unsplash.com": { weight: 0.07, ai_rate: 0.05 },
-  "cdn.deviantart.net": { weight: 0.05, ai_rate: 0.60 },
+  "cdn.deviantart.net": { weight: 0.05, ai_rate: 0.6 },
   "artstation.com": { weight: 0.05, ai_rate: 0.55 },
   "upload.wikimedia.org": { weight: 0.05, ai_rate: 0.03 },
 };
 
 const CONTENT_TYPES: Record<string, number> = {
-  image: 0.70,
+  image: 0.7,
   text: 0.25,
   video: 0.05,
 };
@@ -34,7 +43,9 @@ const MODELS: Record<string, string> = {
   video: "per-frame:Organika/sdxl-detector",
 };
 
-function weightedChoice<T extends Record<string, { weight: number } | number>>(options: T): string {
+function weightedChoice<T extends Record<string, { weight: number } | number>>(
+  options: T,
+): string {
   const keys = Object.keys(options);
   const weights = keys.map((k) => {
     const v = options[k];
@@ -70,7 +81,7 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
   const contentType = weightedChoice(CONTENT_TYPES);
   const platform = weightedChoice(PLATFORMS);
 
-  const timeBoost = Math.max(0, (30 - daysAgo) / 30) * 0.10;
+  const timeBoost = Math.max(0, (30 - daysAgo) / 30) * 0.1;
   const aiRate = (PLATFORMS[platform]?.ai_rate ?? 0.3) + timeBoost;
   const roll = Math.random();
 
@@ -81,26 +92,26 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
 
   if (roll < aiRate) {
     verdict = "ai_generated";
-    confidence = parseFloat((Math.random() * 0.29 + 0.70).toFixed(4));
-    trustScore = parseFloat((Math.random() * 0.20 + 0.05).toFixed(4));
-    editMagnitude = parseFloat((Math.random() * 0.20 + 0.80).toFixed(4));
+    confidence = parseFloat((Math.random() * 0.29 + 0.7).toFixed(4));
+    trustScore = parseFloat((Math.random() * 0.2 + 0.05).toFixed(4));
+    editMagnitude = parseFloat((Math.random() * 0.2 + 0.8).toFixed(4));
   } else {
     const subRoll = Math.random();
-    if (subRoll < 0.10) {
+    if (subRoll < 0.1) {
       verdict = "heavy_edit";
-      confidence = parseFloat((Math.random() * 0.20 + 0.60).toFixed(4));
-      trustScore = parseFloat((Math.random() * 0.20 + 0.25).toFixed(4));
+      confidence = parseFloat((Math.random() * 0.2 + 0.6).toFixed(4));
+      trustScore = parseFloat((Math.random() * 0.2 + 0.25).toFixed(4));
       editMagnitude = parseFloat((Math.random() * 0.25 + 0.55).toFixed(4));
     } else if (subRoll < 0.25) {
       verdict = "light_edit";
-      confidence = parseFloat((Math.random() * 0.20 + 0.50).toFixed(4));
-      trustScore = parseFloat((Math.random() * 0.20 + 0.45).toFixed(4));
-      editMagnitude = parseFloat((Math.random() * 0.35 + 0.20).toFixed(4));
+      confidence = parseFloat((Math.random() * 0.2 + 0.5).toFixed(4));
+      trustScore = parseFloat((Math.random() * 0.2 + 0.45).toFixed(4));
+      editMagnitude = parseFloat((Math.random() * 0.35 + 0.2).toFixed(4));
     } else {
       verdict = "human";
       confidence = parseFloat((Math.random() * 0.23 + 0.75).toFixed(4));
       trustScore = parseFloat((Math.random() * 0.23 + 0.75).toFixed(4));
-      editMagnitude = parseFloat((Math.random() * 0.20).toFixed(4));
+      editMagnitude = parseFloat((Math.random() * 0.2).toFixed(4));
     }
   }
 
@@ -110,7 +121,9 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
 
   let category: string;
   if (contentType === "image") {
-    category = ["photo", "art", "meme", "screenshot"][Math.floor(Math.random() * 4)];
+    category = ["photo", "art", "meme", "screenshot"][
+      Math.floor(Math.random() * 4)
+    ];
   } else if (contentType === "text") {
     category = "text_post";
   } else {
@@ -118,14 +131,19 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
   }
 
   const now = new Date();
-  const scanTime = new Date(now.getTime() - daysAgo * 86400000 - Math.random() * 86400000);
+  const scanTime = new Date(
+    now.getTime() - daysAgo * 86400000 - Math.random() * 86400000,
+  );
 
   // Generate content hashes — reuse some hashes to create sightings
   let contentHash: string | null = null;
   if (contentType === "image") {
     // Use a pool of ~80 unique hashes so some get multiple sightings
     const hashSeed = Math.floor(Math.random() * 80);
-    contentHash = crypto.createHash("sha256").update(`content-${hashSeed}`).digest("hex");
+    contentHash = crypto
+      .createHash("sha256")
+      .update(`content-${hashSeed}`)
+      .digest("hex");
   }
 
   return {
@@ -147,7 +165,8 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
 }
 
 export async function POST(req: NextRequest) {
-  const secret = req.nextUrl.searchParams.get("secret") || req.headers.get("x-seed-secret");
+  const secret =
+    req.nextUrl.searchParams.get("secret") || req.headers.get("x-seed-secret");
   if (secret !== SEED_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -157,7 +176,10 @@ export async function POST(req: NextRequest) {
   await supabase.from("information_diet_scores").delete().neq("user_id", "");
   await supabase.from("exposure_scores").delete().neq("user_id", "");
   await supabase.from("platform_slop_index").delete().neq("platform", "");
-  await supabase.from("scans").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+  await supabase
+    .from("scans")
+    .delete()
+    .neq("id", "00000000-0000-0000-0000-000000000000");
   await supabase.from("profiles").delete().neq("id", "");
 
   // Create 50 users
@@ -166,15 +188,20 @@ export async function POST(req: NextRequest) {
   for (let i = 0; i < 49; i++) {
     users.push({
       id: crypto.randomUUID(),
-      sharing_enabled: Math.random() < 0.60,
+      sharing_enabled: Math.random() < 0.6,
     });
   }
 
-  const { error: profileError } = await supabase.from("profiles").insert(
-    users.map((u) => ({ id: u.id, sharing_enabled: u.sharing_enabled }))
-  );
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .insert(
+      users.map((u) => ({ id: u.id, sharing_enabled: u.sharing_enabled })),
+    );
   if (profileError) {
-    return NextResponse.json({ error: "Profile insert failed: " + profileError.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Profile insert failed: " + profileError.message },
+      { status: 500 },
+    );
   }
 
   // Generate all scans
@@ -189,9 +216,9 @@ export async function POST(req: NextRequest) {
     if (Math.random() < 0.38) {
       scan.verdict = "ai_generated";
       scan.classification = "ai_generated";
-      scan.confidence = parseFloat((Math.random() * 0.29 + 0.70).toFixed(4));
-      scan.trust_score = parseFloat((Math.random() * 0.20 + 0.05).toFixed(4));
-      scan.edit_magnitude = parseFloat((Math.random() * 0.20 + 0.80).toFixed(4));
+      scan.confidence = parseFloat((Math.random() * 0.29 + 0.7).toFixed(4));
+      scan.trust_score = parseFloat((Math.random() * 0.2 + 0.05).toFixed(4));
+      scan.edit_magnitude = parseFloat((Math.random() * 0.2 + 0.8).toFixed(4));
     }
     allScans.push(scan);
   }
@@ -206,7 +233,18 @@ export async function POST(req: NextRequest) {
 
   // Build content_sightings from scan data
   // Group by content_hash — ai votes = ai_generated, human votes = human/light_edit/heavy_edit
-  const hashMap = new Map<string, { ai: number; human: number; inc: number; conf: number[]; platforms: Set<string>; first: string; last: string }>();
+  const hashMap = new Map<
+    string,
+    {
+      ai: number;
+      human: number;
+      inc: number;
+      conf: number[];
+      platforms: Set<string>;
+      first: string;
+      last: string;
+    }
+  >();
   for (const scan of allScans) {
     if (!scan.content_hash) continue;
     const existing = hashMap.get(scan.content_hash);
@@ -235,8 +273,14 @@ export async function POST(req: NextRequest) {
 
   const sightingRows = Array.from(hashMap.entries()).map(([hash, data]) => {
     const total = data.ai + data.human + data.inc;
-    const compoundScore = total > 0 ? parseFloat(((data.ai / total) * 100).toFixed(2)) : 0;
-    const compoundVerdict = compoundScore >= 60 ? "ai_generated" : compoundScore <= 30 ? "human" : "light_edit";
+    const compoundScore =
+      total > 0 ? parseFloat(((data.ai / total) * 100).toFixed(2)) : 0;
+    const compoundVerdict =
+      compoundScore >= 60
+        ? "ai_generated"
+        : compoundScore <= 30
+          ? "human"
+          : "light_edit";
     return {
       content_hash: hash,
       first_seen: data.first,
@@ -245,7 +289,9 @@ export async function POST(req: NextRequest) {
       ai_votes: data.ai,
       human_votes: data.human,
       inconclusive_votes: data.inc,
-      avg_confidence: parseFloat((data.conf.reduce((a, b) => a + b, 0) / data.conf.length).toFixed(4)),
+      avg_confidence: parseFloat(
+        (data.conf.reduce((a, b) => a + b, 0) / data.conf.length).toFixed(4),
+      ),
       compound_score: compoundScore,
       compound_verdict: compoundVerdict,
       platforms: Array.from(data.platforms),
@@ -263,7 +309,9 @@ export async function POST(req: NextRequest) {
   for (let i = 0; i < users.length; i += 5) {
     const batch = users.slice(i, i + 5);
     await Promise.allSettled(
-      batch.map((u) => supabase.rpc("compute_exposure_score", { p_user_id: u.id }))
+      batch.map((u) =>
+        supabase.rpc("compute_exposure_score", { p_user_id: u.id }),
+      ),
     );
   }
 
@@ -271,7 +319,9 @@ export async function POST(req: NextRequest) {
   for (let i = 0; i < users.length; i += 5) {
     const batch = users.slice(i, i + 5);
     await Promise.allSettled(
-      batch.map((u) => supabase.rpc("compute_information_diet_score", { p_user_id: u.id }))
+      batch.map((u) =>
+        supabase.rpc("compute_information_diet_score", { p_user_id: u.id }),
+      ),
     );
   }
 
