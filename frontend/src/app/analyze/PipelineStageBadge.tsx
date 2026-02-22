@@ -15,9 +15,9 @@ function parseStage(model: string): { label: string; bg: string } {
   )
     return { label: "SynthID Watermark", bg: "bg-primary/15 text-primary" };
   if (lower.includes("sightengine"))
-    return { label: "SightEngine", bg: "bg-amber-500/15 text-amber-700" };
+    return { label: "SightEngine", bg: "bg-emerald-500/15 text-emerald-700" };
   if (lower.includes("pangram"))
-    return { label: "Pangram", bg: "bg-amber-500/15 text-amber-700" };
+    return { label: "Pangram", bg: "bg-blue-500/15 text-blue-700" };
   if (lower.includes("reality") || lower.includes("defender"))
     return {
       label: "Reality Defender",
@@ -33,7 +33,10 @@ function parseStage(model: string): { label: string; bg: string } {
     lower.includes("huggingface") ||
     lower.includes("roberta")
   )
-    return { label: "HF Fallback", bg: "bg-amber-500/10 text-amber-600" };
+    return {
+      label: "Open-Source Ensemble",
+      bg: "bg-amber-500/10 text-amber-600",
+    };
   if (
     lower.startsWith("local:") ||
     lower.startsWith("backend") ||

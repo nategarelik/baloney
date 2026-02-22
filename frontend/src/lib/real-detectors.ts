@@ -767,6 +767,7 @@ async function backendTextDetection(
       edit_magnitude: mapping.edit_magnitude,
       feature_vector: featureVector,
       sentence_scores: sentenceScores,
+      method_scores: methodScores,
       primaryAvailable: true,
       confidenceCapped: false,
     };
@@ -1188,8 +1189,9 @@ export async function realTextDetection(
       finalConfidence = FALLBACK_MAX_CONFIDENCE;
       confidenceCapped = true;
     }
-    const caveat =
-      "Primary model unavailable — reduced confidence. " + mapping.caveat;
+    const caveat = /reduced|confidence is reduced/i.test(mapping.caveat)
+      ? mapping.caveat
+      : "Primary model unavailable — reduced confidence. " + mapping.caveat;
 
     return {
       verdict: mapping.verdict,
