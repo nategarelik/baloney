@@ -19,6 +19,88 @@ export default function Home() {
           aria-hidden
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
+        {/* Glassy detection square around the pig's face */}
+        <div
+          className="absolute z-10 hidden md:block"
+          style={{
+            top: "calc(8% + 81px)",
+            right: "calc(14% + 45px)",
+            width: 260,
+            height: 260,
+            border: "3px solid rgba(255,255,255,0.55)",
+            borderTop: "3px solid rgba(255,255,255,0.85)",
+            borderLeft: "3px solid rgba(255,255,255,0.7)",
+            borderRight: "3px solid rgba(255,255,255,0.4)",
+            borderBottom: "3px solid rgba(255,255,255,0.3)",
+            borderRadius: 8,
+            background: "rgba(255,255,255,0.04)",
+            boxShadow:
+              "0 0 24px rgba(255,255,255,0.15), " +
+              "0 1px 3px rgba(0,0,0,0.12), " +
+              "inset 0 1px 0 rgba(255,255,255,0.5), " +
+              "inset 0 -1px 0 rgba(0,0,0,0.15), " +
+              "inset 1px 0 0 rgba(255,255,255,0.2), " +
+              "inset -1px 0 0 rgba(0,0,0,0.05)",
+            backdropFilter: "blur(1px)",
+            WebkitBackdropFilter: "blur(1px)",
+            animation: "hero-fade-in 0.7s ease-out 0.5s forwards",
+            opacity: 0,
+          }}
+        >
+          {/* Pixelated cursor at top-right corner */}
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 16 16"
+            style={{
+              position: "absolute",
+              top: -2,
+              right: -22,
+              imageRendering: "pixelated",
+              filter: "drop-shadow(1px 3px 4px rgba(0,0,0,0.45))",
+              animation: "hero-fade-in 0.5s ease-out 0.6s forwards",
+              opacity: 0,
+            }}
+          >
+            <path
+              d="M0,0 L0,12 L3,9 L6,14 L8,13 L5,8 L9,8 Z"
+              fill="#fff"
+              stroke="#000"
+              strokeWidth="1"
+            />
+          </svg>
+          {/* Extension-style detection dot */}
+          <div
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              width: 62,
+              height: 20,
+              borderRadius: 10,
+              padding: "0 8px",
+              background: "rgba(212,69,107,0.85)",
+              boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              animation: "hero-fade-in 0.5s ease-out 0.8s forwards",
+              opacity: 0,
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 10,
+                fontWeight: 700,
+                color: "#fff",
+                whiteSpace: "nowrap",
+              }}
+            >
+              92% AI
+            </span>
+          </div>
+        </div>
         {/* Gradient overlay so text stays readable */}
         <div
           className="absolute inset-0"

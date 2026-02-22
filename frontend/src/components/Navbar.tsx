@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
@@ -22,8 +22,10 @@ const CHROME_STORE_URL = "https://chromewebstore.google.com/";
 export function Navbar() {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const isLanding = pathname === "/";
   const isDashboardActive = pathname.startsWith("/dashboard");
 
   // Close dropdown on click outside
@@ -40,8 +42,41 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Auto-hide navbar on non-landing pages after scrolling down
+  const handleScroll = useCallback(() => {
+    if (isLanding) return;
+    setHidden(window.scrollY > 50);
+  }, [isLanding]);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (isLanding) return;
+      if (e.clientY < 60) setHidden(false);
+    },
+    [isLanding],
+  );
+
+  useEffect(() => {
+    if (isLanding) {
+      setHidden(false);
+      return;
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [isLanding, handleScroll, handleMouseMove]);
+
   return (
-    <div className="fixed top-4 left-0 right-0 z-50 flex justify-center px-6">
+    <div
+      className="fixed top-4 left-0 right-0 z-50 flex justify-center px-6"
+      style={{
+        transform: hidden ? "translateY(-120%)" : "translateY(0)",
+        transition: "transform 0.3s ease",
+      }}
+    >
       <nav
         className="w-full max-w-5xl flex items-center justify-between px-6 py-3 rounded-2xl"
         style={{

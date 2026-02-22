@@ -20,9 +20,18 @@ let settings = {
   autoScanVideos: true,
   contentMode: "scan",
   allowedSites: [
-    "x.com", "twitter.com", "linkedin.com", "substack.com",
-    "reddit.com", "facebook.com", "instagram.com", "medium.com",
-    "tiktok.com", "threads.net", "bsky.app", "mastodon.social",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "substack.com",
+    "reddit.com",
+    "facebook.com",
+    "instagram.com",
+    "medium.com",
+    "tiktok.com",
+    "threads.net",
+    "bsky.app",
+    "mastodon.social",
     "news.ycombinator.com",
   ],
 };
@@ -161,6 +170,13 @@ const requestQueue = new RequestQueue(MAX_CONCURRENT);
 // ──────────────────────────────────────────────
 
 let sessionStats = { scanned: 0, flaggedAI: 0, textScanned: 0, textFlagged: 0 };
+
+// Load persisted session stats on init
+chrome.storage.local.get("sessionStats", (data) => {
+  if (data.sessionStats) {
+    sessionStats = { ...sessionStats, ...data.sessionStats };
+  }
+});
 
 function updateStats(verdict) {
   sessionStats.scanned++;
@@ -663,9 +679,16 @@ async function analyzeVideo(video) {
     }
 
     // Try to capture frames at different timestamps
-    if (video.readyState >= 2 && video.duration > 0 && isFinite(video.duration)) {
+    if (
+      video.readyState >= 2 &&
+      video.duration > 0 &&
+      isFinite(video.duration)
+    ) {
       const savedTime = video.currentTime;
-      const numFrames = Math.min(VIDEO_MAX_FRAMES, Math.ceil(video.duration / 2));
+      const numFrames = Math.min(
+        VIDEO_MAX_FRAMES,
+        Math.ceil(video.duration / 2),
+      );
       const interval = video.duration / (numFrames + 1);
 
       for (let i = 1; i <= numFrames; i++) {
@@ -675,7 +698,11 @@ async function analyzeVideo(video) {
       }
 
       // Restore original playback position
-      try { video.currentTime = savedTime; } catch { /* ignore */ }
+      try {
+        video.currentTime = savedTime;
+      } catch {
+        /* ignore */
+      }
     } else if (frameUrls.length === 0) {
       // Fallback: capture current frame
       try {
@@ -732,7 +759,8 @@ async function analyzeVideo(video) {
 
     // v2.0: Aggregate multi-frame results
     const confidences = frameResults.map((r) => r.confidence || 0);
-    const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
+    const avgConfidence =
+      confidences.reduce((a, b) => a + b, 0) / confidences.length;
     const aiCount = frameResults.filter(
       (r) => r.verdict === "ai_generated" || r.verdict === "heavy_edit",
     ).length;
@@ -1298,6 +1326,27 @@ chrome.runtime.onMessage.addListener((message) => {
       ["Baloney: Text Check", verdictLabel(result), `"${preview}"`],
       result.verdict,
     );
+  }
+});
+
+// ──────────────────────────────────────────────
+// Allowed-sites page communication
+// ──────────────────────────────────────────────
+
+window.addEventListener("baloney-get-sites", () => {
+  chrome.storage.local.get("allowedSites", (data) => {
+    window.dispatchEvent(
+      new CustomEvent("baloney-sites-response", {
+        detail: { sites: data.allowedSites || settings.allowedSites },
+      }),
+    );
+  });
+});
+
+window.addEventListener("baloney-update-sites", (e) => {
+  const sites = e.detail?.sites;
+  if (Array.isArray(sites)) {
+    chrome.storage.local.set({ allowedSites: sites });
   }
 });
 

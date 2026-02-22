@@ -7,7 +7,12 @@ import crypto from "crypto";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { image, user_id, platform = "manual_upload" } = body;
+    const {
+      image,
+      user_id,
+      platform = "manual_upload",
+      source_domain = null,
+    } = body;
 
     if (!image || typeof image !== "string") {
       return errorResponse("No image provided", 400);
@@ -19,7 +24,10 @@ export async function POST(req: NextRequest) {
 
     // v2.0: Hash more of the image data for better deduplication
     // Use first 10000 chars to capture meaningful image content differences
-    const contentHash = crypto.createHash("sha256").update(image.slice(0, 10000)).digest("hex");
+    const contentHash = crypto
+      .createHash("sha256")
+      .update(image.slice(0, 10000))
+      .digest("hex");
 
     if (user_id) {
       await supabase.rpc("record_scan_with_provenance", {
@@ -29,7 +37,7 @@ export async function POST(req: NextRequest) {
         p_verdict: result.verdict,
         p_confidence: result.confidence,
         p_model_used: result.model_used,
-        p_source_domain: null,
+        p_source_domain: source_domain,
         p_content_category: "photo",
         p_content_hash: contentHash,
         p_scan_duration_ms: duration,

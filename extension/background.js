@@ -13,9 +13,18 @@ const STORAGE_DEFAULTS = {
   autoScanVideos: true,
   contentMode: "scan",
   allowedSites: [
-    "x.com", "twitter.com", "linkedin.com", "substack.com",
-    "reddit.com", "facebook.com", "instagram.com", "medium.com",
-    "tiktok.com", "threads.net", "bsky.app", "mastodon.social",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "substack.com",
+    "reddit.com",
+    "facebook.com",
+    "instagram.com",
+    "medium.com",
+    "tiktok.com",
+    "threads.net",
+    "bsky.app",
+    "mastodon.social",
     "news.ycombinator.com",
   ],
   sidepanelData: null,
@@ -47,7 +56,8 @@ function detectPlatform(url) {
   if (url.includes("substack.com")) return "substack";
   if (url.includes("threads.net")) return "threads";
   if (url.includes("bsky.app")) return "bluesky";
-  if (url.includes("mastodon.social") || url.includes("mastodon.")) return "mastodon";
+  if (url.includes("mastodon.social") || url.includes("mastodon."))
+    return "mastodon";
   if (url.includes("news.ycombinator.com")) return "hackernews";
   return "other";
 }
@@ -333,13 +343,40 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  // Open /analyze page with full detection result data
+  // Open sidepanel with full detection result data
   if (message.type === "open-sidepanel") {
-    const encoded = encodeURIComponent(JSON.stringify(message.data));
-    const url = `${API_URL}/analyze?result=${encoded}`;
-    chrome.tabs.create({ url });
-    sendResponse({ ok: true });
-    return false;
+    (async () => {
+      try {
+        // Store data for sidepanel to read
+        await chrome.storage.local.set({ sidepanelData: message.data });
+
+        // Try Chrome sidepanel API first (Chrome 116+)
+        if (chrome.sidePanel && chrome.sidePanel.open) {
+          const tabId = sender.tab?.id;
+          if (tabId) {
+            await chrome.sidePanel.open({ tabId });
+            sendResponse({ ok: true });
+            return;
+          }
+        }
+
+        // Fallback: open in new tab
+        const encoded = encodeURIComponent(JSON.stringify(message.data));
+        const url = `${API_URL}/analyze?result=${encoded}`;
+        chrome.tabs.create({ url });
+        sendResponse({ ok: true });
+      } catch (err) {
+        console.warn(
+          "[Baloney] Sidepanel open failed, using tab fallback:",
+          err.message,
+        );
+        const encoded = encodeURIComponent(JSON.stringify(message.data));
+        const url = `${API_URL}/analyze?result=${encoded}`;
+        chrome.tabs.create({ url });
+        sendResponse({ ok: true });
+      }
+    })();
+    return true; // async
   }
 });
 

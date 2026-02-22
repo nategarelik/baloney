@@ -12,6 +12,12 @@
       background: #f0e6ca;
       color: #4a3728;
       padding: 16px;
+      border-radius: 12px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        inset 0 -1px 0 rgba(74,55,40,0.08),
+        inset 1px 0 0 rgba(255,255,255,0.3),
+        inset -1px 0 0 rgba(74,55,40,0.05);
     }
 
     /* ── Header ── */
@@ -320,7 +326,7 @@
     </a>
   </div>
 
-  <div class="footer">Baloney v0.4.0</div>
+  <!-- footer removed -->
 
   <script>
     // Animated count-up
@@ -408,7 +414,7 @@
 
     // ── Edit allowed websites link ──
     document.getElementById("edit-sites").addEventListener("click", () => {
-      chrome.tabs.create({ url: "https://trustlens-nu.vercel.app/dashboard" });
+      chrome.tabs.create({ url: "https://trustlens-nu.vercel.app/allowed-sites" });
     });
   </script>
 </body>
