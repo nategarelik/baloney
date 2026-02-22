@@ -12,13 +12,16 @@ import type { ScanRecord } from "@/lib/types";
 export default function DashboardPage() {
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
       const res = await getAllScans(200);
       setScans(res.scans);
+      setFetchError(false);
     } catch (err) {
       console.error("Failed to fetch scans:", err);
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -44,6 +47,27 @@ export default function DashboardPage() {
         <p className="text-secondary/50 text-sm mb-6">
           Live AI content detection analytics from all Baloney users
         </p>
+
+        {/* ── Error banner ── */}
+        {fetchError && (
+          <div
+            role="alert"
+            className="flex items-center justify-between bg-red-50 border border-red-200 rounded-xl px-5 py-3 mb-4"
+          >
+            <p className="text-red-700 text-sm">
+              Couldn&apos;t load latest data. Will retry automatically.
+            </p>
+            <button
+              onClick={() => {
+                setFetchError(false);
+                fetchData();
+              }}
+              className="text-red-600 text-sm font-medium underline"
+            >
+              Retry now
+            </button>
+          </div>
+        )}
 
         {/* ── 3 stat cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

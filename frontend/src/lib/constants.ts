@@ -67,8 +67,17 @@ export const API_LIMITS = {
   LIMIT_MIN: 1,
   LIMIT_MAX: 200,
   TEXT_MAX_LENGTH: 50_000,
+  TEXT_HARD_MAX: 100_000,
+  IMAGE_MAX_BYTES: 10 * 1024 * 1024, // 10 MB
+  VIDEO_MAX_BYTES: 25 * 1024 * 1024, // 25 MB
   OFFSET_MAX: 10_000,
 } as const;
+
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 // Baloney brand colors (for use in JS/charts)
 export const BALONEY_COLORS = {

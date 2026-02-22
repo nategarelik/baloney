@@ -43,6 +43,8 @@ export interface DetectionResult {
   edit_magnitude: number;
   scan_id?: string;
   method_scores?: Record<string, MethodScore>;
+  primaryAvailable?: boolean;
+  confidenceCapped?: boolean;
 }
 
 export interface MethodScore {
@@ -51,6 +53,7 @@ export interface MethodScore {
   label: string;
   available: boolean;
   status?: "success" | "unavailable" | "rate_limited" | "error" | "not_run";
+  tier?: "primary" | "fallback" | "watermark" | "escalation";
 }
 
 export interface PangramWindow {
@@ -75,6 +78,8 @@ export interface TextDetectionResult {
   sentence_scores: SentenceScore[];
   scan_id?: string;
   method_scores?: Record<string, MethodScore>;
+  primaryAvailable?: boolean;
+  confidenceCapped?: boolean;
   pangram_classification?: string;
   pangram_windows?: PangramWindow[];
   synthid_text_result?: "watermarked" | "not_watermarked" | "uncertain" | null;
@@ -99,6 +104,8 @@ export interface VideoDetectionResult {
   duration_seconds: number;
   scan_id?: string;
   method_scores?: Record<string, MethodScore>;
+  primaryAvailable?: boolean;
+  confidenceCapped?: boolean;
   sightengine_native?: boolean;
 }
 

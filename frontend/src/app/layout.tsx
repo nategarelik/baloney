@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Young_Serif, DM_Sans } from "next/font/google";
 import { Navbar } from "@/components/Navbar";
+import { ToastProvider } from "@/components/ToastProvider";
 import "./globals.css";
 
 const youngSerif = Young_Serif({
@@ -31,7 +32,7 @@ export default function RootLayout({
     <html lang="en" className={`${youngSerif.variable} ${dmSans.variable}`}>
       <body className="min-h-screen bg-base text-secondary antialiased font-body">
         <Navbar />
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

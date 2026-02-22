@@ -42,9 +42,21 @@ async function fetchApi<T>(
   url: string,
   init?: RequestInit,
   timeoutMs = 10_000,
+  externalSignal?: AbortSignal,
 ): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  // Forward external abort to internal controller
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort();
+    } else {
+      externalSignal.addEventListener("abort", () => controller.abort(), {
+        once: true,
+      });
+    }
+  }
 
   try {
     const res = await fetch(url, { ...init, signal: controller.signal });
@@ -77,6 +89,7 @@ export async function detectImage(
   base64Image: string,
   userId?: string,
   platform = "manual_upload",
+  signal?: AbortSignal,
 ): Promise<DetectionResult> {
   return fetchApi<DetectionResult>(
     "/api/detect/image",
@@ -86,6 +99,7 @@ export async function detectImage(
       body: JSON.stringify({ image: base64Image, user_id: userId, platform }),
     },
     45_000,
+    signal,
   );
 }
 
@@ -93,6 +107,7 @@ export async function detectVideo(
   base64Video: string,
   userId?: string,
   platform = "manual_upload",
+  signal?: AbortSignal,
 ): Promise<VideoDetectionResult> {
   return fetchApi<VideoDetectionResult>(
     "/api/detect/video",
@@ -102,6 +117,7 @@ export async function detectVideo(
       body: JSON.stringify({ video: base64Video, user_id: userId, platform }),
     },
     60_000,
+    signal,
   );
 }
 
@@ -109,6 +125,7 @@ export async function detectText(
   text: string,
   userId?: string,
   platform = "manual_upload",
+  signal?: AbortSignal,
 ): Promise<TextDetectionResult> {
   return fetchApi<TextDetectionResult>(
     "/api/detect/text",
@@ -118,6 +135,7 @@ export async function detectText(
       body: JSON.stringify({ text, user_id: userId, platform }),
     },
     45_000,
+    signal,
   );
 }
 
