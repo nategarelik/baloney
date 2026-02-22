@@ -17,7 +17,8 @@ const DASHBOARD_ITEMS = [
   { href: "/dashboard/community", label: "Community" },
 ] as const;
 
-const CHROME_STORE_URL = "https://chromewebstore.google.com/";
+const CHROME_STORE_URL =
+  "https://github.com/nategarelik/baloney/tree/master/extension";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -39,10 +40,7 @@ export function Navbar() {
       ) {
         setDropdownOpen(false);
       }
-      if (
-        mobileRef.current &&
-        !mobileRef.current.contains(e.target as Node)
-      ) {
+      if (mobileRef.current && !mobileRef.current.contains(e.target as Node)) {
         setMobileOpen(false);
       }
     }
