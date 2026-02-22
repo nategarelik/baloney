@@ -1,139 +1,113 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { PersonalTab } from "./PersonalTab";
-import { CommunityTab } from "./CommunityTab";
-import { SlopIndexCard } from "./SlopIndexCard";
-import { ExposureScoreCard } from "./ExposureScoreCard";
-import { InformationDietCard } from "./InformationDietCard";
-import { ProvenanceTable } from "./ProvenanceTable";
+import { useState, useEffect } from "react";
+import { BarChart3, Bot, Percent } from "lucide-react";
+import { ChartCard } from "@/components/ChartCard";
+import { AiRateBySiteChart } from "./AiRateBySiteChart";
+import { RecentScansTable } from "./RecentScansTable";
 import { DEMO_USER_ID } from "@/lib/constants";
-import { cn } from "@/lib/cn";
-import {
-  getPersonalAnalytics,
-  getMyScans,
-  getCommunityAnalytics,
-  getCommunityTrends,
-  getDomainLeaderboard,
-} from "@/lib/api";
-import type {
-  PersonalAnalytics,
-  CommunityAnalytics,
-  CommunityTrends,
-  DomainLeaderboard,
-  ScanRecord,
-} from "@/lib/types";
+import { getMyScans } from "@/lib/api";
+import type { ScanRecord } from "@/lib/types";
 
 export default function DashboardPage() {
-  const [tab, setTab] = useState<"personal" | "community">("personal");
-
-  // Personal data
-  const [personalData, setPersonalData] = useState<PersonalAnalytics | null>(null);
   const [scans, setScans] = useState<ScanRecord[]>([]);
-  const [personalLoading, setPersonalLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
-  // Community data
-  const [communityData, setCommunityData] = useState<CommunityAnalytics | null>(null);
-  const [trends, setTrends] = useState<CommunityTrends | null>(null);
-  const [leaderboard, setLeaderboard] = useState<DomainLeaderboard | null>(null);
-  const [communityLoading, setCommunityLoading] = useState(false);
-  const [communityFetched, setCommunityFetched] = useState(false);
-
-  // Fetch personal data on mount
   useEffect(() => {
-    async function fetchPersonal() {
+    async function fetchData() {
       try {
-        const [analyticsRes, scansRes] = await Promise.all([
-          getPersonalAnalytics(DEMO_USER_ID),
-          getMyScans(DEMO_USER_ID, 200),
-        ]);
-        setPersonalData(analyticsRes);
-        setScans(scansRes.scans);
+        const res = await getMyScans(DEMO_USER_ID, 200);
+        setScans(res.scans);
       } catch (err) {
-        console.error("Failed to fetch personal analytics:", err);
+        console.error("Failed to fetch scans:", err);
       } finally {
-        setPersonalLoading(false);
+        setLoading(false);
       }
     }
-    fetchPersonal();
+    fetchData();
   }, []);
 
-  // Fetch community data lazily on first tab switch
-  const fetchCommunity = useCallback(async () => {
-    if (communityFetched) return;
-    setCommunityLoading(true);
-    try {
-      const [communityRes, trendsRes, leaderboardRes] = await Promise.all([
-        getCommunityAnalytics(),
-        getCommunityTrends(30),
-        getDomainLeaderboard(15),
-      ]);
-      setCommunityData(communityRes);
-      setTrends(trendsRes);
-      setLeaderboard(leaderboardRes);
-      setCommunityFetched(true);
-    } catch (err) {
-      console.error("Failed to fetch community analytics:", err);
-    } finally {
-      setCommunityLoading(false);
-    }
-  }, [communityFetched]);
-
-  useEffect(() => {
-    if (tab === "community") {
-      fetchCommunity();
-    }
-  }, [tab, fetchCommunity]);
+  const totalScans = scans.length;
+  const aiDetected = scans.filter(
+    (s) => s.verdict === "ai_generated" || s.verdict === "heavy_edit",
+  ).length;
+  const aiRate = totalScans > 0 ? Math.round((aiDetected / totalScans) * 100) : 0;
 
   return (
-    <main className="min-h-screen">
-      <div className="max-w-6xl mx-auto px-6 pt-8 pb-16">
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-slate-400 text-sm mb-6">
+    <main className="min-h-screen bg-base">
+      <div className="max-w-6xl mx-auto px-6 pt-8 pb-16 page-top-offset">
+        <h1 className="text-3xl font-display text-secondary mb-2">Dashboard</h1>
+        <p className="text-secondary/50 text-sm mb-6">
           Your AI content detection analytics
         </p>
 
-        {/* Tab switcher */}
-        <div className="flex gap-2 mb-8">
-          {(["personal", "community"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition capitalize",
-                tab === t
-                  ? "bg-accent text-white"
-                  : "bg-navy-light text-slate-400 hover:text-white"
-              )}
+        {/* ── 3 stat cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {[
+            {
+              icon: BarChart3,
+              label: "Total Scans",
+              value: totalScans,
+            },
+            {
+              icon: Bot,
+              label: "AI Detected",
+              value: aiDetected,
+            },
+            {
+              icon: Percent,
+              label: "AI Rate",
+              value: `${aiRate}%`,
+            },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className="bg-base-dark rounded-xl border border-secondary/10 p-5 flex items-center gap-4"
             >
-              {t}
-            </button>
+              <div className="p-2.5 rounded-lg bg-secondary/5">
+                <stat.icon className="h-5 w-5 text-secondary/50" />
+              </div>
+              <div>
+                <p className="text-xs text-secondary/50 uppercase tracking-wider">
+                  {stat.label}
+                </p>
+                <p className="text-2xl font-display text-secondary">
+                  {loading ? "..." : stat.value}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
 
-        {tab === "personal" ? (
-          <div className="space-y-6">
-            <InformationDietCard />
-            <ExposureScoreCard />
-            <PersonalTab
-              analytics={personalData}
-              scans={scans}
-              loading={personalLoading}
-            />
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <SlopIndexCard />
-            <CommunityTab
-              analytics={communityData}
-              trends={trends}
-              leaderboard={leaderboard}
-              scans={scans}
-              loading={communityLoading}
-            />
-            <ProvenanceTable />
-          </div>
-        )}
+        {/* ── AI Rate by Site ── */}
+        <div className="mb-6">
+          <ChartCard
+            title="AI Rate by Site"
+            subtitle="AI detection rate per platform over time"
+          >
+            {loading ? (
+              <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
+            ) : (
+              <AiRateBySiteChart scans={scans} />
+            )}
+          </ChartCard>
+        </div>
+
+        {/* ── Recent Scans ── */}
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
+          <h2 className="text-lg font-display text-secondary mb-4">
+            Recent Scans
+          </h2>
+          {loading ? (
+            <div className="h-48 animate-pulse bg-secondary/5 rounded-lg" />
+          ) : scans.length === 0 ? (
+            <p className="text-secondary/40 text-sm text-center py-8">
+              No scans yet. Use the extension or Analyze page to get started.
+            </p>
+          ) : (
+            <RecentScansTable scans={scans} />
+          )}
+        </div>
       </div>
     </main>
   );

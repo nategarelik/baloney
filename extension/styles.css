@@ -247,6 +247,27 @@
   color: rgba(74,55,40,0.35);
   margin-top: 4px;
 }
+.baloney-insight__fulldata {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  padding: 6px 14px;
+  background: #d4456b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 999px;
+  text-decoration: none;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  transition: background 0.15s;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    inset 0 -2px 0 rgba(0,0,0,0.12),
+    0 2px 6px rgba(212,69,107,0.2);
+}
+.baloney-insight__fulldata:hover {
+  background: rgba(212,69,107,0.9);
+}
 
 /* ── Floating page indicator ── */
 

@@ -34,9 +34,9 @@ export function ExposureScoreCard() {
 
   if (loading) {
     return (
-      <div className="bg-navy-light rounded-xl p-6 border border-navy-lighter animate-pulse">
-        <div className="h-6 bg-navy-lighter rounded w-40 mb-4" />
-        <div className="h-24 bg-navy-lighter rounded-lg" />
+      <div className="bg-base-dark rounded-xl p-6 border border-secondary/10 animate-pulse">
+        <div className="h-6 bg-secondary/8 rounded w-40 mb-4" />
+        <div className="h-24 bg-secondary/8 rounded-lg" />
       </div>
     );
   }
@@ -50,26 +50,26 @@ export function ExposureScoreCard() {
     : 100;
 
   return (
-    <div className="bg-navy-light rounded-xl p-6 border border-navy-lighter">
+    <div className="bg-base-dark rounded-xl p-6 border border-secondary/10">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-white">Exposure Score</h3>
+        <h3 className="text-lg font-semibold text-secondary">Exposure Score</h3>
         <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${LEVEL_COLORS[data.level] ?? "bg-slate-600"}`}>
           {data.level}
         </span>
       </div>
 
       <div className="text-center mb-4">
-        <span className="text-5xl font-black text-white">{data.score}</span>
-        <span className="text-slate-500 text-lg ml-1">/850</span>
+        <span className="text-5xl font-black text-secondary">{data.score}</span>
+        <span className="text-secondary/50 text-lg ml-1">/850</span>
       </div>
 
       {nextLevel && (
         <div className="mb-4">
-          <div className="flex justify-between text-xs text-slate-500 mb-1">
+          <div className="flex justify-between text-xs text-secondary/50 mb-1">
             <span>{currentLevel?.label}</span>
             <span>{nextLevel.label}</span>
           </div>
-          <div className="w-full bg-[#0f1a2e] rounded-full h-2">
+          <div className="w-full bg-secondary/5 rounded-full h-2">
             <div
               className="h-2 rounded-full bg-accent transition-all"
               style={{ width: `${Math.min(progressToNext, 100)}%` }}
@@ -79,21 +79,21 @@ export function ExposureScoreCard() {
       )}
 
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <div className="bg-[#0f1a2e] rounded-lg p-3">
-          <div className="text-slate-500 text-xs">AI Caught</div>
-          <div className="text-white font-bold">{data.total_ai_caught}</div>
+        <div className="bg-secondary/5 rounded-lg p-3">
+          <div className="text-secondary/50 text-xs">AI Caught</div>
+          <div className="text-secondary font-bold">{data.total_ai_caught}</div>
         </div>
-        <div className="bg-[#0f1a2e] rounded-lg p-3">
-          <div className="text-slate-500 text-xs">Total Scans</div>
-          <div className="text-white font-bold">{data.total_scans}</div>
+        <div className="bg-secondary/5 rounded-lg p-3">
+          <div className="text-secondary/50 text-xs">Total Scans</div>
+          <div className="text-secondary font-bold">{data.total_scans}</div>
         </div>
-        <div className="bg-[#0f1a2e] rounded-lg p-3">
-          <div className="text-slate-500 text-xs">Streak</div>
-          <div className="text-white font-bold">{data.streak_days} days</div>
+        <div className="bg-secondary/5 rounded-lg p-3">
+          <div className="text-secondary/50 text-xs">Streak</div>
+          <div className="text-secondary font-bold">{data.streak_days} days</div>
         </div>
-        <div className="bg-[#0f1a2e] rounded-lg p-3">
-          <div className="text-slate-500 text-xs">Platforms</div>
-          <div className="text-white font-bold">{Math.round(data.platform_diversity * 4)}/4</div>
+        <div className="bg-secondary/5 rounded-lg p-3">
+          <div className="text-secondary/50 text-xs">Platforms</div>
+          <div className="text-secondary font-bold">{Math.round(data.platform_diversity * 4)}/4</div>
         </div>
       </div>
     </div>

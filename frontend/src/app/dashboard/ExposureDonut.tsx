@@ -34,10 +34,10 @@ export function ExposureDonut({ aiRate, totalScans }: ExposureDonutProps) {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-white">
+        <span className="text-4xl font-bold text-secondary">
           {Math.round(aiRate * 100)}%
         </span>
-        <span className="text-xs text-slate-400">AI Exposure</span>
+        <span className="text-xs text-secondary/50">AI Exposure</span>
       </div>
     </div>
   );

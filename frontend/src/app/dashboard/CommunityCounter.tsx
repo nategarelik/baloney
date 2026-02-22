@@ -39,10 +39,10 @@ export function CommunityCounter({
 
   return (
     <div className={className}>
-      <div className="text-4xl font-bold text-white">
+      <div className="text-4xl font-bold text-secondary">
         {value.toLocaleString()}
       </div>
-      <div className="text-xs text-slate-400 mt-1">{label}</div>
+      <div className="text-xs text-secondary/50 mt-1">{label}</div>
     </div>
   );
 }

@@ -21,25 +21,33 @@ export function PersonalTab({ analytics, scans, loading }: PersonalTabProps) {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-navy-light rounded-xl border border-navy-lighter p-5 h-28 animate-pulse" />
+            <div
+              key={i}
+              className="bg-base-dark rounded-xl border border-secondary/10 p-5 h-28 animate-pulse"
+            />
           ))}
         </div>
-        <div className="bg-navy-light rounded-xl border border-navy-lighter p-5 h-72 animate-pulse" />
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 h-72 animate-pulse" />
       </div>
     );
   }
 
-  const aiCount = analytics.by_verdict.find((v) => v.verdict === "ai_generated")?.count ?? 0;
-  const avgConfidence = scans.length > 0
-    ? scans.reduce((sum, s) => sum + s.confidence, 0) / scans.length
-    : 0;
+  const aiCount =
+    analytics.by_verdict.find((v) => v.verdict === "ai_generated")?.count ?? 0;
+  const avgConfidence =
+    scans.length > 0
+      ? scans.reduce((sum, s) => sum + s.confidence, 0) / scans.length
+      : 0;
 
   return (
     <div className="space-y-6">
       {/* Top row: donut + stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <ChartCard title="AI Exposure" subtitle="Your AI content rate">
-          <ExposureDonut aiRate={analytics.ai_exposure_rate} totalScans={analytics.total_scans} />
+          <ExposureDonut
+            aiRate={analytics.ai_exposure_rate}
+            totalScans={analytics.total_scans}
+          />
         </ChartCard>
         <StatCard
           icon={ScanSearch}
@@ -68,10 +76,16 @@ export function PersonalTab({ analytics, scans, loading }: PersonalTabProps) {
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Platform Breakdown" subtitle="Scans and AI detections by platform">
+        <ChartCard
+          title="Platform Breakdown"
+          subtitle="Scans and AI detections by platform"
+        >
           <PlatformBreakdown data={analytics.by_platform} />
         </ChartCard>
-        <ChartCard title="Recent Scans" subtitle="Your latest detection results">
+        <ChartCard
+          title="Recent Scans"
+          subtitle="Your latest detection results"
+        >
           <RecentScansTable scans={scans} />
         </ChartCard>
       </div>

@@ -123,9 +123,17 @@ All in `frontend/src/app/api/`:
 
 ### Chart Theming
 
-All Recharts components use consistent dark theme from `CHART_COLORS` in `constants.ts`:
-- AI: `#ef4444` (red), Human: `#22c55e` (green), Unclear: `#f59e0b` (amber)
-- Axis labels: `#94a3b8` (slate-400), Grid: `#1e3a5f` (navy-lighter)
+All Recharts components use warm Baloney theme from `CHART_COLORS` in `constants.ts`:
+- AI: `#d4456b` (primary pink), Human: `#16a34a` (green), Unclear: `#f59e0b` (amber)
+- Axis labels: `rgba(74,55,40,0.5)` (secondary/50), Grid: `rgba(74,55,40,0.08)`
+- Tooltip: cream bg `#f0e6ca`, brown text `#4a3728`
+
+### Dashboard Theme
+
+All dashboard components use warm Baloney palette (restyled from navy in Phase 3):
+- Card backgrounds: `bg-base-dark`, borders: `border-secondary/10`
+- Inset panels: `bg-secondary/5`, skeleton fills: `bg-secondary/8`
+- Text hierarchy: `text-secondary` (headings), `text-secondary/70` (data), `text-secondary/50` (labels/subtitles)
 
 ### Badge Colors
 
@@ -145,11 +153,11 @@ Detection badges match extension `styles.css` exactly:
 
 ### Dashboard Components
 
-- `frontend/src/app/dashboard/page.tsx` — Main dashboard (personal + community tabs)
+- `frontend/src/app/dashboard/page.tsx` — Personal dashboard (3 stats + AI rate by site chart + recent scans table)
+- `frontend/src/app/dashboard/AiRateBySiteChart.tsx` — Multi-line Recharts chart showing AI rate per platform over time
+- `frontend/src/app/dashboard/community/page.tsx` — Community dashboard (stats + By Website bar chart + By Medium bar chart)
 - `frontend/src/app/dashboard/SlopIndexCard.tsx` — Platform report cards
-- `frontend/src/app/dashboard/ExposureScoreCard.tsx` — Personal awareness score
 - `frontend/src/app/dashboard/ProvenanceTable.tsx` — Crowd-sourced truth table
-- `frontend/src/app/dashboard/PersonalTab.tsx` — Personal analytics charts
 - `frontend/src/app/dashboard/CommunityTab.tsx` — Community analytics charts
 
 ### Pages (7 total)
@@ -159,7 +167,8 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/app/analyze/page.tsx` — AI Detector (tabbed: Text, Image, Video) with warm Baloney theme
 - `frontend/src/app/my-diet/page.tsx` — Information Diet (score gauge, breakdown cards, tips, recent scans)
 - `frontend/src/app/platform/page.tsx` — Platform Simulator (Twitter/Reddit/LinkedIn/Instagram)
-- `frontend/src/app/dashboard/page.tsx` — Dashboard (personal + community analytics)
+- `frontend/src/app/dashboard/page.tsx` — Personal Dashboard (stats + per-site chart + scan table)
+- `frontend/src/app/dashboard/community/page.tsx` — Community Dashboard (stats + by website + by medium charts)
 - `frontend/src/app/extension/page.tsx` — Extension info (features, install steps, CTA)
 
 ### Extension Features (v0.4.0 — Warm Theme + Dot UI + Sidepanel)

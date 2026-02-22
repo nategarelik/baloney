@@ -38,7 +38,7 @@ function getTrendArrow(direction: number): string {
 function getTrendColor(direction: number): string {
   if (direction > 0) return "text-green-400";
   if (direction < 0) return "text-red-400";
-  return "text-slate-400";
+  return "text-secondary/50";
 }
 
 interface MetricBarProps {
@@ -52,10 +52,10 @@ function MetricBar({ label, value, color }: MetricBarProps) {
   return (
     <div>
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-slate-400">{label}</span>
-        <span className="text-white font-medium">{Math.round(pct)}%</span>
+        <span className="text-secondary/50">{label}</span>
+        <span className="text-secondary font-medium">{Math.round(pct)}%</span>
       </div>
-      <div className="w-full bg-[#0f1a2e] rounded-full h-1.5">
+      <div className="w-full bg-secondary/5 rounded-full h-1.5">
         <div
           className="h-1.5 rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, backgroundColor: color }}
@@ -79,15 +79,15 @@ export function InformationDietCard() {
 
   if (loading) {
     return (
-      <div className="bg-navy-light rounded-xl p-6 border border-navy-lighter animate-pulse">
-        <div className="h-6 bg-navy-lighter rounded w-52 mb-4" />
+      <div className="bg-base-dark rounded-xl p-6 border border-secondary/10 animate-pulse">
+        <div className="h-6 bg-secondary/8 rounded w-52 mb-4" />
         <div className="flex gap-6">
-          <div className="w-36 h-36 bg-navy-lighter rounded-full" />
+          <div className="w-36 h-36 bg-secondary/8 rounded-full" />
           <div className="flex-1 space-y-3">
-            <div className="h-4 bg-navy-lighter rounded w-3/4" />
-            <div className="h-4 bg-navy-lighter rounded w-2/3" />
-            <div className="h-4 bg-navy-lighter rounded w-3/4" />
-            <div className="h-4 bg-navy-lighter rounded w-1/2" />
+            <div className="h-4 bg-secondary/8 rounded w-3/4" />
+            <div className="h-4 bg-secondary/8 rounded w-2/3" />
+            <div className="h-4 bg-secondary/8 rounded w-3/4" />
+            <div className="h-4 bg-secondary/8 rounded w-1/2" />
           </div>
         </div>
       </div>
@@ -99,16 +99,16 @@ export function InformationDietCard() {
   const dashOffset =
     GAUGE_CIRCUMFERENCE - (data.score / 100) * GAUGE_CIRCUMFERENCE;
   const gaugeColor = getGaugeColor(data.score);
-  const gradeColor = GRADE_COLORS[data.letter_grade] ?? "text-slate-400";
+  const gradeColor = GRADE_COLORS[data.letter_grade] ?? "text-secondary/50";
 
   return (
-    <div className="bg-navy-light rounded-xl p-6 border border-navy-lighter">
+    <div className="bg-base-dark rounded-xl p-6 border border-secondary/10">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold text-secondary">
           Information Diet Score
         </h3>
         <span
-          className={`text-xs font-bold px-2 py-1 rounded-full bg-[#0f1a2e] ${getTrendColor(data.trend_direction)}`}
+          className={`text-xs font-bold px-2 py-1 rounded-full bg-secondary/5 ${getTrendColor(data.trend_direction)}`}
         >
           {getTrendArrow(data.trend_direction)} Trend
         </span>
@@ -129,7 +129,7 @@ export function InformationDietCard() {
               cy="70"
               r={GAUGE_RADIUS}
               fill="none"
-              stroke="#1e3a5f"
+              stroke="rgba(74,55,40,0.08)"
               strokeWidth="12"
             />
             {/* Animated fill */}
@@ -148,7 +148,7 @@ export function InformationDietCard() {
           </svg>
           {/* Score + grade overlaid */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-black text-white leading-none">
+            <span className="text-3xl font-black text-secondary leading-none">
               {data.score}
             </span>
             <span className={`text-xl font-bold leading-tight ${gradeColor}`}>
@@ -182,7 +182,7 @@ export function InformationDietCard() {
         </div>
       </div>
 
-      <p className="text-xs text-slate-500 mt-4">
+      <p className="text-xs text-secondary/50 mt-4">
         Computed{" "}
         {new Date(data.computed_at).toLocaleDateString("en-US", {
           month: "short",
