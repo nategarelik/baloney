@@ -677,7 +677,13 @@ function updatePageIndicator() {
 }
 
 function togglePagePanel() {
-  if (pagePanel) pagePanel.classList.toggle("open");
+  if (!pagePanel) return;
+  const isOpen = pagePanel.classList.contains("open");
+  if (isOpen) {
+    pagePanel.classList.remove("open");
+  } else if (flaggedItems.length > 0) {
+    pagePanel.classList.add("open");
+  }
 }
 
 function addFlaggedItem(element, verdict, preview) {
@@ -1113,6 +1119,8 @@ function init() {
   console.log(
     "[Baloney] Content script loaded (v0.4.0 \u2014 dot UI + gating)",
   );
+
+  createLoadingIndicator();
 
   // Observe future DOM changes
   domObserver.observe(document.body, {
