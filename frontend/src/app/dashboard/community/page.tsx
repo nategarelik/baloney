@@ -198,13 +198,11 @@ export default function CommunityDashboardPage() {
                     dataKey="Human"
                     fill={CHART_COLORS.human}
                     radius={[4, 4, 0, 0]}
-                    stackId="a"
                   />
                   <Bar
                     dataKey="AI"
                     fill={CHART_COLORS.ai}
                     radius={[4, 4, 0, 0]}
-                    stackId="a"
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -248,13 +246,11 @@ export default function CommunityDashboardPage() {
                     dataKey="Human"
                     fill={CHART_COLORS.human}
                     radius={[4, 4, 0, 0]}
-                    stackId="a"
                   />
                   <Bar
                     dataKey="AI"
                     fill={CHART_COLORS.ai}
                     radius={[4, 4, 0, 0]}
-                    stackId="a"
                   />
                 </BarChart>
               </ResponsiveContainer>
