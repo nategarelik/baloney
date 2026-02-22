@@ -8,6 +8,11 @@
 |------|-------|---------|
 | Claude Code (CLI) | Opus 4.6 | Architecture planning, debugging, code review, orchestration |
 | Claude Code (CLI) | Sonnet 4.6 | Implementation, component building, API routes, documentation |
+| Pangram API | v3 (Emi & Spero 2024) | Commercial text AI detection, 99.85% accuracy, SOTA (arXiv:2402.14873) |
+| SightEngine API | genai model | Commercial image + video AI detection, 98.3% accuracy, ARIA benchmark #1 |
+| Reality Defender API | Enterprise | Deepfake escalation for ambiguous images (RSA Innovation Award winner) |
+| Google SynthID (Text) | via HuggingFace Transformers | Google Gemini watermark detection (open-source, synthid-text) |
+| Google SynthID (Image) | via Vertex AI | Google Imagen watermark detection (Vertex AI API) |
 
 ## What AI Generated
 
@@ -28,6 +33,7 @@
 - **UI polish**: 3D bevel effect for primary buttons (`.btn-primary-3d`), pig logo favicon (`app/icon.png`), `HandDrawnUnderline` SVG component
 - **Data pipeline**: Live dashboard showing all users' scans via `/api/scans/all`, 15-second auto-refresh polling on both dashboards for real-time hackathon demo
 - **Documentation**: Architecture diagrams, API reference, this disclosure
+- **v3.0 Multi-Signal Ensemble**: 6+ signal detection per modality — Pangram (99.85%), SightEngine (98.3%), Google SynthID watermark detection, Reality Defender deepfake escalation, dynamic weight allocation, method breakdown visualization, evaluation pipeline with ROC curves and ablation studies
 
 ## What Humans Did
 
@@ -58,11 +64,20 @@ No code was blindly accepted. Every AI-generated line was reviewed by a human te
 | `openai-community/roberta-base-openai-detector` | Text Method A | RoBERTa fine-tuned on GPT-2 outputs for binary AI/human classification |
 | `sentence-transformers/all-MiniLM-L6-v2` | Text Method B | Sentence embeddings for inter-sentence uniformity analysis (EditLens-inspired) |
 | `umm-maybe/AI-image-detector` | Image Method E | ViT-based classifier trained on AI-generated vs real images |
+| `Hello-SimpleAI/chatgpt-detector-roberta` | Text Method C | RoBERTa fine-tuned on HC3 dataset for ChatGPT/Claude/Gemini detection |
+| `Organika/sdxl-detector` | Image Method E2 | SDXL-specific AI image detector |
+| Google SynthID Text | Text Method SynthID | Bayesian watermark detection for Gemini-generated text (via synthid-text library) |
 
 Additional detection methods implemented locally (no external API):
 - **Text Method D**: Statistical features — burstiness, type-token ratio, perplexity proxy, repetition score, readability
 - **Image Method F**: Frequency domain analysis — local variance uniformity and high-frequency energy proxy
 - **Image Method G**: Metadata analysis — EXIF marker detection, camera make/model identification
+- **Text Method P**: Pangram commercial API — 99.85% accuracy SOTA, 4-tier classification (Fully Human / Lightly AI-Assisted / Moderately AI-Assisted / Fully AI-Generated)
+- **Image Method S**: SightEngine commercial API — 98.3% accuracy, ARIA benchmark #1, covers 120+ AI generators
+- **Video Method S**: SightEngine native video endpoint — server-side video analysis for Sora, Veo, Runway, Kling
+- **Text SynthID**: Google Gemini watermark detection via open-source synthid-text library
+- **Image SynthID**: Google Imagen watermark detection via Vertex AI
+- **Reality Defender**: Enterprise deepfake escalation for ambiguous image scores (0.4-0.7 range)
 
 ## Team
 
