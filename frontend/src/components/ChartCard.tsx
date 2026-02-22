@@ -19,14 +19,14 @@ export function ChartCard({
   return (
     <div
       className={cn(
-        "bg-navy-light rounded-xl border border-navy-lighter p-5",
-        className
+        "bg-base-dark rounded-xl border border-secondary/10 p-5",
+        className,
       )}
     >
       <div className="mb-4">
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
+        <h3 className="text-sm font-semibold text-secondary">{title}</h3>
         {subtitle && (
-          <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>
+          <p className="text-xs text-secondary/50 mt-0.5">{subtitle}</p>
         )}
       </div>
       {loading ? (

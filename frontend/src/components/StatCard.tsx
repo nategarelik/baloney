@@ -21,25 +21,23 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "bg-navy-light rounded-xl border border-navy-lighter p-5",
-        className
+        "bg-base-dark rounded-xl border border-secondary/10 p-5",
+        className,
       )}
     >
       <div className="flex items-center gap-2 mb-3">
         <Icon className="h-4 w-4 text-accent" />
-        <span className="text-xs text-slate-400 uppercase tracking-wider">
+        <span className="text-xs text-secondary/50 uppercase tracking-wider">
           {label}
         </span>
       </div>
-      <div className="text-3xl font-bold text-white">{value}</div>
-      {subtext && (
-        <p className="text-xs text-slate-500 mt-1">{subtext}</p>
-      )}
+      <div className="text-3xl font-bold text-secondary">{value}</div>
+      {subtext && <p className="text-xs text-secondary/50 mt-1">{subtext}</p>}
       {trend && (
         <div
           className={cn(
             "text-xs mt-2 font-medium",
-            trend.value >= 0 ? "text-green-400" : "text-red-400"
+            trend.value >= 0 ? "text-green-400" : "text-red-400",
           )}
         >
           {trend.value >= 0 ? "+" : ""}

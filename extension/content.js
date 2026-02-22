@@ -53,8 +53,11 @@ loadSettings();
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.extensionEnabled)
     settings.extensionEnabled = changes.extensionEnabled.newValue;
-  if (changes.autoScanText)
+  if (changes.autoScanText) {
     settings.autoScanText = changes.autoScanText.newValue;
+    if (canAutoScanText()) startTextAutoScan();
+    else stopTextAutoScan();
+  }
   if (changes.autoScanImages)
     settings.autoScanImages = changes.autoScanImages.newValue;
   if (changes.autoScanVideos)
@@ -333,6 +336,10 @@ function buildInsightHTML(result, type) {
     "&lt;",
   );
   html += `<div class="baloney-insight__model">Model: ${model}</div>`;
+
+  const resultData = JSON.stringify({ result, type });
+  const analyzeUrl = `https://trustlens-nu.vercel.app/analyze?result=${encodeURIComponent(resultData)}`;
+  html += `<a href="${analyzeUrl}" target="_blank" class="baloney-insight__fulldata">View Full Data \u2192</a>`;
 
   return html;
 }
@@ -861,6 +868,90 @@ function clearTextUnderlines() {
 // Selection dismissal + underline cleanup listeners are registered inside init()
 
 // ──────────────────────────────────────────────
+// Auto-scan text nodes
+// ──────────────────────────────────────────────
+
+const TEXT_SELECTORS =
+  "p, article, [role='article'], .tweet-text, .feed-shared-update-v2__description, " +
+  "[data-testid='tweetText'], .post-content, .entry-content, .article-body";
+
+let textObserver = null;
+
+function autoScanTextNodes(elements) {
+  const toScan = [];
+
+  elements.forEach((el) => {
+    if (el.dataset.baloneyTextScanned) return;
+    const text = (el.innerText || "").trim();
+    if (text.length < 100) return;
+
+    el.dataset.baloneyTextScanned = "1";
+    toScan.push(el);
+  });
+
+  toScan.forEach((el) => {
+    const text = (el.innerText || "").trim().slice(0, 2000);
+
+    requestQueue.add(async () => {
+      try {
+        const result = await new Promise((resolve, reject) => {
+          chrome.runtime.sendMessage(
+            { type: "analyze-text", text },
+            (response) => {
+              if (chrome.runtime.lastError)
+                reject(new Error(chrome.runtime.lastError.message));
+              else resolve(response);
+            },
+          );
+        });
+
+        if (result && result.verdict) {
+          createDetectionDot(el, result);
+          addFlaggedItem(
+            el,
+            result.verdict,
+            "Text: " + text.slice(0, 40) + "\u2026",
+          );
+          updateTextStats(result.verdict);
+          updatePageStats("text", result.verdict);
+        }
+      } catch (error) {
+        console.error("[Baloney] Auto text scan failed:", error);
+      }
+    });
+  });
+}
+
+function startTextAutoScan() {
+  if (textObserver) return;
+
+  textObserver = new IntersectionObserver(
+    (entries) => {
+      const visible = entries
+        .filter((e) => e.isIntersecting)
+        .map((e) => e.target);
+      if (visible.length > 0) {
+        autoScanTextNodes(visible);
+        visible.forEach((el) => textObserver.unobserve(el));
+      }
+    },
+    { threshold: 0.3 },
+  );
+
+  // Observe existing text elements
+  document.querySelectorAll(TEXT_SELECTORS).forEach((el) => {
+    if (!el.dataset.baloneyTextScanned) textObserver.observe(el);
+  });
+}
+
+function stopTextAutoScan() {
+  if (textObserver) {
+    textObserver.disconnect();
+    textObserver = null;
+  }
+}
+
+// ──────────────────────────────────────────────
 // Viewport observer (images + videos)
 // ──────────────────────────────────────────────
 
@@ -907,6 +998,13 @@ const domObserver = new MutationObserver((mutations) => {
         node
           .querySelectorAll("video")
           .forEach((vid) => viewportObserver.observe(vid));
+
+        // Auto-scan new text elements if enabled
+        if (textObserver) {
+          node.querySelectorAll(TEXT_SELECTORS).forEach((el) => {
+            if (!el.dataset.baloneyTextScanned) textObserver.observe(el);
+          });
+        }
       }
     }
   }
@@ -946,6 +1044,11 @@ function init() {
   document.querySelectorAll("video").forEach((vid) => {
     viewportObserver.observe(vid);
   });
+
+  // Start auto-scan text if enabled
+  if (canAutoScanText()) {
+    startTextAutoScan();
+  }
 
   // Text selection listener
   document.addEventListener("mouseup", handleTextSelection);

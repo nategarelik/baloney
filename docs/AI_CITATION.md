@@ -23,6 +23,8 @@
 - **Rebrand & redesign**: Baloney landing page, warm color palette, Young Serif + DM Sans typography, SVG hand-drawn accent components
 - **AI Tracker dashboard**: Platform-tabbed tracker page with collapsible chart sections, new `/api/analytics/tracker` endpoint
 - **Design system**: Full `docs/DESIGN.md` — brand ethos, color palette, typography rationale, component patterns, page layouts, do/don't rules
+- **Dashboard warm theme**: Full restyle of ~19 dashboard components from navy/dark to warm Baloney palette (cream cards, brown text, pink accents), warm Recharts chart colors, updated ChartCard/StatCard/Skeleton shared components
+- **Dashboard revamp**: Simplified personal dashboard (3 stats + per-site AI rate chart + scan table), community dashboard at `/dashboard/community` (stats + stacked bar charts by website and by medium), navbar Dashboards dropdown, hero staggered fade-in animations, `AiRateBySiteChart` multi-line Recharts component
 - **UI polish**: 3D bevel effect for primary buttons (`.btn-primary-3d`), pig logo favicon (`app/icon.png`), `HandDrawnUnderline` SVG component
 - **Documentation**: Architecture diagrams, API reference, this disclosure
 

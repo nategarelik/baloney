@@ -34,10 +34,16 @@ export default function Home() {
         >
           {/* Left column — headline + CTA */}
           <div className="max-w-lg pt-24 pb-16">
-            <h1 className="font-display text-5xl md:text-6xl text-secondary leading-[1.1] mb-5">
-              Tell What&rsquo;s Baloney
+            <h1
+              className="font-display text-5xl md:text-6xl text-secondary leading-[1.1] mb-5 opacity-0"
+              style={{ animation: "hero-fade-in 0.7s ease-out 0s forwards" }}
+            >
+              Cut The Baloney
             </h1>
-            <p className="text-lg text-secondary/75 mb-8 leading-relaxed">
+            <p
+              className="text-lg text-secondary/75 mb-8 leading-relaxed opacity-0"
+              style={{ animation: "hero-fade-in 0.7s ease-out 0.15s forwards" }}
+            >
               Your all-purpose truth verifier. Detect AI-generated content as
               you browse — and see how much of the internet is real.
             </p>
@@ -45,7 +51,8 @@ export default function Home() {
               href={CHROME_STORE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block px-8 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 text-base btn-primary-3d"
+              className="inline-block px-8 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 text-base btn-primary-3d opacity-0"
+              style={{ animation: "hero-fade-in 0.7s ease-out 0.3s forwards" }}
             >
               Try Free Now
             </a>

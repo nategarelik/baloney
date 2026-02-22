@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
 import { detectText } from "@/lib/api";
 import { DEMO_USER_ID } from "@/lib/constants";
-import type { TextDetectionResult } from "@/lib/types";
+import type { TextDetectionResult, VideoDetectionResult } from "@/lib/types";
 import { TrustScoreGauge } from "./TrustScoreGauge";
 import { SentenceHeatmap } from "./SentenceHeatmap";
 import { ScoreBreakdown } from "./ScoreBreakdown";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 import { ImageDetectorPanel } from "./ImageDetectorPanel";
+import { VideoDetectorPanel } from "./VideoDetectorPanel";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -35,7 +37,54 @@ const VERDICT_LABELS: Record<string, string> = {
 };
 
 export default function AnalyzePage() {
+  return (
+    <Suspense fallback={<AnalyzeSkeleton />}>
+      <AnalyzeContent />
+    </Suspense>
+  );
+}
+
+function AnalyzeSkeleton() {
+  return (
+    <main className="min-h-screen bg-base">
+      <div className="max-w-4xl mx-auto px-6 py-12 page-top-offset">
+        <div className="h-10 w-48 bg-secondary/8 rounded-lg animate-pulse mb-2" />
+        <div className="h-5 w-80 bg-secondary/5 rounded animate-pulse mb-8" />
+      </div>
+    </main>
+  );
+}
+
+function AnalyzeContent() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>("text");
+  const [externalTextResult, setExternalTextResult] = useState<TextDetectionResult | null>(null);
+  const [externalImageResult, setExternalImageResult] = useState<import("@/lib/types").DetectionResult | null>(null);
+  const [externalVideoResult, setExternalVideoResult] = useState<VideoDetectionResult | null>(null);
+
+  useEffect(() => {
+    const resultParam = searchParams.get("result");
+    if (!resultParam) return;
+
+    try {
+      const parsed = JSON.parse(decodeURIComponent(resultParam));
+      const result = parsed.result || parsed;
+      const type = parsed.type;
+
+      if (type === "text" || result.feature_vector || result.sentence_scores) {
+        setActiveTab("text");
+        setExternalTextResult(result);
+      } else if (type === "video" || result.frame_scores) {
+        setActiveTab("video");
+        setExternalVideoResult(result);
+      } else {
+        setActiveTab("image");
+        setExternalImageResult(result);
+      }
+    } catch {
+      // Invalid JSON, ignore
+    }
+  }, [searchParams]);
 
   return (
     <main className="min-h-screen bg-base">
@@ -75,9 +124,9 @@ export default function AnalyzePage() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === "text" && <TextPanel />}
-        {activeTab === "image" && <ImageDetectorPanel />}
-        {activeTab === "video" && <VideoPanel />}
+        {activeTab === "text" && <TextPanel externalResult={externalTextResult} />}
+        {activeTab === "image" && <ImageDetectorPanel externalResult={externalImageResult} />}
+        {activeTab === "video" && <VideoDetectorPanel externalResult={externalVideoResult} />}
       </div>
     </main>
   );
@@ -87,11 +136,15 @@ export default function AnalyzePage() {
 // Text Panel (migrated from old page)
 // ──────────────────────────────────────────────
 
-function TextPanel() {
+function TextPanel({ externalResult }: { externalResult?: TextDetectionResult | null }) {
   const [text, setText] = useState("");
   const [result, setResult] = useState<TextDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (externalResult) setResult(externalResult);
+  }, [externalResult]);
 
   async function handleAnalyze() {
     if (!text.trim()) return;
@@ -100,6 +153,8 @@ function TextPanel() {
     try {
       const data = await detectText(text, DEMO_USER_ID, "manual_upload");
       setResult(data);
+      localStorage.setItem("baloney_has_scanned", "true");
+      window.dispatchEvent(new Event("storage"));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
     } finally {
@@ -182,28 +237,6 @@ function TextPanel() {
           <ScoreBreakdown featureVector={result.feature_vector} />
         </div>
       )}
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────
-// Video Panel (placeholder with upload)
-// ──────────────────────────────────────────────
-
-function VideoPanel() {
-  return (
-    <div className="bg-base-dark rounded-xl border border-secondary/10 p-8 text-center">
-      <div className="text-4xl mb-3 opacity-50">🎬</div>
-      <p className="font-display text-xl text-secondary mb-2">
-        Video Detection
-      </p>
-      <p className="text-secondary/50 text-sm max-w-md mx-auto">
-        Video analysis uses frame extraction to detect AI-generated content.
-        Upload a video or paste a URL to analyze individual frames.
-      </p>
-      <div className="mt-6 inline-block px-5 py-2 rounded-full border-2 border-secondary/15 text-secondary/40 text-sm font-medium">
-        Coming Soon
-      </div>
     </div>
   );
 }

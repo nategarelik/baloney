@@ -143,3 +143,18 @@ body {
 .animate-count-up {
   animation: count-up 0.5s ease-out forwards;
 }
+
+/* ──────────────────────────────────────────── */
+/* Hero staggered fade-in                       */
+/* ──────────────────────────────────────────── */
+
+@keyframes hero-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

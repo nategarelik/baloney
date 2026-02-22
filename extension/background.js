@@ -295,29 +295,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  // Open sidepanel with detection result data
+  // Open /analyze page with full detection result data
   if (message.type === "open-sidepanel") {
-    const tabId = sender.tab?.id;
-    chrome.storage.local.set({ sidepanelData: message.data }).then(() => {
-      if (chrome.sidePanel && chrome.sidePanel.open && tabId) {
-        chrome.sidePanel.open({ tabId }).catch((err) => {
-          console.warn(
-            "[Baloney] Sidepanel open failed, falling back to tab:",
-            err.message,
-          );
-          const encoded = encodeURIComponent(JSON.stringify(message.data));
-          chrome.tabs.create({
-            url: `https://trustlens-nu.vercel.app/analyze?result=${encoded}`,
-          });
-        });
-      } else {
-        const encoded = encodeURIComponent(JSON.stringify(message.data));
-        chrome.tabs.create({
-          url: `https://trustlens-nu.vercel.app/analyze?result=${encoded}`,
-        });
-      }
-    });
-    return true;
+    const encoded = encodeURIComponent(JSON.stringify(message.data));
+    const url = `${API_URL}/analyze?result=${encoded}`;
+    chrome.tabs.create({ url });
+    sendResponse({ ok: true });
+    return false;
   }
 });
 

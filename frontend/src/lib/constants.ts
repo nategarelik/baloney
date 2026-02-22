@@ -39,25 +39,25 @@ export const VERDICT_CLASSES: Record<Verdict, string> = {
   ai_generated: "bg-red-600/85 border-red-400/40",
 };
 
-// Recharts colors
+// Recharts colors (warm Baloney theme)
 export const CHART_COLORS = {
-  ai: "#ef4444",
-  human: "#22c55e",
+  ai: "#d4456b",
+  human: "#16a34a",
   unclear: "#f59e0b",
-  accent: "#3b82f6",
-  slate: "#64748b",
-  navy: "#1a2744",
-  navyLighter: "#1e3a5f",
-  axisLabel: "#94a3b8",
-  gridLine: "#1e3a5f",
+  accent: "#d4456b",
+  slate: "rgba(74,55,40,0.5)",
+  navy: "#e6d9b8",
+  navyLighter: "rgba(74,55,40,0.1)",
+  axisLabel: "rgba(74,55,40,0.5)",
+  gridLine: "rgba(74,55,40,0.08)",
 } as const;
 
 // Recharts tooltip — shared across all chart components
 export const CHART_TOOLTIP_STYLE = {
-  backgroundColor: "#1a2744",
-  border: "1px solid #1e3a5f",
+  backgroundColor: "#f0e6ca",
+  border: "1px solid rgba(74,55,40,0.15)",
   borderRadius: "8px",
-  color: "#fff",
+  color: "#4a3728",
 } as const;
 
 // API input validation bounds

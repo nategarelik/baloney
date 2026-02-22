@@ -4,6 +4,7 @@ import type {
   ErrorResponse,
   DetectionResult,
   TextDetectionResult,
+  VideoDetectionResult,
   ScansResponse,
   PersonalAnalytics,
   CommunityAnalytics,
@@ -81,6 +82,18 @@ export async function detectImage(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ image: base64Image, user_id: userId, platform }),
+  });
+}
+
+export async function detectVideo(
+  base64Video: string,
+  userId?: string,
+  platform = "manual_upload",
+): Promise<VideoDetectionResult> {
+  return fetchApi<VideoDetectionResult>("/api/detect/video", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ video: base64Video, user_id: userId, platform }),
   });
 }
 

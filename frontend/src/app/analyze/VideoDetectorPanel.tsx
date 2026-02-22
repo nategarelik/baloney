@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { detectImage } from "@/lib/api";
+import { detectVideo } from "@/lib/api";
 import { DEMO_USER_ID } from "@/lib/constants";
-import type { DetectionResult } from "@/lib/types";
+import type { VideoDetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 
 const VERDICT_LABELS: Record<string, string> = {
@@ -20,15 +20,13 @@ const VERDICT_COLORS: Record<string, string> = {
   human: "#16a34a",
 };
 
-interface ImageDetectorPanelProps {
-  externalResult?: DetectionResult | null;
+interface VideoDetectorPanelProps {
+  externalResult?: VideoDetectionResult | null;
 }
 
-export function ImageDetectorPanel({
-  externalResult,
-}: ImageDetectorPanelProps) {
+export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) {
   const [preview, setPreview] = useState<string | null>(null);
-  const [result, setResult] = useState<DetectionResult | null>(null);
+  const [result, setResult] = useState<VideoDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -39,8 +37,8 @@ export function ImageDetectorPanel({
   }, [externalResult]);
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file");
+    if (!file.type.startsWith("video/")) {
+      setError("Please upload a video file");
       return;
     }
 
@@ -54,7 +52,7 @@ export function ImageDetectorPanel({
       setLoading(true);
 
       try {
-        const data = await detectImage(base64, DEMO_USER_ID, "manual_upload");
+        const data = await detectVideo(base64, DEMO_USER_ID, "manual_upload");
         setResult(data);
         localStorage.setItem("baloney_has_scanned", "true");
         window.dispatchEvent(new Event("storage"));
@@ -77,27 +75,11 @@ export function ImageDetectorPanel({
     [handleFile],
   );
 
-  const handlePaste = useCallback(
-    (e: React.ClipboardEvent) => {
-      const items = e.clipboardData.items;
-      for (const item of items) {
-        if (item.type.startsWith("image/")) {
-          const file = item.getAsFile();
-          if (file) handleFile(file);
-          break;
-        }
-      }
-    },
-    [handleFile],
-  );
-
-  const color = result
-    ? VERDICT_COLORS[result.verdict] || "#4a3728"
-    : "#4a3728";
+  const color = result ? VERDICT_COLORS[result.verdict] || "#4a3728" : "#4a3728";
   const label = result ? VERDICT_LABELS[result.verdict] || result.verdict : "";
 
   return (
-    <div className="space-y-4" onPaste={handlePaste}>
+    <div className="space-y-4">
       {/* Drop zone */}
       <div
         onDragOver={(e) => {
@@ -114,19 +96,19 @@ export function ImageDetectorPanel({
         `}
       >
         {preview ? (
-          <img
+          <video
             src={preview}
-            alt="Uploaded image"
+            controls
             className="max-h-64 mx-auto rounded-lg"
           />
         ) : (
           <div className="py-8">
-            <div className="text-4xl mb-3 opacity-50">🖼️</div>
+            <div className="text-4xl mb-3 opacity-50">🎬</div>
             <p className="text-secondary/60 font-medium">
-              Drop an image, paste from clipboard, or click to upload
+              Drop a video or click to upload
             </p>
             <p className="text-secondary/40 text-sm mt-1">
-              PNG, JPG, WebP supported
+              MP4, WebM, MOV supported
             </p>
           </div>
         )}
@@ -134,7 +116,7 @@ export function ImageDetectorPanel({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="video/*"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
@@ -147,9 +129,7 @@ export function ImageDetectorPanel({
       {loading && (
         <div className="flex items-center justify-center gap-3 py-6">
           <span className="inline-block w-5 h-5 border-2 border-secondary/20 border-t-primary rounded-full animate-spin" />
-          <span className="text-secondary/60 font-medium">
-            Analyzing image...
-          </span>
+          <span className="text-secondary/60 font-medium">Analyzing video frames...</span>
         </div>
       )}
 
@@ -157,7 +137,7 @@ export function ImageDetectorPanel({
 
       {/* Result */}
       {result && !loading && (
-        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 space-y-4">
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 space-y-5">
           {/* Verdict + confidence */}
           <div className="flex items-center gap-4">
             <div
@@ -174,69 +154,72 @@ export function ImageDetectorPanel({
                 {label}
               </p>
               <p className="text-secondary/50 text-sm">
-                <AnimatedPercentage
-                  value={result.confidence}
-                  className="font-semibold text-secondary"
-                />{" "}
-                confidence
+                <AnimatedPercentage value={result.confidence} className="font-semibold text-secondary" />
+                {" "}confidence
               </p>
             </div>
           </div>
 
-          {/* Score bars */}
-          <div className="space-y-3">
-            <ScoreBar label="Primary Model" value={result.primary_score} />
-            <ScoreBar
-              label="Secondary Analysis"
-              value={result.secondary_score}
-            />
-            <ScoreBar label="Trust Score" value={result.trust_score} invert />
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-3">
+            <StatBox label="Frames Analyzed" value={String(result.frames_analyzed)} />
+            <StatBox label="AI Frames" value={String(result.frames_flagged_ai)} color={result.frames_flagged_ai > 0 ? "#d4456b" : "#16a34a"} />
+            <StatBox label="AI Frame Rate" value={`${Math.round(result.ai_frame_percentage * 100)}%`} color={result.ai_frame_percentage > 0.5 ? "#d4456b" : result.ai_frame_percentage > 0.3 ? "#f59e0b" : "#16a34a"} />
           </div>
 
-          {/* Model info */}
-          <p className="text-secondary/35 text-xs">
-            Model: {result.model_used}
-          </p>
+          {/* Per-frame bar chart */}
+          <div>
+            <p className="text-secondary/50 text-xs mb-2 uppercase tracking-wider font-medium">
+              Per-Frame AI Probability
+            </p>
+            <div className="flex items-end gap-[2px] h-24">
+              {result.frame_scores.map((score, i) => {
+                const barColor =
+                  score > 0.6 ? "#d4456b" : score > 0.3 ? "#f59e0b" : "#16a34a";
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-t-sm transition-all duration-500 relative group"
+                    style={{
+                      height: `${Math.max(score * 100, 4)}%`,
+                      background: barColor,
+                      opacity: 0.85,
+                    }}
+                  >
+                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-secondary text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      {Math.round(score * 100)}%
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-between text-[10px] text-secondary/30 mt-1">
+              <span>Frame 1</span>
+              <span>Frame {result.frame_scores.length}</span>
+            </div>
+          </div>
+
+          {/* Footer info */}
+          <div className="flex justify-between text-secondary/35 text-xs">
+            <span>Duration: {result.duration_seconds}s</span>
+            <span>Model: {result.model_used}</span>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function ScoreBar({
-  label,
-  value,
-  invert = false,
-}: {
-  label: string;
-  value: number;
-  invert?: boolean;
-}) {
-  const pct = Math.round(value * 100);
-  const barColor = invert
-    ? value > 0.7
-      ? "#16a34a"
-      : value > 0.4
-        ? "#f59e0b"
-        : "#d4456b"
-    : value > 0.6
-      ? "#d4456b"
-      : value > 0.3
-        ? "#f59e0b"
-        : "#16a34a";
-
+function StatBox({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span className="text-secondary/70">{label}</span>
-        <span className="text-secondary/50">{pct}%</span>
-      </div>
-      <div className="h-2 bg-secondary/8 rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-700"
-          style={{ width: `${pct}%`, background: barColor }}
-        />
-      </div>
+    <div className="bg-secondary/5 rounded-lg p-3 text-center">
+      <p
+        className="font-display text-xl"
+        style={color ? { color } : undefined}
+      >
+        {value}
+      </p>
+      <p className="text-secondary/50 text-[10px] mt-0.5">{label}</p>
     </div>
   );
 }

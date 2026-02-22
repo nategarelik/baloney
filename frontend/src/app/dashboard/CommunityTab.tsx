@@ -37,10 +37,13 @@ export function CommunityTab({
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-navy-light rounded-xl border border-navy-lighter p-5 h-28 animate-pulse" />
+            <div
+              key={i}
+              className="bg-base-dark rounded-xl border border-secondary/10 p-5 h-28 animate-pulse"
+            />
           ))}
         </div>
-        <div className="bg-navy-light rounded-xl border border-navy-lighter p-5 h-72 animate-pulse" />
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 h-72 animate-pulse" />
       </div>
     );
   }
@@ -49,8 +52,11 @@ export function CommunityTab({
     <div className="space-y-6">
       {/* Top row: counter + stat cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-navy-light rounded-xl border border-navy-lighter p-5 flex flex-col items-center justify-center">
-          <CommunityCounter target={analytics.total_scans} label="Total Community Scans" />
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 flex flex-col items-center justify-center">
+          <CommunityCounter
+            target={analytics.total_scans}
+            label="Total Community Scans"
+          />
         </div>
         <StatCard
           icon={Users}
@@ -68,25 +74,37 @@ export function CommunityTab({
 
       {/* Trends chart */}
       {trends && (
-        <ChartCard title="AI Detection Trends" subtitle="30-day AI content rate across the community">
+        <ChartCard
+          title="AI Detection Trends"
+          subtitle="30-day AI content rate across the community"
+        >
           <CommunityTrends trends={trends.trends} />
         </ChartCard>
       )}
 
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ChartCard title="Platform Distribution" subtitle="AI content by platform">
+        <ChartCard
+          title="Platform Distribution"
+          subtitle="AI content by platform"
+        >
           <PlatformGroupedBar data={analytics.by_platform} />
         </ChartCard>
         {leaderboard && (
-          <ChartCard title="Domain Leaderboard" subtitle="Top domains by AI detection rate">
+          <ChartCard
+            title="Domain Leaderboard"
+            subtitle="Top domains by AI detection rate"
+          >
             <DomainLeaderboard domains={leaderboard.domains} />
           </ChartCard>
         )}
       </div>
 
       {/* Confidence histogram */}
-      <ChartCard title="Confidence Distribution" subtitle="Distribution of detection confidence scores">
+      <ChartCard
+        title="Confidence Distribution"
+        subtitle="Distribution of detection confidence scores"
+      >
         <ConfidenceHistogram scans={scans} />
       </ChartCard>
 
