@@ -12,6 +12,7 @@ const STORAGE_DEFAULTS = {
   autoScanImages: true,
   autoScanVideos: true,
   contentMode: "scan",
+  // Sync: keep in sync with extension/content.js and frontend/src/app/allowed-sites/page.tsx
   allowedSites: [
     "x.com",
     "twitter.com",
