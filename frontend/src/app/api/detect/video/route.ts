@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { methodS_sightEngineVideo } from "@/lib/real-detectors";
-// import { mockVideoResult } from "@/lib/mock-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import crypto from "crypto";
 import type { VideoDetectionResult, Verdict } from "@/lib/types";
@@ -37,10 +36,12 @@ export async function POST(req: NextRequest) {
 
     if (video && typeof video === "string") {
       try {
-        const raw = video.replace(/^data:video\/[a-zA-Z+]+;base64,/, "");
+        const mimeMatch = video.match(/^data:(video\/[a-zA-Z0-9+]+);base64,/);
+        const videoMime = mimeMatch ? mimeMatch[1] : "video/mp4";
+        const raw = video.replace(/^data:video\/[a-zA-Z0-9+]+;base64,/, "");
         const videoBytes = Buffer.from(raw, "base64");
         const videoBlob = new Blob([new Uint8Array(videoBytes)], {
-          type: "video/mp4",
+          type: videoMime,
         });
         const seResult = await methodS_sightEngineVideo(videoBlob);
 
