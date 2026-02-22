@@ -6,6 +6,7 @@ Runs on Railway as a FastAPI service.
 
 import os
 import logging
+import torch
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -121,7 +122,7 @@ async def detect_synthid(request: TextRequest):
 
         # Returns posterior probability of watermark
         score = detector(inputs.input_ids)
-        raw_score = float(score[0]) if hasattr(score, "__getitem__") else float(score)
+        raw_score = float(score[0].detach()) if hasattr(score, "__getitem__") else float(score.detach() if isinstance(score, torch.Tensor) else score)
 
         # Threshold into three states
         if raw_score > 0.7:
