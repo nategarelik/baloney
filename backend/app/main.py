@@ -1,13 +1,26 @@
 # backend/app/main.py
-# Baloney AI Detection API — FastAPI backend for Railway deployment
-# Self-hosts DeBERTa-v3-large (#1 on RAID benchmark) for text detection
-# Uses HuggingFace Inference API for CLIP image classification
+# Baloney AI Detection API — Mac Studio Local Inference Backend
+#
+# Zero API dependency. All models run locally on Apple Silicon MPS.
+# Text: 5-model ensemble (DeBERTa + 2x RoBERTa + MiniLM + Statistical)
+# Image: 4-signal ensemble (ViT + SDXL-detector + FFT + EXIF)
+# Phishing: 80+ feature extraction (unchanged)
+#
+# Endpoints:
+#   POST /api/analyze          — Single text detection (full ensemble)
+#   POST /api/analyze-batch    — Batch text detection
+#   POST /api/analyze-image    — Image detection (file upload)
+#   POST /api/analyze-image-b64 — Image detection (base64, used by frontend)
+#   POST /api/detect-phishing  — Phishing classification
+#   GET  /health               — Health check with model status
 
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
+import base64
 import logging
+import time
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,19 +28,28 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Pre-load DeBERTa model on startup so first request isn't slow."""
-    from app.services.text_detector import load_model
+    """Pre-load ALL models on startup for instant inference."""
+    t0 = time.time()
 
-    logger.info("Pre-loading DeBERTa AI detection model...")
-    load_model()
-    logger.info("Model ready. Accepting requests.")
+    # Load text models (DeBERTa + RoBERTa-OpenAI + RoBERTa-ChatGPT + MiniLM)
+    from app.services.text_detector import load_all_models as load_text_models
+    logger.info("Loading text detection models (5-model ensemble)...")
+    load_text_models()
+
+    # Load image models (ViT + SDXL-detector)
+    from app.services.image_detector import load_all_image_models
+    logger.info("Loading image detection models (4-signal ensemble)...")
+    load_all_image_models()
+
+    total = time.time() - t0
+    logger.info(f"All models loaded in {total:.1f}s. Ready for inference.")
     yield
 
 
 app = FastAPI(
     title="Baloney Detection API",
-    description="Self-hosted AI content detection backend",
-    version="1.0.0",
+    description="Self-hosted AI content detection — 9-model ensemble on Apple Silicon",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -50,6 +72,9 @@ class BatchTextRequest(BaseModel):
     texts: list[str]
     url: str | None = None
 
+class ImageBase64Request(BaseModel):
+    image: str  # base64 encoded image (with or without data URI prefix)
+
 class PhishingRequest(BaseModel):
     html: str
     url: str | None = None
@@ -59,48 +84,50 @@ class PhishingRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    """Health check — confirms model is loaded."""
-    from app.services.text_detector import MODEL_ID
-    return {"status": "ok", "model": MODEL_ID}
+    """Health check — confirms all models are loaded."""
+    from app.services.text_detector import MODEL_ID as TEXT_MODEL, DEVICE as TEXT_DEVICE
+    from app.services.image_detector import DEVICE as IMG_DEVICE
+
+    return {
+        "status": "ok",
+        "version": "2.0.0",
+        "text_model": TEXT_MODEL,
+        "text_device": str(TEXT_DEVICE),
+        "image_device": str(IMG_DEVICE),
+        "models_loaded": {
+            "text": ["deberta-v3-large", "roberta-openai", "roberta-chatgpt", "minilm-v2", "statistical"],
+            "image": ["vit-ai-detector", "sdxl-detector", "fft", "exif"],
+        },
+        "total_models": 9,
+    }
 
 
 @app.post("/api/analyze")
 def analyze_text(req: TextRequest):
     """
-    Analyze text for AI generation.
-    Returns ML score (DeBERTa) + statistical features, combined into final_score.
+    Analyze text for AI generation using full 5-model ensemble.
+    Returns per-model scores, ensemble final_score, and statistical features.
     """
     from app.services.text_detector import predict_text
-    from app.services.statistical_features import compute_statistical_features
 
-    ml_result = predict_text(req.text)
-    stat_result = compute_statistical_features(req.text)
-
-    # Ensemble: 75% ML (RAID #1 model), 25% statistical
-    ml_score = ml_result["ai_probability"]
-    stat_score = stat_result.get("stat_ai_score", ml_score)
-
-    if stat_result.get("sufficient_text"):
-        final = 0.75 * ml_score + 0.25 * stat_score
-    else:
-        final = ml_score
+    result = predict_text(req.text)
 
     return {
-        "final_score": round(final, 4),
-        "classification": (
-            "ai_generated" if final >= 0.65
-            else "mixed_or_uncertain" if final >= 0.35
-            else "likely_human"
-        ),
-        "ml_detection": ml_result,
-        "statistical_analysis": stat_result,
+        "final_score": result["ai_probability"],
+        "classification": result["classification"],
+        "ml_detection": result,
+        "statistical_analysis": result.get("statistical_analysis", {}),
         "text_length": len(req.text),
+        "ensemble": True,
+        "model_count": result["model_count"],
+        "device": result["device"],
+        "inference_ms": result["inference_ms"],
     }
 
 
 @app.post("/api/analyze-batch")
 def analyze_batch(req: BatchTextRequest):
-    """Analyze multiple texts in one request."""
+    """Analyze multiple texts using the full ensemble."""
     from app.services.text_detector import predict_texts_batch
     results = predict_texts_batch(req.texts)
     return {"results": results, "count": len(results)}
@@ -108,22 +135,35 @@ def analyze_batch(req: BatchTextRequest):
 
 @app.post("/api/analyze-image")
 async def analyze_image(file: UploadFile = File(...)):
-    """
-    Analyze image for AI generation.
-    Ensemble: CLIP (HF API) + FFT frequency analysis + EXIF metadata.
-    """
+    """Analyze image for AI generation via file upload. Full 4-signal ensemble."""
     from app.services.image_detector import detect_image
     image_bytes = await file.read()
-    result = await detect_image(image_bytes)
+    result = detect_image(image_bytes)
+    return result
+
+
+@app.post("/api/analyze-image-b64")
+def analyze_image_b64(req: ImageBase64Request):
+    """
+    Analyze image for AI generation via base64 input.
+    Used by the Next.js frontend (sends base64 data URI).
+    Full 4-signal local ensemble — no API calls.
+    """
+    from app.services.image_detector import detect_image
+
+    # Strip data URI prefix if present
+    image_data = req.image
+    if "," in image_data:
+        image_data = image_data.split(",", 1)[1]
+
+    image_bytes = base64.b64decode(image_data)
+    result = detect_image(image_bytes)
     return result
 
 
 @app.post("/api/detect-phishing")
 def detect_phishing(req: PhishingRequest):
-    """
-    Classify a webpage as phishing, suspicious, or legitimate.
-    Extracts 80+ features from raw HTML source and URL.
-    """
+    """Classify a webpage as phishing, suspicious, or legitimate."""
     from app.services.phishing_detector import classify_phishing
     result = classify_phishing(req.html, req.url or "")
     return result

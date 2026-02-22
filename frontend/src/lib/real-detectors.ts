@@ -1,7 +1,8 @@
-// frontend/src/lib/real-detectors.ts — Real AI detection (v2.0 — Enhanced ensemble)
-// Primary:  Self-hosted DeBERTa-v3-large on Railway (#1 on RAID benchmark)
-// Fallback: HuggingFace multi-model ensemble (RoBERTa + ChatGPT-detector + MiniLM + statistical)
-// Image:    HuggingFace multi-model ensemble (ViT + SDXL-detector + DCT/FFT + metadata)
+// frontend/src/lib/real-detectors.ts — Real AI detection (v3.0 — Mac Studio Local Inference)
+// Primary:  Mac Studio backend — 9-model local ensemble on Apple Silicon MPS
+//   Text:  DeBERTa-v3-large + RoBERTa-OpenAI + RoBERTa-ChatGPT + MiniLM + Statistical (5 models)
+//   Image: ViT-AI-detector + SDXL-detector + FFT + EXIF (4 signals)
+// Fallback: HuggingFace API ensemble (if Mac Studio backend unavailable)
 // Video:    Multi-frame analysis with temporal consistency scoring
 
 import { InferenceClient } from "@huggingface/inference";
@@ -536,16 +537,21 @@ function scoreSentencesReal(text: string, aiProbability: number): SentenceScore[
 }
 
 // ──────────────────────────────────────────────
-// Railway Backend Integration
-// Self-hosted DeBERTa-v3-large (#1 RAID benchmark)
+// Mac Studio Backend Integration (v3.0)
+// 9-model local ensemble on Apple Silicon MPS
+// Env: BACKEND_URL (Mac Studio) or RAILWAY_BACKEND_URL (Railway fallback)
 // ──────────────────────────────────────────────
 
-async function railwayTextDetection(text: string): Promise<TextDetectionResult | null> {
-  const backendUrl = process.env.RAILWAY_BACKEND_URL;
+function getBackendUrl(): string | null {
+  return process.env.BACKEND_URL || process.env.RAILWAY_BACKEND_URL || null;
+}
+
+async function backendTextDetection(text: string): Promise<TextDetectionResult | null> {
+  const backendUrl = getBackendUrl();
   if (!backendUrl) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout for local ensemble
 
   try {
     const response = await fetch(`${backendUrl}/api/analyze`, {
@@ -556,24 +562,34 @@ async function railwayTextDetection(text: string): Promise<TextDetectionResult |
     });
 
     if (!response.ok) {
-      throw new Error(`Railway API error: ${response.status}`);
+      throw new Error(`Backend API error: ${response.status}`);
     }
 
     const data = await response.json();
     const aiProbability = data.final_score as number;
     const textStats = computeTextStats(text);
 
-    // Map Railway response to TextDetectionResult format
+    // Map backend response to TextDetectionResult format
     const mapping = mapVerdict(aiProbability, text.length);
     const stats = methodD_statistical(text, textStats);
     const featureVector = buildFeatureVector(stats);
     const sentenceScores = scoreSentencesReal(text, aiProbability);
 
+    // Extract model info from backend response
+    const mlDetection = data.ml_detection || {};
+    const methodScores = mlDetection.method_scores || {};
+    const modelCount = data.model_count || mlDetection.model_count || 5;
+    const device = data.device || mlDetection.device || "unknown";
+    const inferenceMs = data.inference_ms || mlDetection.inference_ms || 0;
+
+    // Build model_used string showing local ensemble
+    const modelUsed = `local:${modelCount}-model-ensemble(${device})`;
+
     return {
       verdict: mapping.verdict,
       confidence: mapping.confidence,
       ai_probability: aiProbability,
-      model_used: "railway:deberta-v3-large+statistical",
+      model_used: modelUsed,
       text_stats: textStats,
       caveat: mapping.caveat,
       trust_score: mapping.trust_score,
@@ -583,7 +599,55 @@ async function railwayTextDetection(text: string): Promise<TextDetectionResult |
       sentence_scores: sentenceScores,
     };
   } catch (error) {
-    console.warn("[Baloney] Railway backend unavailable, falling back:", error);
+    console.warn("[Baloney] Backend unavailable, falling back:", error);
+    return null;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function backendImageDetection(base64Image: string): Promise<DetectionResult | null> {
+  const backendUrl = getBackendUrl();
+  if (!backendUrl) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(`${backendUrl}/api/analyze-image-b64`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend image API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const compositeScore = data.ai_score as number;
+    const mapping = mapImageVerdict(compositeScore);
+
+    const methods = data.methods || {};
+    const vitScore = methods.vit_ai_detector?.score ?? compositeScore;
+    const sdxlScore = methods.sdxl_detector?.score ?? compositeScore;
+    const device = data.device || "unknown";
+    const modelCount = data.model_count || 4;
+
+    return {
+      verdict: mapping.verdict,
+      confidence: mapping.confidence,
+      primary_score: precise(vitScore),
+      secondary_score: precise(sdxlScore),
+      model_used: `local:${modelCount}-signal-ensemble(${device})`,
+      ensemble_used: true,
+      trust_score: mapping.trust_score,
+      classification: mapping.verdict,
+      edit_magnitude: mapping.edit_magnitude,
+    };
+  } catch (error) {
+    console.warn("[Baloney] Backend image detection unavailable, falling back:", error);
     return null;
   } finally {
     clearTimeout(timeoutId);
@@ -591,10 +655,10 @@ async function railwayTextDetection(text: string): Promise<TextDetectionResult |
 }
 
 // ══════════════════════════════════════════════
-// REAL TEXT DETECTION — Multi-Signal Ensemble (v2.0 — 4 methods)
-// Priority: Railway DeBERTa → HuggingFace 4-method ensemble → Mock
-// Methods: A (RoBERTa/GPT-2, 30%) + C (ChatGPT-detector, 25%)
-//        + B (Embeddings, 15%) + D (Statistical, 30%)
+// REAL TEXT DETECTION — Multi-Signal Ensemble (v3.0 — Mac Studio priority)
+// Priority: Mac Studio 5-model ensemble → HuggingFace 4-method fallback → Mock
+// Mac Studio: DeBERTa + RoBERTa-OpenAI + RoBERTa-ChatGPT + MiniLM + Statistical
+// HF Fallback: A (RoBERTa, 30%) + C (ChatGPT, 25%) + B (Embeddings, 15%) + D (Stats, 30%)
 // ══════════════════════════════════════════════
 
 export async function realTextDetection(text: string): Promise<TextDetectionResult> {
@@ -620,9 +684,9 @@ export async function realTextDetection(text: string): Promise<TextDetectionResu
       };
     }
 
-    // Try Railway backend first (self-hosted DeBERTa, RAID #1)
-    const railwayResult = await railwayTextDetection(text);
-    if (railwayResult) return railwayResult;
+    // v3.0: Try Mac Studio backend first (9-model local ensemble on MPS)
+    const backendResult = await backendTextDetection(text);
+    if (backendResult) return backendResult;
 
     // Fallback to HuggingFace Inference API — v2.0: 4-method ensemble
     const client = getHFClient();
@@ -1082,14 +1146,19 @@ function mapImageVerdict(compositeScore: number): {
 }
 
 // ══════════════════════════════════════════════
-// REAL IMAGE DETECTION — Multi-Signal Ensemble (v2.0 — dual classifier)
-// Methods: E (ViT, 35%) + E2 (SDXL, 20%) + F (DCT/FFT, 25%) + G (metadata, 20%)
-// v2.0: Two independent classifiers covering GAN-era AND diffusion-era models
-//        Dynamic weighting when one classifier fails
+// REAL IMAGE DETECTION — Multi-Signal Ensemble (v3.0 — Mac Studio priority)
+// Priority: Mac Studio 4-signal ensemble → HuggingFace dual classifier fallback → Mock
+// Mac Studio: ViT-AI-detector + SDXL-detector + FFT + EXIF (all local, MPS)
+// HF Fallback: E (ViT, 35%) + E2 (SDXL, 20%) + F (DCT/FFT, 25%) + G (metadata, 20%)
 // ══════════════════════════════════════════════
 
 export async function realImageDetection(base64Image: string): Promise<DetectionResult> {
   try {
+    // v3.0: Try Mac Studio backend first (4-signal local ensemble on MPS)
+    const backendResult = await backendImageDetection(base64Image);
+    if (backendResult) return backendResult;
+
+    // Fallback: HuggingFace Inference API
     const client = getHFClient();
 
     // Prepare image blob with content type
