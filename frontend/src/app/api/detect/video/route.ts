@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { realVideoDetection } from "@/lib/real-detectors";
+import { realVideoDetection, methodS_sightEngineVideo } from "@/lib/real-detectors";
 import { mockVideoResult } from "@/lib/mock-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import crypto from "crypto";
+import type { VideoDetectionResult, Verdict } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,13 +32,54 @@ export async function POST(req: NextRequest) {
 
     const start = Date.now();
 
-    // v2.0: Use real multi-frame video detection with mock fallback
-    let result;
-    try {
-      result = await realVideoDetection(frameBase64s);
-    } catch (error) {
-      console.warn("[Baloney] Real video detection failed, using mock:", error);
-      result = mockVideoResult();
+    // v3.0: Try SightEngine native video endpoint first (server-side analysis)
+    let result: VideoDetectionResult | undefined;
+
+    if (video && typeof video === "string") {
+      try {
+        const raw = video.replace(/^data:video\/[a-zA-Z+]+;base64,/, "");
+        const videoBytes = Buffer.from(raw, "base64");
+        const videoBlob = new Blob([new Uint8Array(videoBytes)], { type: "video/mp4" });
+        const seResult = await methodS_sightEngineVideo(videoBlob);
+
+        if (seResult) {
+          const score = seResult.ai_generated_score;
+          let verdict: Verdict;
+          if (score > 0.65) verdict = "ai_generated";
+          else if (score > 0.45) verdict = "heavy_edit";
+          else if (score > 0.30) verdict = "light_edit";
+          else verdict = "human";
+
+          result = {
+            verdict,
+            confidence: parseFloat(score.toFixed(4)),
+            frames_analyzed: seResult.frames.length,
+            frames_flagged_ai: seResult.frames.filter((f) => f.ai_score > 0.5).length,
+            ai_frame_percentage: seResult.frames.length > 0
+              ? parseFloat((seResult.frames.filter((f) => f.ai_score > 0.5).length / seResult.frames.length).toFixed(4))
+              : 0,
+            frame_scores: seResult.frames.map((f) => parseFloat(f.ai_score.toFixed(4))),
+            model_used: "sightengine:native-video",
+            duration_seconds: 0,
+            sightengine_native: true,
+            method_scores: {
+              sightengine_video: { score, weight: 1.0, label: "SightEngine Native Video", available: true },
+            },
+          };
+        }
+      } catch (e) {
+        console.warn("[Baloney] SightEngine native video failed, falling back:", e);
+      }
+    }
+
+    // Fallback to multi-frame image analysis
+    if (!result) {
+      try {
+        result = await realVideoDetection(frameBase64s);
+      } catch (error) {
+        console.warn("[Baloney] Real video detection failed, using mock:", error);
+        result = mockVideoResult();
+      }
     }
 
     const duration = Date.now() - start;
