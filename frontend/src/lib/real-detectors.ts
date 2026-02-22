@@ -216,6 +216,7 @@ function methodD_statistical(text: string, textStats: TextStats): StatisticalSig
     : 0;
 
   // Burstiness: Human text has high variance in sentence length
+  // Test data: AI avg 0.35, Human avg 0.73 — strongest discriminator
   const burstiness = precise(Math.min(variance / 100, 1));
 
   // Type-Token Ratio: AI tends toward ~0.55 TTR
@@ -227,21 +228,35 @@ function methodD_statistical(text: string, textStats: TextStats): StatisticalSig
   // Repetition score
   const repetition = precise(clamp(1 - ttr, 0, 1));
 
+  // Sentence length signal: AI text has much longer sentences (avg ~21 words)
+  // vs human text (avg ~12 words). Normalize using sigmoid around threshold.
+  // Test data: AI avg 21.6, Human avg 12.5
+  const sentLenSignal = precise(clamp((textStats.avg_sentence_length - 10) / 15, 0, 1));
+
+  // Word length signal: AI text uses longer words (avg ~6.3 chars)
+  // vs human text (avg ~4.7 chars). Normalize similarly.
+  // Test data: AI avg 6.28, Human avg 4.72
+  const wordLenSignal = precise(clamp((textStats.avg_word_length - 4.0) / 3.0, 0, 1));
+
   // Flesch-Kincaid readability approximation
-  // AI clusters in specific readability ranges (typically 8-12 grade level)
+  // AI clusters at higher grade levels due to longer sentences + bigger words
   const avgSyllables = textStats.avg_word_length * 0.4; // rough syllable proxy
   const fk = 0.39 * textStats.avg_sentence_length + 11.8 * avgSyllables - 15.59;
   const fkNorm = clamp(fk / 20, 0, 1); // normalize to 0-1
-  // AI text tends to cluster around grade 8-12 (fkNorm 0.4-0.6)
-  const readability = Math.abs(fkNorm - 0.5) < 0.15 ? 0.7 : 0.3;
+  // AI text tends to have higher readability scores (grade 10+, fkNorm > 0.5)
+  // Human casual text tends to be simpler (grade 6-9, fkNorm 0.3-0.45)
+  const readability = fkNorm > 0.45 ? precise(0.5 + fkNorm * 0.5) : precise(fkNorm * 0.6);
 
-  // Combined statistical AI signal
+  // Combined statistical AI signal — weights based on empirical discriminative power
+  // Burstiness + sentence length are the strongest signals from test data
   const signal = precise(
-    (1 - burstiness) * 0.20 +
-    (1 - ttr) * 0.20 +
-    (1 - perplexityNorm) * 0.20 +
-    repetition * 0.15 +
-    readability * 0.25
+    (1 - burstiness) * 0.25 +     // strongest: low burstiness = AI
+    sentLenSignal * 0.20 +         // strong: long sentences = AI
+    wordLenSignal * 0.15 +         // moderate: long words = AI
+    readability * 0.15 +           // moderate: high grade level = AI
+    (1 - ttr) * 0.10 +            // weak: low diversity = AI
+    (1 - perplexityNorm) * 0.10 +  // weak: low perplexity proxy = AI
+    repetition * 0.05              // weakest: redundant with TTR
   );
 
   return { burstiness, ttr, perplexityNorm, repetition, readability, signal };
