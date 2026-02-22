@@ -1304,8 +1304,9 @@ async function methodS_sightEngine(
     });
 
     if (!response.ok) {
-      if (response.status === 429) {
-        console.warn("[Baloney] SightEngine rate limit reached");
+      if (response.status === 429 || response.status === 400) {
+        // 429 = rate limit, 400 = daily quota exceeded on free plan
+        console.warn(`[Baloney] SightEngine unavailable (${response.status})`);
         return null;
       }
       throw new Error(`SightEngine ${response.status}`);
@@ -1386,7 +1387,15 @@ export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
       },
     );
 
-    if (!response.ok) throw new Error(`SightEngine Video ${response.status}`);
+    if (!response.ok) {
+      if (response.status === 429 || response.status === 400) {
+        console.warn(
+          `[Baloney] SightEngine Video unavailable (${response.status})`,
+        );
+        return null;
+      }
+      throw new Error(`SightEngine Video ${response.status}`);
+    }
     const data = await response.json();
     console.log(
       "[Baloney] SightEngine Video response:",
@@ -1777,10 +1786,62 @@ export async function realImageDetection(
       };
     }
 
-    // Stage 3 (HF Ensemble) commented out — primary APIs only
-    throw new Error(
-      "Primary image detection APIs unavailable (SynthID Image + SightEngine both failed)",
+    // Stage 3: Local-only fallback (frequency + metadata analysis)
+    // Used when both primary APIs are unavailable (quota/network issues)
+    console.warn(
+      "[Baloney] Primary APIs unavailable, using local-only fallback",
     );
+    const freqScore = methodF_frequency(bytes);
+    const metaScore = methodG_metadata(base64Image);
+    const localScore = freqScore * 0.6 + metaScore * 0.4;
+    const mapping = mapImageVerdict(localScore);
+    return {
+      verdict: mapping.verdict,
+      confidence: mapping.confidence,
+      primary_score: precise(localScore),
+      secondary_score: precise(freqScore),
+      model_used: "local-only:frequency+metadata",
+      ensemble_used: false,
+      primaryAvailable: false,
+      confidenceCapped: true,
+      trust_score: mapping.trust_score,
+      classification: mapping.verdict,
+      edit_magnitude: mapping.edit_magnitude,
+      method_scores: {
+        sightengine: {
+          score: 0,
+          weight: 0.32,
+          label: "SightEngine (98.3%)",
+          available: false,
+          status: "unavailable",
+          tier: "primary",
+        },
+        synthid_image: {
+          score: 0,
+          weight: 0.37,
+          label: "SynthID Image (Google)",
+          available: false,
+          status: "unavailable",
+          tier: "primary",
+        },
+        frequency: {
+          score: freqScore,
+          weight: 0.6,
+          label: "Frequency/DCT Analysis",
+          available: true,
+          status: "success",
+          tier: "fallback",
+        },
+        metadata: {
+          score: metaScore,
+          weight: 0.4,
+          label: "Metadata/EXIF/C2PA",
+          available: true,
+          status: "success",
+          tier: "fallback",
+        },
+      },
+    };
   } catch (error) {
     console.error("[Baloney] Real image detection failed:", error);
     throw error;
