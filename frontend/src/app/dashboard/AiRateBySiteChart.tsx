@@ -11,6 +11,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
+import { isAiWithFloor } from "@/lib/bayesian";
 import type { ScanRecord } from "@/lib/types";
 
 const PLATFORM_COLORS: Record<string, string> = {
@@ -51,8 +52,10 @@ export function AiRateBySiteChart({ scans }: AiRateBySiteChartProps) {
   }
 
   // Group scans by (date, platform) and compute AI rate per combo
-  const grouped: Record<string, Record<string, { total: number; ai: number }>> =
-    {};
+  const grouped: Record<
+    string,
+    Record<string, { total: number; ai: number }>
+  > = {};
   const platformSet = new Set<string>();
 
   for (const scan of scans) {
@@ -67,7 +70,7 @@ export function AiRateBySiteChart({ scans }: AiRateBySiteChartProps) {
     if (!grouped[date][platform]) grouped[date][platform] = { total: 0, ai: 0 };
 
     grouped[date][platform].total++;
-    if (scan.verdict === "ai_generated" || scan.verdict === "heavy_edit") {
+    if (isAiWithFloor(scan.verdict, scan.confidence)) {
       grouped[date][platform].ai++;
     }
   }
@@ -80,7 +83,9 @@ export function AiRateBySiteChart({ scans }: AiRateBySiteChartProps) {
       const row: Record<string, string | number> = { date };
       for (const p of platforms) {
         if (platformData[p]) {
-          row[p] = Math.round((platformData[p].ai / platformData[p].total) * 100);
+          row[p] = Math.round(
+            (platformData[p].ai / platformData[p].total) * 100,
+          );
         }
       }
       return row;

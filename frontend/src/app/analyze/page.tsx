@@ -59,9 +59,13 @@ function AnalyzeSkeleton() {
 function AnalyzeContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabId>("text");
-  const [externalTextResult, setExternalTextResult] = useState<TextDetectionResult | null>(null);
-  const [externalImageResult, setExternalImageResult] = useState<import("@/lib/types").DetectionResult | null>(null);
-  const [externalVideoResult, setExternalVideoResult] = useState<VideoDetectionResult | null>(null);
+  const [externalTextResult, setExternalTextResult] =
+    useState<TextDetectionResult | null>(null);
+  const [externalImageResult, setExternalImageResult] = useState<
+    import("@/lib/types").DetectionResult | null
+  >(null);
+  const [externalVideoResult, setExternalVideoResult] =
+    useState<VideoDetectionResult | null>(null);
 
   useEffect(() => {
     const resultParam = searchParams.get("result");
@@ -125,9 +129,15 @@ function AnalyzeContent() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === "text" && <TextPanel externalResult={externalTextResult} />}
-        {activeTab === "image" && <ImageDetectorPanel externalResult={externalImageResult} />}
-        {activeTab === "video" && <VideoDetectorPanel externalResult={externalVideoResult} />}
+        {activeTab === "text" && (
+          <TextPanel externalResult={externalTextResult} />
+        )}
+        {activeTab === "image" && (
+          <ImageDetectorPanel externalResult={externalImageResult} />
+        )}
+        {activeTab === "video" && (
+          <VideoDetectorPanel externalResult={externalVideoResult} />
+        )}
       </div>
     </main>
   );
@@ -137,7 +147,11 @@ function AnalyzeContent() {
 // Text Panel (migrated from old page)
 // ──────────────────────────────────────────────
 
-function TextPanel({ externalResult }: { externalResult?: TextDetectionResult | null }) {
+function TextPanel({
+  externalResult,
+}: {
+  externalResult?: TextDetectionResult | null;
+}) {
   const [text, setText] = useState("");
   const [result, setResult] = useState<TextDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -180,9 +194,23 @@ function TextPanel({ externalResult }: { externalResult?: TextDetectionResult | 
           onChange={(e) => setText(e.target.value)}
         />
 
+        <div className="flex items-center justify-between">
+          <div className="text-xs text-secondary/40">
+            {text.length} characters
+            {text.length > 0 && text.length < 20 && (
+              <span className="text-primary ml-2">Minimum 20 characters</span>
+            )}
+            {text.length >= 20 && text.length < 100 && (
+              <span className="text-amber-600 ml-2">
+                Short text may produce less accurate results
+              </span>
+            )}
+          </div>
+        </div>
+
         <button
           onClick={handleAnalyze}
-          disabled={loading || !text.trim()}
+          disabled={loading || text.trim().length < 20}
           className="btn-primary-3d px-6 py-2.5 bg-primary text-white rounded-full font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
         >
           {loading ? (

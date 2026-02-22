@@ -6,6 +6,7 @@ import { ChartCard } from "@/components/ChartCard";
 import { AiRateBySiteChart } from "./AiRateBySiteChart";
 import { RecentScansTable } from "./RecentScansTable";
 import { getAllScans } from "@/lib/api";
+import { isAiWithFloor } from "@/lib/bayesian";
 import type { ScanRecord } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -30,10 +31,11 @@ export default function DashboardPage() {
   }, [fetchData]);
 
   const totalScans = scans.length;
-  const aiDetected = scans.filter(
-    (s) => s.verdict === "ai_generated" || s.verdict === "heavy_edit",
+  const aiDetected = scans.filter((s) =>
+    isAiWithFloor(s.verdict, s.confidence),
   ).length;
-  const aiRate = totalScans > 0 ? Math.round((aiDetected / totalScans) * 100) : 0;
+  const aiRate =
+    totalScans > 0 ? Math.round((aiDetected / totalScans) * 100) : 0;
 
   return (
     <main className="min-h-screen bg-base">
