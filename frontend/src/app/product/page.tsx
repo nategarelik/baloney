@@ -90,6 +90,7 @@ const supportedSites = [
     url: "https://linkedin.com",
     color: "#0A66C2",
     logo: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=64",
+    scale: 1.6,
   },
   {
     name: "Medium",
@@ -616,7 +617,7 @@ export default function ProductPage() {
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
           Sites We Natively Support
         </h2>
-        <div className="flex justify-center gap-6 mb-6">
+        <div className="flex justify-center gap-5 mb-5">
           {supportedSites.slice(0, 5).map((site) => (
             <a
               key={site.name}
@@ -624,17 +625,21 @@ export default function ProductPage() {
               target="_blank"
               rel="noopener noreferrer"
               title={site.name}
-              className="w-16 h-16 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
+              className="relative w-11 h-11 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
             >
               <img
                 src={site.logo}
                 alt={site.name}
-                className="w-16 h-16 rounded-full object-cover"
+                className="w-11 h-11 rounded-full object-cover"
+                style={
+                  site.scale ? { transform: `scale(${site.scale})` } : undefined
+                }
               />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-transparent to-black/10 pointer-events-none" />
             </a>
           ))}
         </div>
-        <div className="flex justify-center gap-6">
+        <div className="flex justify-center gap-5">
           {supportedSites.slice(5, 9).map((site) => (
             <a
               key={site.name}
@@ -642,13 +647,17 @@ export default function ProductPage() {
               target="_blank"
               rel="noopener noreferrer"
               title={site.name}
-              className="w-16 h-16 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
+              className="relative w-11 h-11 rounded-full bg-white hover:scale-110 transition-transform shadow-lg overflow-hidden"
             >
               <img
                 src={site.logo}
                 alt={site.name}
-                className="w-16 h-16 rounded-full object-cover"
+                className="w-11 h-11 rounded-full object-cover"
+                style={
+                  site.scale ? { transform: `scale(${site.scale})` } : undefined
+                }
               />
+              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-transparent to-black/10 pointer-events-none" />
             </a>
           ))}
         </div>
