@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import {
   LineChart,
@@ -149,9 +148,7 @@ function ModelTooltip({ active, payload, label }: CustomTooltipProps) {
     >
       <p className="font-medium capitalize">{label}</p>
       <p>Detection Rate: {Number(entry.value).toFixed(1)}%</p>
-      {n !== undefined && (
-        <p className="text-xs opacity-70">n = {n}</p>
-      )}
+      {n !== undefined && <p className="text-xs opacity-70">n = {n}</p>}
     </div>
   );
 }
@@ -171,9 +168,7 @@ function PlatformTooltip({ active, payload, label }: CustomTooltipProps) {
     >
       <p className="font-medium capitalize">{label}</p>
       <p>Detection Rate: {Number(entry.value).toFixed(1)}%</p>
-      {n !== undefined && (
-        <p className="text-xs opacity-70">n = {n}</p>
-      )}
+      {n !== undefined && <p className="text-xs opacity-70">n = {n}</p>}
     </div>
   );
 }
@@ -232,12 +227,12 @@ export default function EvaluationPage() {
     pgData.confusionMatrix.tn;
 
   const minModelDetection = Math.min(
-    ...pgData.perModelAccuracy.map((d) => d.detection_rate)
+    ...pgData.perModelAccuracy.map((d) => d.detection_rate),
   );
   const modelXMin = Math.max(0, Math.floor(minModelDetection) - 2);
 
   const minPlatformDetection = Math.min(
-    ...pgData.perPlatformAccuracy.map((d) => d.detection_rate)
+    ...pgData.perPlatformAccuracy.map((d) => d.detection_rate),
   );
   const platformXMin = Math.max(0, Math.floor(minPlatformDetection) - 2);
 
@@ -253,29 +248,7 @@ export default function EvaluationPage() {
           -- real metrics computed from methodD statistical analysis
         </p>
 
-        {/* ── Tab Navigation ── */}
-        <div className="flex gap-1 mb-8 bg-secondary/5 rounded-lg p-1 w-fit">
-          <button
-            onClick={() => setActiveTab("statistical")}
-            className={`px-5 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "statistical"
-                ? "bg-secondary text-base-dark"
-                : "text-secondary/50 hover:text-secondary/70"
-            }`}
-          >
-            Statistical Analysis
-          </button>
-          <button
-            onClick={() => setActiveTab("pangram")}
-            className={`px-5 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "pangram"
-                ? "bg-secondary text-base-dark"
-                : "text-secondary/50 hover:text-secondary/70"
-            }`}
-          >
-            Pangram Validation
-          </button>
-        </div>
+        {/* Tab navigation hidden for demo — defaulting to Statistical Analysis */}
 
         {/* ══════════════════════════════════════════════════════
             TAB: Statistical Analysis (existing content)
@@ -289,7 +262,9 @@ export default function EvaluationPage() {
                 subtitle={`Receiver Operating Characteristic -- AUC = ${aucRoc.toFixed(3)}`}
               >
                 <ResponsiveContainer width="100%" height={340}>
-                  <LineChart margin={{ top: 16, right: 24, bottom: 8, left: 8 }}>
+                  <LineChart
+                    margin={{ top: 16, right: 24, bottom: 8, left: 8 }}
+                  >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke={CHART_COLORS.gridLine}
@@ -410,7 +385,9 @@ export default function EvaluationPage() {
                         </div>
                         <div
                           className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
-                          style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+                          style={{
+                            backgroundColor: "rgba(212, 69, 107, 0.15)",
+                          }}
                         >
                           <span className="text-2xl font-display text-secondary">
                             {confusionMatrix.fn}
@@ -427,7 +404,9 @@ export default function EvaluationPage() {
                         </span>
                         <div
                           className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
-                          style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+                          style={{
+                            backgroundColor: "rgba(212, 69, 107, 0.15)",
+                          }}
                         >
                           <span className="text-2xl font-display text-secondary">
                             {confusionMatrix.fp}
@@ -605,9 +584,10 @@ export default function EvaluationPage() {
             {/* ── Footer note ── */}
             <p className="text-xs text-secondary/40 text-center mt-4">
               Evaluation performed on a curated {totalSamples}-sample benchmark
-              spanning {domainData.length} content domains. All metrics computed from
-              real methodD statistical analysis with threshold optimized via
-              Youden&apos;s J statistic. AUC computed via trapezoidal integration.
+              spanning {domainData.length} content domains. All metrics computed
+              from real methodD statistical analysis with threshold optimized
+              via Youden&apos;s J statistic. AUC computed via trapezoidal
+              integration.
             </p>
           </>
         )}
@@ -627,9 +607,9 @@ export default function EvaluationPage() {
                       Placeholder Data
                     </p>
                     <p className="text-amber-700 text-xs mt-1">
-                      These results are hardcoded placeholders, not from real Pangram
-                      API detection. Run the validation pipeline to populate with
-                      real data:
+                      These results are hardcoded placeholders, not from real
+                      Pangram API detection. Run the validation pipeline to
+                      populate with real data:
                     </p>
                     <code className="block bg-amber-100 rounded px-2 py-1 mt-2 text-xs text-amber-900 font-mono">
                       npx tsx scripts/validation-pipeline.ts
@@ -647,8 +627,9 @@ export default function EvaluationPage() {
                       Synthetic Data
                     </p>
                     <p className="text-orange-700 text-xs mt-1">
-                      These results use randomly generated scores, not real Pangram API
-                      detection. Re-run with PANGRAM_API_KEY set for real results.
+                      These results use randomly generated scores, not real
+                      Pangram API detection. Re-run with PANGRAM_API_KEY set for
+                      real results.
                     </p>
                   </div>
                 </div>
@@ -693,8 +674,15 @@ export default function EvaluationPage() {
                     AI / Human Split
                   </p>
                   <p className="text-2xl font-display text-secondary">
-                    {((pgData.aiSamples / pgData.totalSamples) * 100).toFixed(0)}% /{" "}
-                    {((pgData.humanSamples / pgData.totalSamples) * 100).toFixed(0)}%
+                    {((pgData.aiSamples / pgData.totalSamples) * 100).toFixed(
+                      0,
+                    )}
+                    % /{" "}
+                    {(
+                      (pgData.humanSamples / pgData.totalSamples) *
+                      100
+                    ).toFixed(0)}
+                    %
                   </p>
                 </div>
               </div>
@@ -707,7 +695,9 @@ export default function EvaluationPage() {
                 subtitle={`Receiver Operating Characteristic -- AUC = ${pgData.aucRoc.toFixed(4)}`}
               >
                 <ResponsiveContainer width="100%" height={340}>
-                  <LineChart margin={{ top: 16, right: 24, bottom: 8, left: 8 }}>
+                  <LineChart
+                    margin={{ top: 16, right: 24, bottom: 8, left: 8 }}
+                  >
                     <CartesianGrid
                       strokeDasharray="3 3"
                       stroke={CHART_COLORS.gridLine}
@@ -780,7 +770,8 @@ export default function EvaluationPage() {
                     Confusion Matrix
                   </h3>
                   <p className="text-xs text-secondary/50 mt-0.5">
-                    {pgTotal} total predictions (threshold = {pgData.optimalThreshold.toFixed(2)})
+                    {pgTotal} total predictions (threshold ={" "}
+                    {pgData.optimalThreshold.toFixed(2)})
                   </p>
                 </div>
                 <div className="flex flex-col items-center">
@@ -826,7 +817,9 @@ export default function EvaluationPage() {
                         </div>
                         <div
                           className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
-                          style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+                          style={{
+                            backgroundColor: "rgba(212, 69, 107, 0.15)",
+                          }}
                         >
                           <span className="text-2xl font-display text-secondary">
                             {pgData.confusionMatrix.fn}
@@ -843,7 +836,9 @@ export default function EvaluationPage() {
                         </span>
                         <div
                           className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
-                          style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+                          style={{
+                            backgroundColor: "rgba(212, 69, 107, 0.15)",
+                          }}
                         >
                           <span className="text-2xl font-display text-secondary">
                             {pgData.confusionMatrix.fp}
@@ -870,7 +865,8 @@ export default function EvaluationPage() {
                     Overall accuracy:{" "}
                     <span className="font-semibold text-secondary">
                       {(
-                        ((pgData.confusionMatrix.tp + pgData.confusionMatrix.tn) /
+                        ((pgData.confusionMatrix.tp +
+                          pgData.confusionMatrix.tn) /
                           pgTotal) *
                         100
                       ).toFixed(1)}
@@ -1065,11 +1061,11 @@ export default function EvaluationPage() {
             {/* ── Footer note ── */}
             <p className="text-xs text-secondary/40 text-center mt-4">
               Validation performed using Pangram v3 API in primary-only mode (no
-              ensemble dilution). {pgData.totalSamples} samples ({pgData.aiSamples}{" "}
-              AI-generated, {pgData.humanSamples} human-written) across{" "}
-              {pgData.perModelAccuracy.length} AI models and{" "}
-              {pgData.perPlatformAccuracy.length} platforms. Optimal threshold
-              selected via Youden&apos;s J statistic at{" "}
+              ensemble dilution). {pgData.totalSamples} samples (
+              {pgData.aiSamples} AI-generated, {pgData.humanSamples}{" "}
+              human-written) across {pgData.perModelAccuracy.length} AI models
+              and {pgData.perPlatformAccuracy.length} platforms. Optimal
+              threshold selected via Youden&apos;s J statistic at{" "}
               {pgData.optimalThreshold.toFixed(2)}. AUC computed via trapezoidal
               integration.
             </p>

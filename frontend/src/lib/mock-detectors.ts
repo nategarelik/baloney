@@ -70,6 +70,7 @@ export function mockImageResult(
       label: "SightEngine (98.3%)",
       available: false,
       status: "error",
+      tier: "primary",
     },
     synthid_image: {
       score: 0,
@@ -77,6 +78,7 @@ export function mockImageResult(
       label: "SynthID Image (Google)",
       available: false,
       status: "error",
+      tier: "watermark",
     },
     vit: {
       score: 0,
@@ -84,6 +86,7 @@ export function mockImageResult(
       label: "ViT AI Detector",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     sdxl: {
       score: 0,
@@ -91,6 +94,7 @@ export function mockImageResult(
       label: "SDXL Detector",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     frequency: {
       score: 0,
@@ -98,6 +102,7 @@ export function mockImageResult(
       label: "Frequency/DCT Analysis",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     metadata: {
       score: 0,
@@ -105,6 +110,7 @@ export function mockImageResult(
       label: "Metadata/EXIF/C2PA",
       available: false,
       status: "error",
+      tier: "fallback",
     },
   };
 
@@ -119,6 +125,8 @@ export function mockImageResult(
     classification: verdict,
     edit_magnitude: editMagnitude,
     method_scores: mockImageMethodScores,
+    primaryAvailable: false,
+    confidenceCapped: true,
   };
 }
 
@@ -232,6 +240,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "Pangram (99.85%)",
       available: false,
       status: "error",
+      tier: "primary",
     },
     synthid_text: {
       score: 0,
@@ -239,6 +248,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "SynthID (Google Watermark)",
       available: false,
       status: "error",
+      tier: "watermark",
     },
     roberta: {
       score: 0,
@@ -246,6 +256,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "RoBERTa GPT-2",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     chatgpt: {
       score: 0,
@@ -253,6 +264,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "ChatGPT Detector",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     embeddings: {
       score: 0,
@@ -260,6 +272,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "Sentence Embeddings",
       available: false,
       status: "error",
+      tier: "fallback",
     },
     statistical: {
       score: 0,
@@ -267,6 +280,7 @@ export function mockTextResult(text: string): TextDetectionResult {
       label: "Statistical (12 features)",
       available: false,
       status: "error",
+      tier: "fallback",
     },
   };
 
@@ -286,6 +300,8 @@ export function mockTextResult(text: string): TextDetectionResult {
       feature_vector: featureVector,
       sentence_scores: [],
       method_scores: mockTextMethodScores,
+      primaryAvailable: false,
+      confidenceCapped: true,
     };
   }
 
@@ -351,6 +367,8 @@ export function mockTextResult(text: string): TextDetectionResult {
     feature_vector: featureVector,
     sentence_scores: sentenceScores,
     method_scores: mockTextMethodScores,
+    primaryAvailable: false,
+    confidenceCapped: true,
   };
 }
 
@@ -395,5 +413,17 @@ export function mockVideoResult(): VideoDetectionResult {
     frame_scores: frameScores,
     model_used: "mock:per-frame:Organika/sdxl-detector",
     duration_seconds: parseFloat((numFrames * 1.0).toFixed(1)),
+    primaryAvailable: false,
+    confidenceCapped: true,
+    method_scores: {
+      sightengine_video: {
+        score: 0,
+        weight: 1.0,
+        label: "SightEngine Native Video",
+        available: false,
+        status: "error",
+        tier: "primary",
+      },
+    },
   };
 }
