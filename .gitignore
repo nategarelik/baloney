@@ -74,6 +74,12 @@ frontend/.vercel/
 *.log
 .vercel
 .railway
+
+# ──────────────────────────────────────────────
+# Markdown (hide all except AI_CITATION)
+# ──────────────────────────────────────────────
+*.md
+!docs/AI_CITATION.md
 .worktrees/
 *.zip
 

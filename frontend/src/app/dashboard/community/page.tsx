@@ -20,8 +20,6 @@ import { SlopIndexCard } from "../SlopIndexCard";
 
 import { AuthenticityRadar } from "../AuthenticityRadar";
 import { SlopClock } from "../SlopClock";
-import { ConfidenceConviction } from "../ConfidenceConviction";
-import { ContaminationMap } from "../ContaminationMap";
 import { ContentFlowSankey } from "../ContentFlowSankey";
 import { ViralTrajectory } from "../ViralTrajectory";
 import { SentinelBoard } from "../SentinelBoard";
@@ -272,12 +270,6 @@ export default function CommunityDashboardPage() {
         {/* ── Slop Clock (full-width) ── */}
         <div className="mt-6">
           <SlopClock />
-        </div>
-
-        {/* ── Confidence vs Conviction + Contamination Map ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <ConfidenceConviction scans={scans} />
-          <ContaminationMap />
         </div>
 
         {/* ── Content Flow (full-width) ── */}

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 
-const CHROME_STORE_URL = "https://chromewebstore.google.com/";
+const CHROME_STORE_URL =
+  "https://github.com/nategarelik/baloney/tree/master/extension";
 
 export default function Home() {
   return (
@@ -127,7 +128,7 @@ export default function Home() {
               style={{ animation: "hero-fade-in 0.7s ease-out 0.15s forwards" }}
             >
               Your all-purpose truth verifier. Detect AI-generated content as
-              you browse — and see how much of the internet is real.
+              you browse and see how much of the internet is real.
             </p>
             <a
               href={CHROME_STORE_URL}
@@ -160,7 +161,7 @@ export default function Home() {
             <span style={{ color: "#e8c97a" }}>images and text</span> as you
             scroll, flagging{" "}
             <span style={{ color: "#e8c97a" }}>AI-generated</span> content in
-            real time. Here&rsquo;s what it looks like in action.
+            real time.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div
