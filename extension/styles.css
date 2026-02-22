@@ -41,103 +41,305 @@
   opacity: 1;
 }
 
-/* ── Text Detection Dot (positioned absolutely in page) ── */
+/* ── Toast Card (text detection result) ── */
 
-.baloney-text-dot {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-radius: 10px;
-  z-index: 2147483645;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  overflow: hidden;
-  transition: width 0.2s ease, height 0.2s ease, padding 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  /* Pre-expanded to show label */
-  width: 62px;
-  height: 20px;
-  padding: 0 8px;
-  justify-content: center;
-}
-
-.baloney-text-dot .baloney-dot__label {
-  opacity: 1;
-  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-/* ── Text Underlines (Grammarly-style) ── */
-
-.baloney-text-underline {
-  position: absolute;
-  height: 2px;
-  border-radius: 1px;
-  z-index: 2147483644;
-  pointer-events: none;
-  opacity: 0.7;
-  animation: baloney-underline-in 0.3s ease both;
-}
-
-@keyframes baloney-underline-in {
-  from { opacity: 0; transform: scaleX(0); transform-origin: left; }
-  to { opacity: 0.7; transform: scaleX(1); transform-origin: left; }
-}
-
-/* ── Selection popup (warm theme) ── */
-
-.baloney-selection-popup {
-  position: absolute;
-  width: 300px;
-  background: rgba(240,230,202,0.96);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(74,55,40,0.1);
-  border-radius: 12px;
-  padding: 12px;
+.baloney-toast-card {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
   z-index: 2147483647;
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 150ms ease, transform 150ms ease;
-  pointer-events: none;
+  width: 360px;
+  max-height: 480px;
+  background: rgba(240,230,202,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(74,55,40,0.08);
+  border-left: 4px solid rgba(74,55,40,0.2);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(74,55,40,0.15), 0 2px 8px rgba(74,55,40,0.08);
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #4a3728;
-  box-shadow: 0 4px 20px rgba(74,55,40,0.12);
+  overflow: hidden;
+  animation: baloney-card-in 0.3s ease both;
 }
 
-.baloney-selection-popup.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+@keyframes baloney-card-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.baloney-scan-btn {
-  width: 100%;
-  padding: 10px 16px;
+@keyframes baloney-card-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+.baloney-toast-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px 10px;
+}
+
+.baloney-toast-card__icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.baloney-toast-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a3728;
+  flex: 1;
+}
+
+.baloney-toast-card__close {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: rgba(74,55,40,0.4);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.baloney-toast-card__close:hover {
+  background: rgba(74,55,40,0.08);
+  color: #4a3728;
+}
+
+.baloney-toast-card__loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 8px;
+  font-size: 12px;
+  color: rgba(74,55,40,0.5);
+}
+
+.baloney-toast-card__preview {
+  padding: 0 16px 10px;
+  font-size: 11px;
+  font-style: italic;
+  color: rgba(74,55,40,0.45);
+  line-height: 1.4;
+}
+
+.baloney-toast-card__skeleton {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.baloney-toast-card__skeleton-bar {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, rgba(74,55,40,0.06) 25%, rgba(74,55,40,0.12) 50%, rgba(74,55,40,0.06) 75%);
+  background-size: 200% 100%;
+  animation: baloney-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes baloney-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.baloney-toast-card__verdict {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 8px;
+}
+
+.baloney-toast-card__verdict-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: baloney-dot-pulse 0.6s ease;
+}
+
+@keyframes baloney-dot-pulse {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.baloney-toast-card__verdict-label {
+  font-family: 'Young Serif', 'DM Sans', serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #4a3728;
+}
+
+.baloney-toast-card__verdict-pct {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(74,55,40,0.6);
+}
+
+.baloney-toast-card__bar {
+  height: 6px;
+  margin: 0 16px 10px;
+  background: #e6d9b8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.baloney-toast-card__bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  transition: width 0.6s ease-out;
+}
+
+.baloney-toast-card__reasons {
+  padding: 0 16px 8px;
+}
+
+.baloney-toast-card__reason {
+  font-size: 11px;
+  color: rgba(74,55,40,0.6);
+  padding: 2px 0;
+  line-height: 1.4;
+}
+
+.baloney-toast-card__sentences {
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 0 16px 8px;
+}
+
+.baloney-toast-card__sentence {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 10px;
+  color: rgba(74,55,40,0.6);
+  animation: baloney-fade-in 0.3s ease both;
+}
+
+.baloney-toast-card__sentence-bar {
+  width: 36px;
+  height: 4px;
+  background: #e6d9b8;
+  border-radius: 2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.baloney-toast-card__sentence-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease-out;
+}
+
+.baloney-toast-card__sentence-pct {
+  width: 28px;
+  text-align: right;
+  font-weight: 600;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.baloney-toast-card__sentence-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.baloney-toast-card__more {
+  font-size: 10px;
+  color: #d4456b;
+  cursor: pointer;
+  padding: 4px 0;
+  font-weight: 600;
+}
+
+.baloney-toast-card__more:hover {
+  text-decoration: underline;
+}
+
+.baloney-toast-card__caveat {
+  font-size: 10px;
+  color: rgba(74,55,40,0.5);
+  font-style: italic;
+  margin: 0 16px 8px;
+  padding: 6px 8px;
+  background: rgba(74,55,40,0.04);
+  border-radius: 6px;
+  line-height: 1.4;
+}
+
+.baloney-toast-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px 12px;
+  border-top: 1px solid rgba(74,55,40,0.06);
+}
+
+.baloney-toast-card__model {
+  font-size: 9px;
+  color: rgba(74,55,40,0.35);
+}
+
+.baloney-toast-card__link {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d4456b;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.baloney-toast-card__link:hover {
+  color: rgba(212,69,107,0.8);
+  text-decoration: underline;
+}
+
+.baloney-toast-card__error {
+  padding: 8px 16px 14px;
+  text-align: center;
+}
+
+.baloney-toast-card__error-msg {
+  font-size: 13px;
+  color: #d4456b;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.baloney-toast-card__retry {
+  padding: 8px 20px;
   border: none;
   border-radius: 999px;
   background: #d4456b;
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s ease;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.25),
-    inset 0 -2px 0 rgba(0,0,0,0.12),
-    0 2px 8px rgba(212,69,107,0.2);
+  transition: background 0.15s;
 }
-.baloney-scan-btn:hover {
-  background: rgba(212,69,107,0.9);
+
+.baloney-toast-card__retry:hover {
+  background: rgba(212,69,107,0.85);
 }
-.baloney-scan-btn:active {
-  transform: translateY(1px);
+
+.baloney-toast-card__min-length {
+  padding: 4px 16px 14px;
+  font-size: 12px;
+  color: rgba(74,55,40,0.6);
 }
 
 .baloney-scan-loading {
