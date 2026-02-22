@@ -4,9 +4,10 @@
 // All scanning gated by master toggle, allowed sites, and per-type toggles.
 
 const MIN_IMAGE_SIZE = 200;
-const MAX_CONCURRENT = 2;
+const MAX_CONCURRENT = 3; // v2.0: increased from 2 for faster scanning
 const MIN_SELECTION_LENGTH = 20;
 const TEXT_UNDERLINE_TTL = 30000; // 30s before auto-cleanup
+const VIDEO_MAX_FRAMES = 5; // v2.0: multi-frame video analysis
 
 // ──────────────────────────────────────────────
 // Settings cache (populated from chrome.storage)
@@ -18,7 +19,12 @@ let settings = {
   autoScanImages: true,
   autoScanVideos: true,
   contentMode: "scan",
-  allowedSites: ["x.com", "twitter.com", "linkedin.com", "substack.com"],
+  allowedSites: [
+    "x.com", "twitter.com", "linkedin.com", "substack.com",
+    "reddit.com", "facebook.com", "instagram.com", "medium.com",
+    "tiktok.com", "threads.net", "bsky.app", "mastodon.social",
+    "news.ycombinator.com",
+  ],
 };
 
 function loadSettings() {
@@ -600,8 +606,48 @@ async function analyzeImage(img) {
 }
 
 // ──────────────────────────────────────────────
-// Video analysis pipeline
+// Video analysis pipeline (v2.0 — multi-frame analysis)
+// Captures multiple frames at different timestamps,
+// sends them all for analysis, and combines results
 // ──────────────────────────────────────────────
+
+function captureVideoFrame(video, seekTime) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || video.clientWidth || 320;
+    canvas.height = video.videoHeight || video.clientHeight || 240;
+
+    const onSeeked = () => {
+      try {
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      } catch {
+        resolve(null);
+      }
+      video.removeEventListener("seeked", onSeeked);
+    };
+
+    if (video.readyState >= 2 && Math.abs(video.currentTime - seekTime) < 0.5) {
+      // Already at desired time
+      try {
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      } catch {
+        resolve(null);
+      }
+    } else {
+      video.addEventListener("seeked", onSeeked);
+      // Timeout in case seeking fails
+      setTimeout(() => {
+        video.removeEventListener("seeked", onSeeked);
+        resolve(null);
+      }, 3000);
+      video.currentTime = seekTime;
+    }
+  });
+}
 
 async function analyzeVideo(video) {
   if (!canScanVideos()) return;
@@ -609,56 +655,133 @@ async function analyzeVideo(video) {
   video.dataset.baloneyScanned = "pending";
 
   try {
-    let imageUrl;
+    const frameUrls = [];
 
+    // v2.0: Multi-frame extraction strategy
     if (video.poster) {
-      imageUrl = video.poster;
-    } else {
+      frameUrls.push(video.poster);
+    }
+
+    // Try to capture frames at different timestamps
+    if (video.readyState >= 2 && video.duration > 0 && isFinite(video.duration)) {
+      const savedTime = video.currentTime;
+      const numFrames = Math.min(VIDEO_MAX_FRAMES, Math.ceil(video.duration / 2));
+      const interval = video.duration / (numFrames + 1);
+
+      for (let i = 1; i <= numFrames; i++) {
+        const seekTime = interval * i;
+        const frameUrl = await captureVideoFrame(video, seekTime);
+        if (frameUrl) frameUrls.push(frameUrl);
+      }
+
+      // Restore original playback position
+      try { video.currentTime = savedTime; } catch { /* ignore */ }
+    } else if (frameUrls.length === 0) {
+      // Fallback: capture current frame
       try {
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth || video.clientWidth || 320;
         canvas.height = video.videoHeight || video.clientHeight || 240;
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        imageUrl = canvas.toDataURL("image/jpeg", 0.7);
+        frameUrls.push(canvas.toDataURL("image/jpeg", 0.7));
       } catch {
         video.dataset.baloneyScanned = "error";
         return;
       }
     }
 
-    if (!imageUrl) {
+    if (frameUrls.length === 0) {
       video.dataset.baloneyScanned = "error";
       return;
     }
 
-    const result = await requestQueue.add(async () => {
-      const response = await new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage(
-          { type: "analyze-image", url: imageUrl },
-          (response) => {
-            if (chrome.runtime.lastError)
-              reject(new Error(chrome.runtime.lastError.message));
-            else resolve(response);
-          },
-        );
-      });
-      return response;
-    });
-
-    if (result && result.verdict) {
-      video.dataset.baloneyScanned = result.verdict;
-      video.dataset.baloneyResult = JSON.stringify(result);
-      createDetectionDot(video, result);
-      addFlaggedItem(
-        video,
-        result.verdict,
-        "Video: " + (video.title || video.src?.slice(0, 40) || "video"),
-      );
-      applyContentMode(video, result.verdict);
-      updateStats(result.verdict);
-      updatePageStats("images", result.verdict);
+    // v2.0: Analyze multiple frames and aggregate results
+    const frameResults = [];
+    for (const frameUrl of frameUrls.slice(0, VIDEO_MAX_FRAMES)) {
+      try {
+        const result = await requestQueue.add(async () => {
+          const response = await new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(
+              {
+                type: frameUrl.startsWith("data:")
+                  ? "analyze-video-frame"
+                  : "analyze-image",
+                url: frameUrl,
+                base64: frameUrl.startsWith("data:") ? frameUrl : undefined,
+              },
+              (response) => {
+                if (chrome.runtime.lastError)
+                  reject(new Error(chrome.runtime.lastError.message));
+                else resolve(response);
+              },
+            );
+          });
+          return response;
+        });
+        if (result && result.verdict) frameResults.push(result);
+      } catch {
+        // Skip failed frames
+      }
     }
+
+    if (frameResults.length === 0) {
+      video.dataset.baloneyScanned = "error";
+      return;
+    }
+
+    // v2.0: Aggregate multi-frame results
+    const confidences = frameResults.map((r) => r.confidence || 0);
+    const avgConfidence = confidences.reduce((a, b) => a + b, 0) / confidences.length;
+    const aiCount = frameResults.filter(
+      (r) => r.verdict === "ai_generated" || r.verdict === "heavy_edit",
+    ).length;
+    const aiRatio = aiCount / frameResults.length;
+
+    // Determine video-level verdict from frame consensus
+    let aggregatedResult;
+    if (aiRatio > 0.5 || avgConfidence > 0.65) {
+      aggregatedResult = {
+        ...frameResults[0],
+        verdict: "ai_generated",
+        confidence: Math.max(avgConfidence, 0.7),
+        model_used: `multi-frame(${frameResults.length}):${frameResults[0].model_used}`,
+        frames_analyzed: frameResults.length,
+        frames_flagged: aiCount,
+      };
+    } else if (aiRatio > 0.2 || avgConfidence > 0.45) {
+      aggregatedResult = {
+        ...frameResults[0],
+        verdict: "heavy_edit",
+        confidence: avgConfidence,
+        model_used: `multi-frame(${frameResults.length}):${frameResults[0].model_used}`,
+        frames_analyzed: frameResults.length,
+        frames_flagged: aiCount,
+      };
+    } else {
+      // Use the single most confident frame result
+      const bestResult = frameResults.reduce((best, r) =>
+        (r.confidence || 0) > (best.confidence || 0) ? r : best,
+      );
+      aggregatedResult = {
+        ...bestResult,
+        model_used: `multi-frame(${frameResults.length}):${bestResult.model_used}`,
+        frames_analyzed: frameResults.length,
+        frames_flagged: aiCount,
+      };
+    }
+
+    video.dataset.baloneyScanned = aggregatedResult.verdict;
+    video.dataset.baloneyResult = JSON.stringify(aggregatedResult);
+    createDetectionDot(video, aggregatedResult);
+    addFlaggedItem(
+      video,
+      aggregatedResult.verdict,
+      `Video (${frameResults.length} frames): ${video.title || video.src?.slice(0, 30) || "video"}`,
+    );
+    applyContentMode(video, aggregatedResult.verdict);
+    updateStats(aggregatedResult.verdict);
+    updatePageStats("images", aggregatedResult.verdict);
   } catch (error) {
     console.error("[Baloney] Video analysis failed:", error);
     video.dataset.baloneyScanned = "error";
@@ -871,9 +994,22 @@ function clearTextUnderlines() {
 // Auto-scan text nodes
 // ──────────────────────────────────────────────
 
+// v2.0: Expanded selectors to cover more platforms
 const TEXT_SELECTORS =
   "p, article, [role='article'], .tweet-text, .feed-shared-update-v2__description, " +
-  "[data-testid='tweetText'], .post-content, .entry-content, .article-body";
+  "[data-testid='tweetText'], .post-content, .entry-content, .article-body, " +
+  // Reddit
+  "[data-testid='post-content'], .md, [slot='text-body'], " +
+  // Medium
+  ".pw-post-body-paragraph, .graf, " +
+  // Facebook
+  "[data-ad-comet-preview='message'], [data-ad-preview='message'], " +
+  // LinkedIn
+  ".feed-shared-text, .update-components-text, " +
+  // Substack
+  ".body.markup, .post-content-final, " +
+  // General news sites
+  ".story-body, .article-text, .post-body, [itemprop='articleBody']";
 
 let textObserver = null;
 

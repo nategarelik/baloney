@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
     const result = await realImageDetection(image);
     const duration = Date.now() - start;
 
-    const contentHash = crypto.createHash("sha256").update(image.slice(0, 1000)).digest("hex");
+    // v2.0: Hash more of the image data for better deduplication
+    // Use first 10000 chars to capture meaningful image content differences
+    const contentHash = crypto.createHash("sha256").update(image.slice(0, 10000)).digest("hex");
 
     if (user_id) {
       await supabase.rpc("record_scan_with_provenance", {
