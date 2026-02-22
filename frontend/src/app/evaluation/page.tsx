@@ -15,103 +15,27 @@ import {
 } from "recharts";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { ChartCard } from "@/components/ChartCard";
+import {
+  rocData,
+  diagonalData,
+  aucRoc,
+  confusionMatrix,
+  domainData,
+  ablationData,
+  summaryStats,
+  totalSamples,
+  overallAccuracy,
+} from "@/lib/evaluation-data";
 
 /* ─────────────────────────────────────────────────────────
-   1. ROC Curve Data
+   Helper: bar color based on accuracy
    ───────────────────────────────────────────────────────── */
-const rocData = [
-  { fpr: 0, tpr: 0 },
-  { fpr: 0.01, tpr: 0.12 },
-  { fpr: 0.02, tpr: 0.28 },
-  { fpr: 0.03, tpr: 0.42 },
-  { fpr: 0.05, tpr: 0.58 },
-  { fpr: 0.07, tpr: 0.68 },
-  { fpr: 0.1, tpr: 0.78 },
-  { fpr: 0.13, tpr: 0.84 },
-  { fpr: 0.17, tpr: 0.89 },
-  { fpr: 0.22, tpr: 0.92 },
-  { fpr: 0.28, tpr: 0.945 },
-  { fpr: 0.35, tpr: 0.96 },
-  { fpr: 0.45, tpr: 0.975 },
-  { fpr: 0.55, tpr: 0.985 },
-  { fpr: 0.7, tpr: 0.993 },
-  { fpr: 0.85, tpr: 0.997 },
-  { fpr: 1, tpr: 1 },
-];
-
-const diagonalData = [
-  { fpr: 0, random: 0 },
-  { fpr: 1, random: 1 },
-];
-
-/* ─────────────────────────────────────────────────────────
-   2. Confusion Matrix Data
-   ───────────────────────────────────────────────────────── */
-const confusionMatrix = {
-  tp: 85,
-  fp: 3,
-  fn: 7,
-  tn: 95,
-};
-
-/* ─────────────────────────────────────────────────────────
-   3. Per-Domain Accuracy Data
-   ───────────────────────────────────────────────────────── */
-const domainData = [
-  { domain: "reddit", accuracy: 96.2 },
-  { domain: "twitter", accuracy: 93.8 },
-  { domain: "academic", accuracy: 98.5 },
-  { domain: "creative", accuracy: 91.3 },
-  { domain: "email", accuracy: 94.7 },
-  { domain: "blog", accuracy: 95.1 },
-  { domain: "technical", accuracy: 97.4 },
-  { domain: "news", accuracy: 96.8 },
-  { domain: "short-text", accuracy: 88.2 },
-];
-
 function getDomainBarColor(accuracy: number): string {
   if (accuracy >= 97) return "#16a34a";
   if (accuracy >= 94) return "#22c55e";
   if (accuracy >= 91) return "#f59e0b";
   return "#d4456b";
 }
-
-/* ─────────────────────────────────────────────────────────
-   4. Ablation Study Data
-   ───────────────────────────────────────────────────────── */
-const ablationData = [
-  { method: "Full Ensemble", f1: 96.8 },
-  { method: "Pangram", f1: 91.2 },
-  { method: "RoBERTa", f1: 89.7 },
-  { method: "ChatGPT Det.", f1: 86.4 },
-  { method: "Embeddings", f1: 78.3 },
-  { method: "Statistical", f1: 72.1 },
-];
-
-/* ─────────────────────────────────────────────────────────
-   5. Benchmark Comparison Data
-   ───────────────────────────────────────────────────────── */
-const benchmarkData = [
-  { tool: "Pangram", accuracy: 99.85, isBoloney: false },
-  { tool: "SightEngine", accuracy: 98.3, isBoloney: false },
-  { tool: "Baloney", accuracy: 97.1, isBoloney: true },
-  { tool: "GPTZero", accuracy: 94.2, isBoloney: false },
-  { tool: "Originality", accuracy: 93.7, isBoloney: false },
-  { tool: "ZeroGPT", accuracy: 88.5, isBoloney: false },
-];
-
-/* ─────────────────────────────────────────────────────────
-   6. Summary Statistics
-   ───────────────────────────────────────────────────────── */
-const summaryStats = [
-  { metric: "Accuracy", value: "94.7%" },
-  { metric: "Precision", value: "96.6%" },
-  { metric: "Recall", value: "92.4%" },
-  { metric: "F1 Score", value: "94.5%" },
-  { metric: "AUC-ROC", value: "0.982" },
-  { metric: "Cohen's Kappa", value: "0.893" },
-  { metric: "Samples", value: "190" },
-];
 
 /* ─────────────────────────────────────────────────────────
    Custom Tooltip Components
@@ -184,23 +108,6 @@ function AblationTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-function BenchmarkTooltip({ active, payload, label }: CustomTooltipProps) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div
-      className="rounded-lg px-3 py-2 text-sm shadow-md"
-      style={{
-        backgroundColor: CHART_TOOLTIP_STYLE.backgroundColor,
-        border: CHART_TOOLTIP_STYLE.border,
-        color: CHART_TOOLTIP_STYLE.color,
-      }}
-    >
-      <p className="font-medium">{label}</p>
-      <p>Accuracy: {payload[0].value}%</p>
-    </div>
-  );
-}
-
 /* ─────────────────────────────────────────────────────────
    Main Page Component
    ───────────────────────────────────────────────────────── */
@@ -211,6 +118,14 @@ export default function EvaluationPage() {
     confusionMatrix.fn +
     confusionMatrix.tn;
 
+  // Determine Y-axis domain for per-domain chart
+  const minDomainAccuracy = Math.min(...domainData.map((d) => d.accuracy));
+  const domainYMin = Math.max(0, Math.floor(minDomainAccuracy / 10) * 10);
+
+  // Determine X-axis domain for ablation chart
+  const minAblationF1 = Math.min(...ablationData.map((d) => d.f1));
+  const ablationXMin = Math.max(0, Math.floor(minAblationF1 / 10) * 10);
+
   return (
     <main className="min-h-screen bg-base">
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-16 page-top-offset">
@@ -219,14 +134,15 @@ export default function EvaluationPage() {
           Evaluation Results
         </h1>
         <p className="text-secondary/50 text-sm mb-8">
-          200+ sample benchmark across 15+ categories
+          {totalSamples}-sample benchmark across {domainData.length}+ categories
+          -- real metrics computed from methodD statistical analysis
         </p>
 
         {/* ── ROC Curve (full width) ── */}
         <div className="mb-6">
           <ChartCard
             title="ROC Curve"
-            subtitle="Receiver Operating Characteristic -- AUC = 0.982"
+            subtitle={`Receiver Operating Characteristic -- AUC = ${aucRoc.toFixed(3)}`}
           >
             <ResponsiveContainer width="100%" height={340}>
               <LineChart margin={{ top: 16, right: 24, bottom: 8, left: 8 }}>
@@ -472,13 +388,13 @@ export default function EvaluationPage() {
                   height={50}
                 />
                 <YAxis
-                  domain={[80, 100]}
+                  domain={[domainYMin, 100]}
                   tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
                   tickFormatter={(v: number) => `${v}%`}
                 />
                 <Tooltip content={<DomainTooltip />} />
                 <ReferenceLine
-                  y={94.7}
+                  y={overallAccuracy}
                   stroke={CHART_COLORS.ai}
                   strokeDasharray="4 3"
                   strokeWidth={1}
@@ -504,7 +420,7 @@ export default function EvaluationPage() {
           {/* Ablation Study */}
           <ChartCard
             title="Ablation Study"
-            subtitle="Ensemble vs. individual method F1 scores"
+            subtitle="Full signal vs. individual sub-signal F1 scores"
           >
             <ResponsiveContainer width="100%" height={280}>
               <BarChart
@@ -518,7 +434,7 @@ export default function EvaluationPage() {
                 />
                 <XAxis
                   type="number"
-                  domain={[60, 100]}
+                  domain={[ablationXMin, 100]}
                   tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
                   tickFormatter={(v: number) => `${v}%`}
                 />
@@ -542,56 +458,12 @@ export default function EvaluationPage() {
           </ChartCard>
         </div>
 
-        {/* ── Benchmark Comparison (full width) ── */}
-        <div className="mb-6">
-          <ChartCard
-            title="Benchmark Comparison"
-            subtitle="Baloney vs. leading AI detection tools -- accuracy on shared test set"
-          >
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart
-                data={benchmarkData}
-                margin={{ top: 16, right: 24, bottom: 8, left: 8 }}
-              >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={CHART_COLORS.gridLine}
-                />
-                <XAxis
-                  dataKey="tool"
-                  tick={{ fill: CHART_COLORS.axisLabel, fontSize: 12 }}
-                />
-                <YAxis
-                  domain={[84, 100]}
-                  tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
-                  tickFormatter={(v: number) => `${v}%`}
-                />
-                <Tooltip content={<BenchmarkTooltip />} />
-                <Bar dataKey="accuracy" radius={[4, 4, 0, 0]} barSize={48}>
-                  {benchmarkData.map((entry) => (
-                    <Cell
-                      key={entry.tool}
-                      fill={
-                        entry.isBoloney
-                          ? CHART_COLORS.ai
-                          : CHART_COLORS.navy
-                      }
-                      stroke={entry.isBoloney ? CHART_COLORS.ai : "none"}
-                      strokeWidth={entry.isBoloney ? 2 : 0}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
-
         {/* ── Footer note ── */}
         <p className="text-xs text-secondary/40 text-center mt-4">
-          Evaluation performed on a curated 190-sample benchmark spanning 9
-          content domains. Metrics computed via stratified evaluation with
-          balanced class distribution. Benchmark tool scores are self-reported
-          or from independent audits where available.
+          Evaluation performed on a curated {totalSamples}-sample benchmark
+          spanning {domainData.length} content domains. All metrics computed from
+          real methodD statistical analysis with threshold optimized via
+          Youden&apos;s J statistic. AUC computed via trapezoidal integration.
         </p>
       </div>
     </main>
