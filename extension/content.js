@@ -21,7 +21,6 @@ let settings = {
   // Sync: keep in sync with extension/background.js and frontend/src/app/allowed-sites/page.tsx
   allowedSites: [
     "x.com",
-    "twitter.com",
     "linkedin.com",
     "substack.com",
     "reddit.com",
@@ -30,9 +29,6 @@ let settings = {
     "medium.com",
     "tiktok.com",
     "threads.net",
-    "bsky.app",
-    "mastodon.social",
-    "news.ycombinator.com",
   ],
 };
 

@@ -11,8 +11,7 @@ interface SiteEntry {
 
 // Sync: keep in sync with extension/background.js and extension/content.js allowedSites defaults
 const DEFAULT_SITES: SiteEntry[] = [
-  { title: "X (Twitter)", url: "x.com" },
-  { title: "Twitter", url: "twitter.com" },
+  { title: "X", url: "x.com" },
   { title: "LinkedIn", url: "linkedin.com" },
   { title: "Substack", url: "substack.com" },
   { title: "Reddit", url: "reddit.com" },
@@ -21,9 +20,6 @@ const DEFAULT_SITES: SiteEntry[] = [
   { title: "Medium", url: "medium.com" },
   { title: "TikTok", url: "tiktok.com" },
   { title: "Threads", url: "threads.net" },
-  { title: "Bluesky", url: "bsky.app" },
-  { title: "Mastodon", url: "mastodon.social" },
-  { title: "Hacker News", url: "news.ycombinator.com" },
 ];
 
 function normalizeDomain(input: string): string {

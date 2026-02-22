@@ -15,7 +15,6 @@ const STORAGE_DEFAULTS = {
   // Sync: keep in sync with extension/content.js and frontend/src/app/allowed-sites/page.tsx
   allowedSites: [
     "x.com",
-    "twitter.com",
     "linkedin.com",
     "substack.com",
     "reddit.com",
@@ -24,9 +23,6 @@ const STORAGE_DEFAULTS = {
     "medium.com",
     "tiktok.com",
     "threads.net",
-    "bsky.app",
-    "mastodon.social",
-    "news.ycombinator.com",
   ],
   sidepanelData: null,
 };
