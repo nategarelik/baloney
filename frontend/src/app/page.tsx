@@ -165,32 +165,28 @@ export default function Home() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div
-              className="aspect-video rounded-lg border flex items-center justify-center"
+              className="rounded-lg border overflow-hidden"
               style={{
-                background: "rgba(240,230,202,0.1)",
                 borderColor: "rgba(240,230,202,0.25)",
               }}
             >
-              <span
-                className="text-sm"
-                style={{ color: "rgba(240,230,202,0.45)" }}
-              >
-                Screenshot: Extension on X — 16:9
-              </span>
+              <img
+                src="/screenshots/x-demo.gif"
+                alt="Baloney extension detecting AI content on X"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div
-              className="aspect-video rounded-lg border flex items-center justify-center"
+              className="rounded-lg border overflow-hidden"
               style={{
-                background: "rgba(240,230,202,0.1)",
                 borderColor: "rgba(240,230,202,0.25)",
               }}
             >
-              <span
-                className="text-sm"
-                style={{ color: "rgba(240,230,202,0.45)" }}
-              >
-                Screenshot: Extension on LinkedIn — 16:9
-              </span>
+              <img
+                src="/screenshots/instagram-demo.gif"
+                alt="Baloney extension detecting AI content on Instagram"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>
