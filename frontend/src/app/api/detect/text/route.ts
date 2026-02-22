@@ -51,12 +51,6 @@ export async function POST(req: NextRequest) {
         () => {},
         () => {},
       );
-      supabase
-        .rpc("compute_information_diet_score", { p_user_id: user_id })
-        .then(
-          () => {},
-          () => {},
-        );
       // Recompute slop index ~10% of scans to avoid DB load
       if (Math.random() < 0.1) {
         supabase.rpc("compute_slop_index").then(

@@ -17,7 +17,7 @@ import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { getCommunityAnalytics, getAllScans } from "@/lib/api";
 import type { CommunityAnalytics, ScanRecord } from "@/lib/types";
 import { SlopIndexCard } from "../SlopIndexCard";
-import { InformationDietCard } from "../InformationDietCard";
+
 import { AuthenticityRadar } from "../AuthenticityRadar";
 import { SlopClock } from "../SlopClock";
 import { ConfidenceConviction } from "../ConfidenceConviction";
@@ -291,10 +291,9 @@ export default function CommunityDashboardPage() {
           <SentinelBoard />
         </div>
 
-        {/* ── AI Slop Index + Information Diet Score ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        {/* ── AI Slop Index ── */}
+        <div className="mt-6">
           <SlopIndexCard />
-          <InformationDietCard />
         </div>
       </div>
     </main>

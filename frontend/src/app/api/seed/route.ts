@@ -173,7 +173,6 @@ export async function POST(req: NextRequest) {
 
   // Clear all data in dependency order
   await supabase.from("content_sightings").delete().neq("content_hash", "");
-  await supabase.from("information_diet_scores").delete().neq("user_id", "");
   await supabase.from("exposure_scores").delete().neq("user_id", "");
   await supabase.from("platform_slop_index").delete().neq("platform", "");
   await supabase
@@ -311,16 +310,6 @@ export async function POST(req: NextRequest) {
     await Promise.allSettled(
       batch.map((u) =>
         supabase.rpc("compute_exposure_score", { p_user_id: u.id }),
-      ),
-    );
-  }
-
-  // Compute information diet scores
-  for (let i = 0; i < users.length; i += 5) {
-    const batch = users.slice(i, i + 5);
-    await Promise.allSettled(
-      batch.map((u) =>
-        supabase.rpc("compute_information_diet_score", { p_user_id: u.id }),
       ),
     );
   }
