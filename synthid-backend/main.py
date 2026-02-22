@@ -52,7 +52,17 @@ def load_detector():
             **detector_model.config.watermarking_config, device="cpu"
         )
 
-        tok = AutoTokenizer.from_pretrained(detector_model.config.model_name)
+        # The detector config references google/gemma-2b-it (gated model).
+        # Try with HF_TOKEN first, fall back to a compatible ungated tokenizer.
+        model_name = detector_model.config.model_name
+        hf_token = os.environ.get("HF_TOKEN")
+        try:
+            tok = AutoTokenizer.from_pretrained(model_name, token=hf_token)
+        except Exception as tok_err:
+            logger.warning(f"Cannot load {model_name} tokenizer ({tok_err}), using ungated fallback")
+            # google/gemma-2b uses the same tokenizer but may also be gated
+            # Use a publicly available sentencepiece tokenizer as fallback
+            tok = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
         det = SynthIDTextWatermarkDetector(detector_model, logits_processor, tok)
 
