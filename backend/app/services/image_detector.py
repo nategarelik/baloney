@@ -1,11 +1,11 @@
 # backend/app/services/image_detector.py
-# Baloney Image AI Detection — 4-Model Local Ensemble on Apple Silicon MPS
+# Baloney Image AI Detection — 4-Signal Local Ensemble on Apple Silicon MPS
 #
 # Models (all run locally, zero API dependency):
-#   1. ViT AI-image-detector  (umm-maybe/AI-image-detector) — ViT fine-tuned for AI images
-#   2. SDXL Detector          (Organika/sdxl-detector) — SDXL/Midjourney/DALL-E 3 era
-#   3. FFT Frequency Analysis — spectral domain artifact detection
-#   4. EXIF Metadata Analysis — camera data forensics
+#   1. SigLIP Deepfake Detector  (prithivMLmods/deepfake-detector-model-v1) — 94.44% accuracy
+#   2. ViT Deepfake Detector v2  (prithivMLmods/Deep-Fake-Detector-v2-Model) — 92.12% accuracy, 56k test samples
+#   3. FFT Frequency Analysis    — spectral domain artifact detection (radial profile + DCT)
+#   4. EXIF Metadata Analysis    — camera data forensics
 #
 # Designed for Mac Studio M2 Ultra with MPS acceleration.
 
@@ -17,7 +17,7 @@ import time
 
 from PIL import Image
 from PIL.ExifTags import TAGS
-from transformers import AutoModelForImageClassification, AutoFeatureExtractor
+from transformers import AutoModelForImageClassification, AutoImageProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -38,60 +38,61 @@ logger.info(f"Image detector using device: {DEVICE}")
 # ── Model Registry ───────────────────────────────────────────────
 
 IMAGE_MODEL_IDS = {
-    "vit_ai_detector": "umm-maybe/AI-image-detector",
-    "sdxl_detector": "Organika/sdxl-detector",
+    "siglip_deepfake": "prithivMLmods/deepfake-detector-model-v1",
+    "vit_deepfake_v2": "prithivMLmods/Deep-Fake-Detector-v2-Model",
 }
 
 # Ensemble weights (sum to 1.0)
+# SigLIP is primary (94.44% acc), ViT-v2 is secondary (92.12% acc)
 IMAGE_ENSEMBLE_WEIGHTS = {
-    "vit": 0.35,
-    "sdxl": 0.25,
-    "fft": 0.22,
-    "exif": 0.18,
+    "siglip": 0.35,    # Primary — SigLIP-based, highest accuracy
+    "vit_v2": 0.25,    # Secondary — ViT-based, diversifying architecture
+    "fft": 0.22,       # Frequency domain analysis
+    "exif": 0.18,      # Metadata forensics
 }
 
 # Singletons
 _image_models: dict = {}
-_feature_extractors: dict = {}
+_image_processors: dict = {}
 
 
 # ── Model Loading ────────────────────────────────────────────────
 
 def load_all_image_models():
     """Load all image detection models into memory on the target device."""
-    global _image_models, _feature_extractors
+    global _image_models, _image_processors
 
-    # 1. ViT AI-image-detector
-    if "vit" not in _image_models:
-        mid = IMAGE_MODEL_IDS["vit_ai_detector"]
+    # 1. SigLIP Deepfake Detector (94.44% accuracy)
+    if "siglip" not in _image_models:
+        mid = IMAGE_MODEL_IDS["siglip_deepfake"]
         logger.info(f"Loading {mid}...")
         t0 = time.time()
-        _feature_extractors["vit"] = AutoFeatureExtractor.from_pretrained(mid)
-        _image_models["vit"] = AutoModelForImageClassification.from_pretrained(mid)
-        _image_models["vit"].eval().to(DEVICE)
-        logger.info(f"  ViT AI-detector loaded in {time.time()-t0:.1f}s")
+        _image_processors["siglip"] = AutoImageProcessor.from_pretrained(mid)
+        _image_models["siglip"] = AutoModelForImageClassification.from_pretrained(mid)
+        _image_models["siglip"].eval().to(DEVICE)
+        logger.info(f"  SigLIP deepfake detector loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _image_models['siglip'].parameters()):,} params)")
 
-    # 2. SDXL Detector
-    if "sdxl" not in _image_models:
-        mid = IMAGE_MODEL_IDS["sdxl_detector"]
+    # 2. ViT Deepfake Detector v2 (92.12% accuracy, validated on 56k samples)
+    if "vit_v2" not in _image_models:
+        mid = IMAGE_MODEL_IDS["vit_deepfake_v2"]
         logger.info(f"Loading {mid}...")
         t0 = time.time()
-        _feature_extractors["sdxl"] = AutoFeatureExtractor.from_pretrained(mid)
-        _image_models["sdxl"] = AutoModelForImageClassification.from_pretrained(mid)
-        _image_models["sdxl"].eval().to(DEVICE)
-        logger.info(f"  SDXL detector loaded in {time.time()-t0:.1f}s")
+        _image_processors["vit_v2"] = AutoImageProcessor.from_pretrained(mid)
+        _image_models["vit_v2"] = AutoModelForImageClassification.from_pretrained(mid)
+        _image_models["vit_v2"].eval().to(DEVICE)
+        logger.info(f"  ViT deepfake detector v2 loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _image_models['vit_v2'].parameters()):,} params)")
 
     logger.info("All image detection models loaded and ready.")
 
 
 # ── Individual Model Predictions ─────────────────────────────────
 
-def _predict_vit(pil_image: Image.Image) -> float:
-    """ViT AI-image-detector: fine-tuned to detect AI-generated images. Returns AI probability 0-1."""
-    model = _image_models["vit"]
-    extractor = _feature_extractors["vit"]
+def _predict_classifier(model_key: str, pil_image: Image.Image) -> float:
+    """Generic image classifier prediction. Returns AI/fake probability 0-1."""
+    model = _image_models[model_key]
+    processor = _image_processors[model_key]
 
-    inputs = extractor(images=pil_image, return_tensors="pt")
+    inputs = processor(images=pil_image, return_tensors="pt")
     pixel_values = inputs["pixel_values"].to(DEVICE)
 
     with torch.no_grad():
@@ -99,50 +100,20 @@ def _predict_vit(pil_image: Image.Image) -> float:
         logits = outputs.logits
         probs = torch.softmax(logits, dim=-1)
 
-    # Find "artificial"/"Fake"/"LABEL_1" label
+    # Find AI/Fake/Artificial label
     labels = model.config.id2label
     ai_idx = None
     for idx, label in labels.items():
-        if label.lower() in ("artificial", "fake", "label_1", "ai"):
+        if label.lower() in ("artificial", "fake", "label_1", "ai", "deepfake", "ai_generated"):
             ai_idx = int(idx)
             break
 
     if ai_idx is not None:
         return probs[0][ai_idx].item()
 
-    # Invert human label
+    # Invert human/real label
     for idx, label in labels.items():
-        if label.lower() in ("human", "real", "label_0"):
-            return 1.0 - probs[0][int(idx)].item()
-
-    return probs[0][-1].item()
-
-
-def _predict_sdxl(pil_image: Image.Image) -> float:
-    """SDXL/Midjourney/DALL-E 3 detector. Returns AI probability 0-1."""
-    model = _image_models["sdxl"]
-    extractor = _feature_extractors["sdxl"]
-
-    inputs = extractor(images=pil_image, return_tensors="pt")
-    pixel_values = inputs["pixel_values"].to(DEVICE)
-
-    with torch.no_grad():
-        outputs = model(pixel_values=pixel_values)
-        logits = outputs.logits
-        probs = torch.softmax(logits, dim=-1)
-
-    labels = model.config.id2label
-    ai_idx = None
-    for idx, label in labels.items():
-        if label.lower() in ("artificial", "fake", "label_1", "ai"):
-            ai_idx = int(idx)
-            break
-
-    if ai_idx is not None:
-        return probs[0][ai_idx].item()
-
-    for idx, label in labels.items():
-        if label.lower() in ("human", "real", "label_0"):
+        if label.lower() in ("human", "real", "label_0", "authentic"):
             return 1.0 - probs[0][int(idx)].item()
 
     return probs[0][-1].item()
@@ -278,6 +249,7 @@ def check_exif(image_bytes: bytes) -> dict:
 def detect_image(image_bytes: bytes) -> dict:
     """
     Full 4-signal ensemble image detection. All local, no API calls.
+    SigLIP (94.44% acc) + ViT-v2 (92.12% acc) + FFT + EXIF.
     Returns detailed result with per-method scores and final ensemble score.
     """
     t0 = time.time()
@@ -286,8 +258,8 @@ def detect_image(image_bytes: bytes) -> dict:
     pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
 
     # Run ML models
-    vit_score = _predict_vit(pil_image)
-    sdxl_score = _predict_sdxl(pil_image)
+    siglip_score = _predict_classifier("siglip", pil_image)
+    vit_v2_score = _predict_classifier("vit_v2", pil_image)
 
     # Run signal analysis
     fft_result = frequency_analysis(image_bytes)
@@ -296,28 +268,28 @@ def detect_image(image_bytes: bytes) -> dict:
     fft_score = fft_result.get("freq_ai_score", 0.5)
     exif_score = exif_result.get("exif_ai_score", 0.5)
 
-    # Weighted ensemble
+    # Weighted ensemble with confidence-aware weighting
     w = IMAGE_ENSEMBLE_WEIGHTS
 
-    # Confidence-aware weighting for ML classifiers
-    vit_confidence = abs(vit_score - 0.5) * 2
-    sdxl_confidence = abs(sdxl_score - 0.5) * 2
-    conf_total = vit_confidence + sdxl_confidence + 0.001
+    siglip_confidence = abs(siglip_score - 0.5) * 2
+    vit_v2_confidence = abs(vit_v2_score - 0.5) * 2
+    conf_total = siglip_confidence + vit_v2_confidence + 0.001
 
-    vit_w = w["vit"] * (0.5 + vit_confidence / conf_total * 0.5)
-    sdxl_w = w["sdxl"] * (0.5 + sdxl_confidence / conf_total * 0.5)
-    total_w = vit_w + sdxl_w + w["fft"] + w["exif"]
+    siglip_w = w["siglip"] * (0.5 + siglip_confidence / conf_total * 0.5)
+    vit_v2_w = w["vit_v2"] * (0.5 + vit_v2_confidence / conf_total * 0.5)
+    total_w = siglip_w + vit_v2_w + w["fft"] + w["exif"]
 
     final_score = (
-        vit_score * vit_w +
-        sdxl_score * sdxl_w +
+        siglip_score * siglip_w +
+        vit_v2_score * vit_v2_w +
         fft_score * w["fft"] +
         exif_score * w["exif"]
     ) / total_w
 
-    # Agreement bonus
-    if (vit_score > 0.7 and sdxl_score > 0.7) or (vit_score < 0.3 and sdxl_score < 0.3):
-        classifier_avg = (vit_score + sdxl_score) / 2
+    # Agreement bonus — if both classifiers agree strongly, boost confidence
+    classifiers_agree = (siglip_score > 0.7 and vit_v2_score > 0.7) or (siglip_score < 0.3 and vit_v2_score < 0.3)
+    if classifiers_agree:
+        classifier_avg = (siglip_score + vit_v2_score) / 2
         final_score = final_score * 0.85 + classifier_avg * 0.15
 
     final_score = round(float(np.clip(final_score, 0, 1)), 4)
@@ -334,20 +306,22 @@ def detect_image(image_bytes: bytes) -> dict:
     return {
         "ai_score": final_score,
         "classification": classification,
-        "model": "ensemble:vit-ai-detector+sdxl-detector+fft+exif",
+        "model": "ensemble:siglip-deepfake+vit-deepfake-v2+fft+exif",
         "model_count": 4,
         "device": str(DEVICE),
         "inference_ms": duration_ms,
         "methods": {
-            "vit_ai_detector": {
-                "score": round(vit_score, 4),
-                "model": IMAGE_MODEL_IDS["vit_ai_detector"],
-                "weight": round(vit_w / total_w, 3),
+            "siglip_deepfake": {
+                "score": round(siglip_score, 4),
+                "model": IMAGE_MODEL_IDS["siglip_deepfake"],
+                "accuracy": "94.44%",
+                "weight": round(siglip_w / total_w, 3),
             },
-            "sdxl_detector": {
-                "score": round(sdxl_score, 4),
-                "model": IMAGE_MODEL_IDS["sdxl_detector"],
-                "weight": round(sdxl_w / total_w, 3),
+            "vit_deepfake_v2": {
+                "score": round(vit_v2_score, 4),
+                "model": IMAGE_MODEL_IDS["vit_deepfake_v2"],
+                "accuracy": "92.12%",
+                "weight": round(vit_v2_w / total_w, 3),
             },
             "frequency": {
                 **fft_result,
@@ -359,8 +333,8 @@ def detect_image(image_bytes: bytes) -> dict:
             },
         },
         "agreement": {
-            "classifiers_agree": (vit_score > 0.7 and sdxl_score > 0.7) or (vit_score < 0.3 and sdxl_score < 0.3),
-            "vit_confident": vit_confidence > 0.6,
-            "sdxl_confident": sdxl_confidence > 0.6,
+            "classifiers_agree": classifiers_agree,
+            "siglip_confident": siglip_confidence > 0.6,
+            "vit_v2_confident": vit_v2_confidence > 0.6,
         },
     }

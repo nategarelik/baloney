@@ -3,13 +3,13 @@
 #
 # Models (all run locally, zero API dependency):
 #   1. DeBERTa-v3-large  (desklib/ai-text-detector-v1.01) — RAID Benchmark #1
-#   2. RoBERTa-base      (openai-community/roberta-base-openai-detector) — GPT-2 era
-#   3. RoBERTa-ChatGPT   (Hello-SimpleAI/chatgpt-detector-roberta) — ChatGPT/GPT-4 era
+#   2. RoBERTa-Large     (SuperAnnotate/ai-detector) — 14 LLMs, 4 families (GPT/Claude/LLaMA/Mistral), 98-99% acc
+#   3. RoBERTa-ChatGPT   (Hello-SimpleAI/chatgpt-detector-roberta) — ChatGPT/GPT-4 era (HC3 dataset)
 #   4. MiniLM Embeddings (sentence-transformers/all-MiniLM-L6-v2) — sentence uniformity
 #   5. Statistical        (burstiness, TTR, transition words, etc.) — 12-feature analysis
 #
 # Designed for Mac Studio M2 Ultra with MPS acceleration.
-# Total VRAM: ~3.5GB for all models loaded simultaneously.
+# Total VRAM: ~4.5GB for all models loaded simultaneously.
 
 import torch
 import torch.nn as nn
@@ -67,16 +67,17 @@ class DesklibAIDetectionModel(PreTrainedModel):
 
 MODEL_IDS = {
     "deberta": "desklib/ai-text-detector-v1.01",
-    "roberta_openai": "openai-community/roberta-base-openai-detector",
+    "superannotate": "SuperAnnotate/ai-detector",
     "roberta_chatgpt": "Hello-SimpleAI/chatgpt-detector-roberta",
     "minilm": "sentence-transformers/all-MiniLM-L6-v2",
 }
 
 # Ensemble weights (sum to 1.0)
+# SuperAnnotate replaces roberta-base-openai — covers GPT/Claude/LLaMA/Mistral (98-99% acc)
 ENSEMBLE_WEIGHTS = {
-    "deberta": 0.35,        # RAID #1 — strongest single signal
-    "roberta_openai": 0.15, # GPT-2 era coverage
-    "roberta_chatgpt": 0.15,# ChatGPT/GPT-4 era coverage
+    "deberta": 0.30,        # RAID #1 — strongest single signal
+    "superannotate": 0.25,  # Multi-LLM coverage (14 models, 4 families)
+    "roberta_chatgpt": 0.10,# ChatGPT-specific (HC3 dataset)
     "embeddings": 0.10,     # Sentence uniformity analysis
     "statistical": 0.25,    # 12-feature linguistic analysis
 }
@@ -103,15 +104,15 @@ def load_all_models():
         _models["deberta"].eval().to(DEVICE)
         logger.info(f"  DeBERTa loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _models['deberta'].parameters()):,} params)")
 
-    # 2. RoBERTa OpenAI (standard sequence classification)
-    if "roberta_openai" not in _models:
-        mid = MODEL_IDS["roberta_openai"]
+    # 2. SuperAnnotate/ai-detector (RoBERTa-Large, 14 LLMs, 4 families, 98-99% acc)
+    if "superannotate" not in _models:
+        mid = MODEL_IDS["superannotate"]
         logger.info(f"Loading {mid}...")
         t0 = time.time()
-        _tokenizers["roberta_openai"] = AutoTokenizer.from_pretrained(mid)
-        _models["roberta_openai"] = AutoModelForSequenceClassification.from_pretrained(mid)
-        _models["roberta_openai"].eval().to(DEVICE)
-        logger.info(f"  RoBERTa-OpenAI loaded in {time.time()-t0:.1f}s")
+        _tokenizers["superannotate"] = AutoTokenizer.from_pretrained(mid)
+        _models["superannotate"] = AutoModelForSequenceClassification.from_pretrained(mid)
+        _models["superannotate"].eval().to(DEVICE)
+        logger.info(f"  SuperAnnotate multi-LLM detector loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _models['superannotate'].parameters()):,} params)")
 
     # 3. RoBERTa ChatGPT detector
     if "roberta_chatgpt" not in _models:
@@ -140,7 +141,7 @@ def load_model():
     return _models.get("deberta"), _tokenizers.get("deberta")
 
 
-MODEL_ID = "ensemble:deberta+roberta-openai+roberta-chatgpt+minilm+statistical"
+MODEL_ID = "ensemble:deberta+superannotate+roberta-chatgpt+minilm+statistical"
 
 
 # ── Individual Model Predictions ─────────────────────────────────
@@ -165,10 +166,15 @@ def _predict_deberta(text: str, max_len: int = 768) -> float:
     return probability
 
 
-def _predict_roberta_openai(text: str) -> float:
-    """RoBERTa fine-tuned on GPT-2 outputs. Returns AI probability 0-1."""
-    model = _models["roberta_openai"]
-    tokenizer = _tokenizers["roberta_openai"]
+def _predict_superannotate(text: str) -> float:
+    """
+    SuperAnnotate/ai-detector: RoBERTa-Large trained on 44K samples from 14 models
+    across 4 LLM families (GPT, Claude, LLaMA, Mistral).
+    Accuracy: ChatGPT 99.2%, GPT-4 98.5%, LLaMA-Chat 98.0%, Mistral-Chat 97.5%.
+    Returns AI probability 0-1.
+    """
+    model = _models["superannotate"]
+    tokenizer = _tokenizers["superannotate"]
 
     encoded = tokenizer(
         text[:2000], padding=True, truncation=True,
@@ -182,18 +188,23 @@ def _predict_roberta_openai(text: str) -> float:
         logits = outputs.logits
         probs = torch.softmax(logits, dim=-1)
 
-    # Label mapping: typically "Fake" is index 0 or 1
-    # This model: LABEL_0 = Real, LABEL_1 = Fake
+    # Find AI-generated label
     labels = model.config.id2label
-    fake_idx = None
+    ai_idx = None
     for idx, label in labels.items():
-        if label in ("Fake", "LABEL_1"):
-            fake_idx = int(idx)
+        if label.lower() in ("fake", "ai", "ai-generated", "label_1", "machine"):
+            ai_idx = int(idx)
             break
 
-    if fake_idx is not None:
-        return probs[0][fake_idx].item()
-    # Fallback: assume last class is "Fake"
+    if ai_idx is not None:
+        return probs[0][ai_idx].item()
+
+    # Invert human label if AI label not found
+    for idx, label in labels.items():
+        if label.lower() in ("real", "human", "label_0"):
+            return 1.0 - probs[0][int(idx)].item()
+
+    # Fallback: assume last class is AI
     return probs[0][-1].item()
 
 
@@ -307,7 +318,7 @@ def predict_text(text: str) -> dict:
 
     # Run all models
     deberta_score = _predict_deberta(text)
-    roberta_openai_score = _predict_roberta_openai(text)
+    superannotate_score = _predict_superannotate(text)
     roberta_chatgpt_score = _predict_roberta_chatgpt(text)
     embedding_score = _embedding_analysis(text)
     stat_result = compute_statistical_features(text)
@@ -319,18 +330,18 @@ def predict_text(text: str) -> dict:
     # Adjust weights if text is short (< 200 chars) — reduce embedding weight
     if len(text) < 200:
         effective_w = {
-            "deberta": 0.40,
-            "roberta_openai": 0.18,
-            "roberta_chatgpt": 0.18,
-            "embeddings": 0.04,  # Embeddings unreliable on short text
+            "deberta": 0.38,
+            "superannotate": 0.28,
+            "roberta_chatgpt": 0.12,
+            "embeddings": 0.02,  # Embeddings unreliable on short text
             "statistical": 0.20,
         }
     elif not stat_result.get("sufficient_text"):
         effective_w = {
-            "deberta": 0.40,
-            "roberta_openai": 0.18,
-            "roberta_chatgpt": 0.18,
-            "embeddings": 0.14,
+            "deberta": 0.35,
+            "superannotate": 0.28,
+            "roberta_chatgpt": 0.12,
+            "embeddings": 0.15,
             "statistical": 0.10,
         }
     else:
@@ -338,14 +349,14 @@ def predict_text(text: str) -> dict:
 
     final_score = (
         effective_w["deberta"] * deberta_score +
-        effective_w["roberta_openai"] * roberta_openai_score +
+        effective_w["superannotate"] * superannotate_score +
         effective_w["roberta_chatgpt"] * roberta_chatgpt_score +
         effective_w["embeddings"] * embedding_score +
         effective_w["statistical"] * stat_score
     )
 
     # Agreement bonus: if all 3 transformer models agree strongly, boost confidence
-    transformer_scores = [deberta_score, roberta_openai_score, roberta_chatgpt_score]
+    transformer_scores = [deberta_score, superannotate_score, roberta_chatgpt_score]
     all_high = all(s > 0.7 for s in transformer_scores)
     all_low = all(s < 0.3 for s in transformer_scores)
     if all_high or all_low:
@@ -381,7 +392,7 @@ def predict_text(text: str) -> dict:
         "inference_ms": duration_ms,
         "method_scores": {
             "deberta_raid1": round(deberta_score, 4),
-            "roberta_openai_gpt2": round(roberta_openai_score, 4),
+            "superannotate_multi_llm": round(superannotate_score, 4),
             "roberta_chatgpt": round(roberta_chatgpt_score, 4),
             "embedding_uniformity": round(embedding_score, 4),
             "statistical_12feature": round(stat_score, 4),
