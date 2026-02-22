@@ -380,16 +380,18 @@ export function VideoDetectorPanel({
               />
               <StatBox
                 label="AI Frames"
-                value={String(result.frames_flagged_ai)}
-                color={result.frames_flagged_ai > 0 ? "#d4456b" : "#16a34a"}
+                value={String(result.frames_flagged_ai ?? 0)}
+                color={
+                  (result.frames_flagged_ai ?? 0) > 0 ? "#d4456b" : "#16a34a"
+                }
               />
               <StatBox
                 label="AI Frame Rate"
-                value={`${Math.round(result.ai_frame_percentage * 100)}%`}
+                value={`${Math.round((result.ai_frame_percentage ?? 0) * 100)}%`}
                 color={
-                  result.ai_frame_percentage > 0.5
+                  (result.ai_frame_percentage ?? 0) > 0.5
                     ? "#d4456b"
-                    : result.ai_frame_percentage > 0.3
+                    : (result.ai_frame_percentage ?? 0) > 0.3
                       ? "#f59e0b"
                       : "#16a34a"
                 }
@@ -397,44 +399,46 @@ export function VideoDetectorPanel({
             </div>
 
             {/* Per-frame bar chart */}
-            <div>
-              <p className="text-secondary/50 text-xs mb-2 uppercase tracking-wider font-medium">
-                Per-Frame AI Probability
-              </p>
-              <div className="flex items-end gap-[2px] h-24">
-                {result.frame_scores.map((score, i) => {
-                  const barColor =
-                    score > 0.6
-                      ? "#d4456b"
-                      : score > 0.3
-                        ? "#f59e0b"
-                        : "#16a34a";
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-t-sm transition-all duration-500 relative group"
-                      style={{
-                        height: `${Math.max(score * 100, 4)}%`,
-                        background: barColor,
-                        opacity: 0.85,
-                      }}
-                    >
-                      <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-secondary text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        {Math.round(score * 100)}%
+            {result.frame_scores && result.frame_scores.length > 0 && (
+              <div>
+                <p className="text-secondary/50 text-xs mb-2 uppercase tracking-wider font-medium">
+                  Per-Frame AI Probability
+                </p>
+                <div className="flex items-end gap-[2px] h-24">
+                  {result.frame_scores.map((score, i) => {
+                    const barColor =
+                      score > 0.6
+                        ? "#d4456b"
+                        : score > 0.3
+                          ? "#f59e0b"
+                          : "#16a34a";
+                    return (
+                      <div
+                        key={i}
+                        className="flex-1 rounded-t-sm transition-all duration-500 relative group"
+                        style={{
+                          height: `${Math.max(score * 100, 4)}%`,
+                          background: barColor,
+                          opacity: 0.85,
+                        }}
+                      >
+                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-secondary text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                          {Math.round(score * 100)}%
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between text-[10px] text-secondary/30 mt-1">
+                  <span>Frame 1</span>
+                  <span>Frame {result.frame_scores.length}</span>
+                </div>
               </div>
-              <div className="flex justify-between text-[10px] text-secondary/30 mt-1">
-                <span>Frame 1</span>
-                <span>Frame {result.frame_scores.length}</span>
-              </div>
-            </div>
+            )}
 
             {/* Tier 2: Dimmed duration + model info */}
             <div className="flex justify-between text-secondary/30 text-xs opacity-60">
-              <span>Duration: {result.duration_seconds}s</span>
+              <span>Duration: {result.duration_seconds ?? 0}s</span>
               <span>Model: {result.model_used}</span>
             </div>
           </div>

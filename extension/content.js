@@ -867,6 +867,11 @@ async function analyzeVideo(video) {
       };
     }
 
+    // Add fields expected by VideoDetectionResult on the analyze page
+    aggregatedResult.frame_scores = confidences;
+    aggregatedResult.frames_flagged_ai = aiCount;
+    aggregatedResult.ai_frame_percentage = aiRatio;
+    aggregatedResult.duration_seconds = video.duration || 0;
     aggregatedResult.sourceUrl = video.poster || video.src;
     aggregatedResult.sourcePageUrl = window.location.href;
     video.dataset.baloneyScanned = aggregatedResult.verdict;
