@@ -2,7 +2,7 @@
 // Handles image fetching (bypasses CORS via host_permissions), API communication,
 // storage defaults, migration, and sidepanel management.
 
-const API_URL = "https://trustlens-nu.vercel.app";
+const API_URL = "https://baloney.app";
 const API_TIMEOUT_MS = 8000;
 
 // Default storage values for v2.0
@@ -103,7 +103,7 @@ async function detectImage(base64Image, platform, sourceDomain) {
   }
 }
 
-// Detect with retry + safe fallback — real API first, retry on network error, fallback on persistent failure
+// Detect with retry — real API only, no fake fallback
 async function detectWithFallback(base64Image, platform, sourceDomain) {
   const maxRetries = 2;
   let lastError;
@@ -121,11 +121,13 @@ async function detectWithFallback(base64Image, platform, sourceDomain) {
     }
   }
 
-  console.warn(
-    "[Baloney] API unavailable after retries, using safe fallback:",
-    lastError?.message,
-  );
-  return { verdict: "human", confidence: 0, model: "offline-fallback" };
+  console.warn("[Baloney] API unavailable after retries:", lastError?.message);
+  return {
+    verdict: "unavailable",
+    confidence: 0,
+    model: "api-unavailable",
+    error: lastError?.message || "Detection API unreachable",
+  };
 }
 
 // Extract domain from URL
@@ -371,10 +373,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } catch (error) {
         console.warn("[Baloney] Text API unavailable:", error.message);
         sendResponse({
-          verdict: "human",
+          verdict: "unavailable",
           confidence: 0,
           ai_probability: 0,
-          model: "offline-fallback",
+          model: "api-unavailable",
+          error: error.message || "Detection API unreachable",
         });
       }
     });

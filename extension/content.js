@@ -237,6 +237,7 @@ const VERDICT_COLORS = {
   heavy_edit: "#f97316",
   light_edit: "#f59e0b",
   human: "#16a34a",
+  unavailable: "#94a3b8",
 };
 
 const VERDICT_LABELS = {
@@ -244,6 +245,7 @@ const VERDICT_LABELS = {
   heavy_edit: "Heavy Edit",
   light_edit: "Light Edit",
   human: "Human Written",
+  unavailable: "Unavailable",
 };
 
 // ──────────────────────────────────────────────
@@ -378,7 +380,7 @@ function buildInsightHTML(result, type) {
     sourceUrl: result.sourceUrl,
     sourcePageUrl: result.sourcePageUrl,
   });
-  const analyzeUrl = `https://trustlens-nu.vercel.app/analyze?result=${encodeURIComponent(resultData)}`;
+  const analyzeUrl = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
   html += `<a href="${analyzeUrl}" target="_blank" class="baloney-insight__fulldata">View Full Data \u2192</a>`;
 
   return html;
@@ -1234,7 +1236,7 @@ function showTextToastResult(result, textPreview) {
     "&lt;",
   );
   const resultData = JSON.stringify({ result, type: "text" });
-  const analyzeUrl = `https://trustlens-nu.vercel.app/analyze?result=${encodeURIComponent(resultData)}`;
+  const analyzeUrl = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
 
   card.style.borderLeftColor = color;
 
@@ -1541,7 +1543,7 @@ window.addEventListener("baloney-update-sites", (e) => {
 // ──────────────────────────────────────────────
 
 if (
-  window.location.hostname === "trustlens-nu.vercel.app" ||
+  window.location.hostname === "baloney.app" ||
   window.location.hostname === "localhost"
 ) {
   chrome.storage.local.get("userId", (data) => {

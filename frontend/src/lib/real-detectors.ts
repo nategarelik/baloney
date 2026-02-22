@@ -15,11 +15,7 @@ import type {
   FeatureVector,
   MethodScore,
 } from "./types";
-import {
-  computeTextStats,
-  // mockTextResult,
-  // mockImageResult,
-} from "./mock-detectors";
+import { computeTextStats } from "./mock-detectors";
 
 // ──────────────────────────────────────────────
 // Helpers

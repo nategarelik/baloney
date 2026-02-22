@@ -36,10 +36,10 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
           scannedRef.current = true;
           setState("scanning");
 
-          // Timeout fallback: 5s → use curated data
+          // Timeout: 45s to allow real API detection to complete
           const timeout = setTimeout(() => {
             setState("complete");
-          }, 5000);
+          }, 45000);
 
           onScan(post.id)
             .then(() => {
@@ -52,29 +52,18 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
             });
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
   }, [post.id, onScan]);
 
-  // Use API result if available, otherwise fallback to curated data
+  // Only show real API detection results — no fake fallbacks
   const displayResult: DetectionResult | null =
-    result ??
-    (state === "complete"
-      ? {
-          verdict: post.isAiGenerated ? "ai_generated" : post.expectedConfidence < 0.55 ? "light_edit" : "human",
-          confidence: post.expectedConfidence,
-          primary_score: post.expectedConfidence,
-          secondary_score: post.expectedConfidence,
-          model_used: "fallback",
-          ensemble_used: false,
-          trust_score: post.isAiGenerated ? 1 - post.expectedConfidence : post.expectedConfidence,
-          classification: post.isAiGenerated ? "ai_generated" as const : post.expectedConfidence < 0.55 ? "light_edit" as const : "human" as const,
-          edit_magnitude: post.isAiGenerated ? 0.8 : 0,
-        }
-      : null);
+    result && result.model_used !== "error" ? result : null;
+
+  const showError = result?.model_used === "error" && state === "complete";
 
   const PlatformIcon = post.platform === "instagram" ? Instagram : XIcon;
 
@@ -132,6 +121,15 @@ export function FeedPost({ post, onScan, result }: FeedPostProps) {
               confidence={displayResult.confidence}
               animate
             />
+          </div>
+        )}
+
+        {/* Error state — API unavailable */}
+        {showError && (
+          <div className="absolute top-3 right-3">
+            <span className="inline-flex items-center gap-1 rounded-full bg-slate-600/80 border border-slate-400/30 px-2.5 py-1 text-xs font-medium text-slate-200">
+              Detection unavailable
+            </span>
           </div>
         )}
       </div>
