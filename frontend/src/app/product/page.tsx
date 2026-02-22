@@ -90,7 +90,7 @@ const supportedSites = [
     url: "https://linkedin.com",
     color: "#0A66C2",
     logo: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=64",
-    scale: 1.6,
+    scale: 1.3,
   },
   {
     name: "Medium",
