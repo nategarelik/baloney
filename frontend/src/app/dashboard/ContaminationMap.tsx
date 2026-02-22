@@ -24,9 +24,6 @@ function platformLabel(id: string): string {
     substack: "Substack",
     medium: "Medium",
     threads: "Threads",
-    bluesky: "Bluesky",
-    mastodon: "Mastodon",
-    hackernews: "HN",
     other: "Other",
   };
   return labels[id] ?? id;

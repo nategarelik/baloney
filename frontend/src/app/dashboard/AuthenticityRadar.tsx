@@ -27,9 +27,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   substack: "#FF6719",
   medium: "#000000",
   threads: "#000000",
-  bluesky: "#0085FF",
-  mastodon: "#6364FF",
-  hackernews: "#FF6600",
   other: "#6b7280",
 };
 

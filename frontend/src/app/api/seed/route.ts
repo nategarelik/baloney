@@ -12,10 +12,8 @@ const PLATFORMS: Record<string, { weight: number; ai_rate: number }> = {
   tiktok: { weight: 0.08, ai_rate: 0.45 },
   linkedin: { weight: 0.07, ai_rate: 0.15 },
   threads: { weight: 0.05, ai_rate: 0.32 },
-  bluesky: { weight: 0.04, ai_rate: 0.2 },
   substack: { weight: 0.03, ai_rate: 0.18 },
   medium: { weight: 0.03, ai_rate: 0.22 },
-  mastodon: { weight: 0.02, ai_rate: 0.28 },
   manual_upload: { weight: 0.08, ai_rate: 0.5 },
   demo_feed: { weight: 0.04, ai_rate: 0.4 },
 };
