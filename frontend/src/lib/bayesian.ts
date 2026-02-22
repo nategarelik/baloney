@@ -2,15 +2,28 @@
 // Used for display-level statistical rigor — raw detection outputs stay unchanged.
 
 import type { Verdict } from "./types";
+import { DETECTION_CONFIG } from "./detection-config";
 
 /** Minimum confidence to display as AI/human verdict. Below this → "inconclusive" */
-export const CONFIDENCE_FLOOR = 0.60;
+export const CONFIDENCE_FLOOR = DETECTION_CONFIG.bayesian.confidenceFloor;
 
-/** Model accuracy priors (from testing/literature) */
-const MODEL_PRIORS: Record<string, { accuracy: number; falsePositiveRate: number }> = {
-  text: { accuracy: 0.78, falsePositiveRate: 0.15 },
-  image: { accuracy: 0.85, falsePositiveRate: 0.10 },
-  video: { accuracy: 0.80, falsePositiveRate: 0.12 },
+/** Model accuracy priors — sourced from evaluation data (text) and heuristics (image/video) */
+const MODEL_PRIORS: Record<
+  string,
+  { accuracy: number; falsePositiveRate: number }
+> = {
+  text: {
+    accuracy: DETECTION_CONFIG.bayesian.priors.text.accuracy,
+    falsePositiveRate: DETECTION_CONFIG.bayesian.priors.text.falsePositiveRate,
+  },
+  image: {
+    accuracy: DETECTION_CONFIG.bayesian.priors.image.accuracy,
+    falsePositiveRate: DETECTION_CONFIG.bayesian.priors.image.falsePositiveRate,
+  },
+  video: {
+    accuracy: DETECTION_CONFIG.bayesian.priors.video.accuracy,
+    falsePositiveRate: DETECTION_CONFIG.bayesian.priors.video.falsePositiveRate,
+  },
 };
 
 /**
@@ -45,7 +58,9 @@ export function bayesianPosterior(
   const pScoreGivenAI = confidence;
   const pAI = prior.accuracy;
   const pHuman = 1 - pAI;
-  const pScoreGivenHuman = prior.falsePositiveRate * (1 - confidence) + confidence * 0.1;
+  const pScoreGivenHuman =
+    prior.falsePositiveRate * (1 - confidence) +
+    confidence * DETECTION_CONFIG.bayesian.likelihoodHumanWeight;
 
   const numerator = pScoreGivenAI * pAI;
   const denominator = numerator + pScoreGivenHuman * pHuman;
@@ -74,7 +89,13 @@ export function bayesianAiRate(
   let weightedAiCount = 0;
   for (const scan of scans) {
     if (isAiWithFloor(scan.verdict, scan.confidence)) {
-      const contentType = (scan.content_type === "image" ? "image" : scan.content_type === "video" ? "video" : "text") as "text" | "image" | "video";
+      const contentType = (
+        scan.content_type === "image"
+          ? "image"
+          : scan.content_type === "video"
+            ? "video"
+            : "text"
+      ) as "text" | "image" | "video";
       weightedAiCount += bayesianPosterior(scan.confidence, contentType);
     }
   }

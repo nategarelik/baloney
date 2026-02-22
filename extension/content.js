@@ -264,6 +264,7 @@ function updatePageStats(type, verdict) {
 // Verdict helpers
 // ──────────────────────────────────────────────
 
+// TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.dotColors
 const VERDICT_COLORS = {
   ai_generated: "#d4456b",
   heavy_edit: "#f97316",
@@ -290,24 +291,31 @@ function getTextReasons(result) {
   if (!fv) return reasons;
 
   if (fv.burstiness !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.burstiness < 0.2)
       reasons.push("Sentence lengths are very uniform, typical of AI writing");
+    // TODO: consider adding to detection-config.ts
     else if (fv.burstiness > 0.5)
       reasons.push("Varied sentence rhythm suggests human writing style");
   }
   if (fv.type_token_ratio !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.type_token_ratio < 0.4)
       reasons.push("Vocabulary is repetitive, a common AI pattern");
+    // TODO: consider adding to detection-config.ts
     else if (fv.type_token_ratio > 0.7)
       reasons.push("Rich vocabulary diversity indicates human authorship");
   }
   if (fv.perplexity !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.perplexity < 80)
       reasons.push("Text is highly predictable, consistent with AI generation");
+    // TODO: consider adding to detection-config.ts
     else if (fv.perplexity > 150)
       reasons.push("Unpredictable word choices suggest human creativity");
   }
   if (fv.repetition_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.repetition_score > 0.6)
       reasons.push("High phrase repetition detected");
   }
@@ -317,22 +325,28 @@ function getTextReasons(result) {
 function getImageReasons(result) {
   const reasons = [];
   if (result.primary_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.primary_score > 0.7)
       reasons.push("Visual patterns strongly match AI generation signatures");
+    // TODO: consider adding to detection-config.ts
     else if (result.primary_score < 0.3)
       reasons.push("Visual patterns consistent with authentic photography");
   }
   if (result.secondary_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.secondary_score > 0.6)
       reasons.push("Frequency analysis shows unusually smooth gradients");
+    // TODO: consider adding to detection-config.ts
     else if (result.secondary_score < 0.3)
       reasons.push("Natural noise patterns detected in image data");
   }
   if (result.edit_magnitude !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.edit_magnitude > 0.7)
       reasons.push("Significant digital manipulation detected");
   }
   if (result.trust_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.trust_score > 0.75) reasons.push("High authenticity confidence");
   }
   return reasons;
@@ -376,6 +390,7 @@ function buildInsightHTML(result, type) {
     html += `<div class="baloney-insight__sentences">`;
     result.sentence_scores.slice(0, 5).forEach((s) => {
       const pct = Math.round(s.ai_probability * 100);
+      // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
       const barColor =
         s.ai_probability > 0.6
           ? "#d4456b"
@@ -423,6 +438,7 @@ function buildInsightHTML(result, type) {
 // ──────────────────────────────────────────────
 
 function getDotColor(confidence) {
+  // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high / medium
   if (confidence >= 0.8) return "#d4456b"; // red/pink — high confidence AI
   if (confidence >= 0.7) return "#f97316"; // orange
   return "#f59e0b"; // amber — lower confidence
@@ -430,11 +446,13 @@ function getDotColor(confidence) {
 
 function getDotOpacity(confidence) {
   // Never 100% opacity — max ~0.85
+  // TODO: consider adding to detection-config.ts
   return Math.min(0.55 + confidence * 0.3, 0.85);
 }
 
 function createDetectionDot(el, result) {
   // Only show dot when confidence >= 0.5 (always show for ai_generated regardless)
+  // TODO: sync with detection-config.ts → DETECTION_CONFIG.bayesian.confidenceFloor
   if (result.confidence < 0.5 && result.verdict !== "ai_generated") return null;
 
   const confidence = result.confidence || 0;
@@ -834,6 +852,7 @@ function captureVideoFrame(video, seekTime) {
     } else {
       video.addEventListener("seeked", onSeeked);
       // Timeout in case seeking fails
+      // TODO: consider adding to detection-config.ts
       setTimeout(() => {
         video.removeEventListener("seeked", onSeeked);
         resolve(null);
@@ -897,18 +916,34 @@ async function analyzeVideo(video) {
         }
       }
     } else if (frameUrls.length === 0) {
-      // Fallback: capture current frame
+      // Fallback: capture current frame (even if readyState < 2)
       try {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || video.clientWidth || 320;
-        canvas.height = video.videoHeight || video.clientHeight || 240;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        frameUrls.push(canvas.toDataURL("image/jpeg", 0.7));
+        const cw = video.videoWidth || video.clientWidth;
+        const ch = video.videoHeight || video.clientHeight;
+        if (cw > 0 && ch > 0) {
+          const canvas = document.createElement("canvas");
+          canvas.width = cw;
+          canvas.height = ch;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+          // Reject blank frames (all-black canvas produces a very short data URL)
+          if (dataUrl.length > 1000) {
+            frameUrls.push(dataUrl);
+          }
+        }
       } catch {
-        video.dataset.baloneyScanned = "error";
-        return;
+        // Cross-origin or no frame data — fall through to poster/src check below
       }
+    }
+
+    // If still no frames but we have a poster URL or video src, use that
+    if (frameUrls.length === 0 && video.poster) {
+      frameUrls.push(video.poster);
+    }
+    if (frameUrls.length === 0 && video.src && !video.src.startsWith("blob:")) {
+      // Can't analyze blob URLs as images, but regular URLs work
+      frameUrls.push(video.src);
     }
 
     if (frameUrls.length === 0) {
@@ -961,15 +996,18 @@ async function analyzeVideo(video) {
 
     // Determine video-level verdict from frame consensus
     let aggregatedResult;
+    // TODO: sync with detection-config.ts → DETECTION_CONFIG.image.verdictThresholds.aiGenerated
     if (aiRatio > 0.5 || avgConfidence > 0.65) {
       aggregatedResult = {
         ...frameResults[0],
         verdict: "ai_generated",
+        // TODO: consider adding to detection-config.ts
         confidence: Math.max(avgConfidence, 0.7),
         model_used: `multi-frame(${frameResults.length}):${frameResults[0].model_used}`,
         frames_analyzed: frameResults.length,
         frames_flagged: aiCount,
       };
+      // TODO: sync with detection-config.ts → DETECTION_CONFIG.image.verdictThresholds.heavyEdit
     } else if (aiRatio > 0.2 || avgConfidence > 0.45) {
       aggregatedResult = {
         ...frameResults[0],
@@ -1047,6 +1085,7 @@ function autoScanTextNodes(elements) {
   elements.forEach((el) => {
     if (el.dataset.baloneyTextScanned) return;
     const text = (el.innerText || "").trim();
+    // TODO: consider adding to detection-config.ts
     if (text.length < 100) return;
 
     el.dataset.baloneyTextScanned = "1";
@@ -1215,24 +1254,31 @@ const viewportObserver = new IntersectionObserver(
             analyzeImage(el);
           }
         } else if (el.tagName === "VIDEO") {
-          const w = el.videoWidth || el.clientWidth;
-          if (w > 200 && !el.dataset.baloneyScanned) {
-            if (el.readyState >= 2) {
+          if (el.dataset.baloneyScanned) {
+            // Already scanned or pending — skip
+          } else if (el.readyState >= 2) {
+            // Frame data available — check size and analyze
+            const w = el.videoWidth || el.clientWidth;
+            if (w > 200) {
               analyzeVideo(el);
-            } else {
-              // Video hasn't loaded metadata yet — retry once on loadedmetadata
-              const retries = parseInt(el.dataset.baloneyRetries || "0", 10);
-              if (retries < 1) {
-                el.dataset.baloneyRetries = String(retries + 1);
-                el.addEventListener(
-                  "loadedmetadata",
-                  () => {
-                    if (!el.dataset.baloneyScanned)
-                      viewportObserver.observe(el);
-                  },
-                  { once: true },
-                );
-              }
+            }
+          } else {
+            // Video not ready yet — schedule retries via canplay/loadeddata
+            const retries = parseInt(el.dataset.baloneyRetries || "0", 10);
+            if (retries < 3) {
+              el.dataset.baloneyRetries = String(retries + 1);
+              const reobserve = () => {
+                if (!el.dataset.baloneyScanned) viewportObserver.observe(el);
+              };
+              // Listen for both events — whichever fires first
+              el.addEventListener("loadeddata", reobserve, { once: true });
+              el.addEventListener("canplay", reobserve, { once: true });
+              // Timer fallback for videos whose events already fired
+              // TODO: consider adding to detection-config.ts
+              setTimeout(reobserve, 2000);
+            } else if (el.poster || el.clientWidth > 200) {
+              // Last resort: try to analyze with whatever we have (poster/current frame)
+              analyzeVideo(el);
             }
           }
         }
@@ -1427,6 +1473,7 @@ function createToastCardShell() {
   return card;
 }
 
+// TODO: consider adding to detection-config.ts
 function startAutoDismiss(ms = 12000) {
   if (toastAutoDismissTimer) clearTimeout(toastAutoDismissTimer);
   toastAutoDismissTimer = setTimeout(() => dismissTextToast(true), ms);
@@ -1481,6 +1528,7 @@ function showTextToastResult(result, textPreview) {
     sentencesHTML = `<div class="baloney-toast-card__sentences">`;
     visibleSentences.forEach((s, i) => {
       const pct = Math.round(s.ai_probability * 100);
+      // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
       const barColor =
         s.ai_probability > 0.6
           ? "#d4456b"
@@ -1542,6 +1590,7 @@ function showTextToastResult(result, textPreview) {
       methodsHTML = '<div class="baloney-toast-methods">';
       methods.forEach(([, m]) => {
         const pct = Math.round(m.score * 100);
+        // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
         const mColor =
           m.score > 0.65 ? "#d4456b" : m.score > 0.35 ? "#f59e0b" : "#16a34a";
         methodsHTML += `<div class="baloney-toast-method-row">
@@ -1597,6 +1646,7 @@ function showTextToastResult(result, textPreview) {
       const container = moreBtn.parentElement;
       sentences.slice(3).forEach((s, i) => {
         const pct = Math.round(s.ai_probability * 100);
+        // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
         const barColor =
           s.ai_probability > 0.6
             ? "#d4456b"
@@ -1854,6 +1904,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         methodsHTML = '<div class="baloney-toast-methods">';
         methods.forEach(([, m]) => {
           const pct = Math.round(m.score * 100);
+          // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
           const mColor =
             m.score > 0.65 ? "#d4456b" : m.score > 0.35 ? "#f59e0b" : "#16a34a";
           methodsHTML += `<div class="baloney-toast-method-row">
