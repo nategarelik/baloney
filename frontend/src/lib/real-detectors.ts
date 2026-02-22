@@ -919,10 +919,55 @@ export async function realTextDetection(
       };
     }
 
-    // Stage 3 (HF Ensemble) commented out — primary APIs only
-    throw new Error(
-      "Primary text detection APIs unavailable (SynthID + Pangram both failed)",
+    // Stage 3: Statistical-only fallback when both primary APIs are unavailable
+    console.warn(
+      "[Baloney] Primary text APIs unavailable, using statistical fallback",
     );
+    const statsSignal = methodD_statistical(text, textStats);
+    const featureVector = buildFeatureVector(statsSignal);
+    const statMapping = mapVerdict(statsSignal.signal, text.length);
+
+    return {
+      verdict: statMapping.verdict,
+      confidence: statMapping.confidence,
+      ai_probability: statsSignal.signal,
+      model_used: "statistical-only:12-features",
+      text_stats: textStats,
+      caveat:
+        "Primary APIs unavailable. Result based on statistical analysis only — lower confidence.",
+      trust_score: statMapping.trust_score,
+      classification: statMapping.verdict,
+      edit_magnitude: statMapping.edit_magnitude,
+      feature_vector: featureVector,
+      sentence_scores: [],
+      method_scores: {
+        pangram: {
+          score: 0,
+          weight: 0.5,
+          label: "Pangram (99.85%)",
+          available: false,
+          status: "unavailable",
+          tier: "primary" as const,
+        },
+        synthid_text: {
+          score: 0,
+          weight: 0.3,
+          label: "SynthID Text (Google)",
+          available: false,
+          status: "unavailable",
+          tier: "watermark" as const,
+        },
+        statistical: {
+          score: statsSignal.signal,
+          weight: 1.0,
+          label: "Statistical Analysis (12 features)",
+          available: true,
+          status: "success",
+          tier: "fallback" as const,
+        },
+      },
+      synthid_text_result: null,
+    };
   } catch (error) {
     console.error("[Baloney] Real text detection failed:", error);
     throw error;
@@ -1313,7 +1358,6 @@ async function methodS_sightEngine(
     }
 
     const data = await response.json();
-    console.log("[Baloney] SightEngine response:", JSON.stringify(data));
     return data.type?.ai_generated ?? null;
   } catch (err) {
     console.error("[Baloney] SightEngine image error:", err);
@@ -1349,7 +1393,6 @@ async function methodS_sightEngineURL(
 
     if (!response.ok) throw new Error(`SightEngine URL ${response.status}`);
     const data = await response.json();
-    console.log("[Baloney] SightEngine URL response:", JSON.stringify(data));
     return data.type?.ai_generated ?? null;
   } catch (err) {
     console.error("[Baloney] SightEngine URL error:", err);

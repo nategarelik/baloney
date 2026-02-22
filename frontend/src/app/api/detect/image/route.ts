@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { realImageDetection } from "@/lib/real-detectors";
-import { errorResponse } from "@/lib/api-utils";
+import { errorResponse, validatePlatform } from "@/lib/api-utils";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      image,
-      user_id,
-      platform = "manual_upload",
-      source_domain = null,
-    } = body;
+    const { image, user_id, source_domain = null } = body;
+    const platform = validatePlatform(body.platform);
 
     if (!image || typeof image !== "string") {
       return errorResponse("No image provided", 400);

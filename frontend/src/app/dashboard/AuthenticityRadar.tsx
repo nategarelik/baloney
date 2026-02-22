@@ -20,13 +20,13 @@ const PLATFORM_COLORS: Record<string, string> = {
   x: "#1DA1F2",
   reddit: "#FF4500",
   instagram: "#E1306C",
-  tiktok: "#000000",
+  tiktok: "#00f2ea",
   facebook: "#1877F2",
   manual_upload: "#8B5CF6",
   linkedin: "#0A66C2",
   substack: "#FF6719",
-  medium: "#000000",
-  threads: "#000000",
+  medium: "#292929",
+  threads: "#8134AF",
   other: "#6b7280",
 };
 

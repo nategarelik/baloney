@@ -27,6 +27,7 @@ import { FeatureRadar } from "./FeatureRadar";
 import { ProvenanceCard } from "./ProvenanceCard";
 import { ExportActions } from "./ExportActions";
 import { ScanMetadata } from "./ScanMetadata";
+import { DetectionInsights } from "./DetectionInsights";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -94,7 +95,12 @@ function AnalyzeContent() {
     if (!resultParam) return;
 
     try {
-      const decoded = decodeURIComponent(resultParam);
+      let decoded: string;
+      try {
+        decoded = decodeURIComponent(resultParam);
+      } catch {
+        decoded = resultParam; // searchParams.get() already decoded it
+      }
       const parsed = JSON.parse(decoded);
       const result = parsed.result || parsed;
       const type = parsed.type;
@@ -460,6 +466,17 @@ function TextPanel({
                 confidenceCapped={result.confidenceCapped}
               />
             )}
+
+          {/* Detection Insights */}
+          <DetectionInsights
+            type="text"
+            confidence={result.confidence}
+            verdict={result.verdict}
+            modelUsed={result.model_used}
+            primaryAvailable={result.primaryAvailable}
+            confidenceCapped={result.confidenceCapped}
+            methodScores={result.method_scores}
+          />
 
           {/* Pangram Segment Analysis */}
           <PangramWindows windows={result.pangram_windows} />

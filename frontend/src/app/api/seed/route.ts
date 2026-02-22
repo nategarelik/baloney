@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
 
-const SEED_SECRET = process.env.SEED_SECRET || "baloney-hackathon-2026";
+const SEED_SECRET = process.env.SEED_SECRET;
+if (!SEED_SECRET) {
+  console.error("[Baloney] SEED_SECRET env var is required");
+}
 
 const PLATFORMS: Record<string, { weight: number; ai_rate: number }> = {
   instagram: { weight: 0.2, ai_rate: 0.35 },
@@ -163,9 +166,8 @@ function generateScan(userId: string, daysAgo: number): ScanRow {
 }
 
 export async function POST(req: NextRequest) {
-  const secret =
-    req.nextUrl.searchParams.get("secret") || req.headers.get("x-seed-secret");
-  if (secret !== SEED_SECRET) {
+  const secret = req.headers.get("x-seed-secret");
+  if (!SEED_SECRET || !secret || secret !== SEED_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

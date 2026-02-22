@@ -17,6 +17,7 @@ import { EditMagnitudeGauge } from "./EditMagnitudeGauge";
 import { ProvenanceCard } from "./ProvenanceCard";
 import { ExportActions } from "./ExportActions";
 import { ScanMetadata } from "./ScanMetadata";
+import { DetectionInsights } from "./DetectionInsights";
 
 const VERDICT_LABELS: Record<string, string> = {
   ai_generated: "AI Generated",
@@ -370,6 +371,19 @@ export function ImageDetectorPanel({
             confidenceCapped={result.confidenceCapped}
           />
         )}
+
+      {/* Detection Insights */}
+      {result && !loading && (
+        <DetectionInsights
+          type="image"
+          confidence={result.confidence}
+          verdict={result.verdict}
+          modelUsed={result.model_used}
+          primaryAvailable={result.primaryAvailable}
+          confidenceCapped={result.confidenceCapped}
+          methodScores={result.method_scores}
+        />
+      )}
 
       {/* Provenance */}
       {result && !loading && (

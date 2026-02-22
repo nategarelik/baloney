@@ -477,7 +477,7 @@ All features described above are implemented in the codebase:
 
 **Next.js (Frontend):**
 ```bash
-curl -X POST https://trustlens-nu.vercel.app/api/detect/phishing \
+curl -X POST https://baloney.app/api/detect/phishing \
   -H "Content-Type: application/json" \
   -d '{"html": "<html>...</html>", "url": "https://suspicious-site.tk/login"}'
 ```
