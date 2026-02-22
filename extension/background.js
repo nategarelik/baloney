@@ -392,37 +392,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
-  // Open sidepanel with full detection result data
+  // Open analyze page with full detection result data
   if (message.type === "open-sidepanel") {
     (async () => {
       try {
-        // Store data for sidepanel to read
-        await chrome.storage.local.set({ sidepanelData: message.data });
-
-        // Try Chrome sidepanel API first (Chrome 116+)
-        if (chrome.sidePanel && chrome.sidePanel.open) {
-          const tabId = sender.tab?.id;
-          if (tabId) {
-            await chrome.sidePanel.open({ tabId });
-            sendResponse({ ok: true });
-            return;
-          }
-        }
-
-        // Fallback: open in new tab
+        // Always open the analyze page in a new tab with result data
         const encoded = encodeURIComponent(JSON.stringify(message.data));
         const url = `${API_URL}/analyze?result=${encoded}`;
         chrome.tabs.create({ url });
+
+        // Also store for sidepanel in case user opens it later
+        await chrome.storage.local.set({ sidepanelData: message.data });
         sendResponse({ ok: true });
       } catch (err) {
-        console.warn(
-          "[Baloney] Sidepanel open failed, using tab fallback:",
-          err.message,
-        );
-        const encoded = encodeURIComponent(JSON.stringify(message.data));
-        const url = `${API_URL}/analyze?result=${encoded}`;
-        chrome.tabs.create({ url });
-        sendResponse({ ok: true });
+        console.warn("[Baloney] Open analyze failed:", err.message);
+        sendResponse({ ok: false });
       }
     })();
     return true; // async
