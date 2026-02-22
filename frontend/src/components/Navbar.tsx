@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
 
@@ -22,8 +22,10 @@ const CHROME_STORE_URL = "https://chromewebstore.google.com/";
 export function Navbar() {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileRef = useRef<HTMLDivElement>(null);
 
   const isLanding = pathname === "/";
   const isDashboardActive = pathname.startsWith("/dashboard");
@@ -36,6 +38,12 @@ export function Navbar() {
         !dropdownRef.current.contains(e.target as Node)
       ) {
         setDropdownOpen(false);
+      }
+      if (
+        mobileRef.current &&
+        !mobileRef.current.contains(e.target as Node)
+      ) {
+        setMobileOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -71,6 +79,7 @@ export function Navbar() {
 
   return (
     <div
+      ref={mobileRef}
       className="fixed top-4 left-0 right-0 z-50 flex justify-center px-6"
       style={{
         transform: hidden ? "translateY(-120%)" : "translateY(0)",
@@ -78,7 +87,7 @@ export function Navbar() {
       }}
     >
       <nav
-        className="w-full max-w-5xl flex items-center justify-between px-6 py-3 rounded-2xl"
+        className="w-full max-w-5xl flex items-center justify-between px-6 py-3 rounded-2xl relative"
         style={{
           background: "rgba(240, 230, 202, 0.65)",
           backdropFilter: "blur(16px)",
@@ -104,8 +113,8 @@ export function Navbar() {
           <span className="font-display text-xl text-secondary">Baloney</span>
         </Link>
 
-        {/* Nav Links + CTA */}
-        <div className="flex items-center gap-8">
+        {/* Desktop Nav Links + CTA */}
+        <div className="hidden md:flex items-center gap-8">
           {NAV_LINKS.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -201,6 +210,82 @@ export function Navbar() {
             Get Baloney for Free
           </a>
         </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="md:hidden p-2 text-secondary/70 hover:text-secondary transition-colors"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+        >
+          {mobileOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
+
+        {/* Mobile panel */}
+        {mobileOpen && (
+          <div
+            className="absolute top-full left-0 right-0 mt-2 mx-2 rounded-xl py-3 px-4 border border-secondary/10 md:hidden"
+            style={{
+              background: "rgba(240, 230, 202, 0.95)",
+              backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              boxShadow:
+                "0 8px 24px rgba(74,55,40,0.15), 0 2px 8px rgba(74,55,40,0.08)",
+            }}
+          >
+            <div className="flex flex-col gap-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    pathname === link.href
+                      ? "text-secondary bg-secondary/5"
+                      : "text-secondary/60 hover:text-secondary hover:bg-secondary/5",
+                  )}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              {/* Dashboards section */}
+              <p className="px-3 pt-2 pb-1 text-xs text-secondary/40 uppercase tracking-wider">
+                Dashboards
+              </p>
+              {DASHBOARD_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    "px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                    pathname === item.href
+                      ? "text-secondary bg-secondary/5"
+                      : "text-secondary/60 hover:text-secondary hover:bg-secondary/5",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+              {/* CTA */}
+              <a
+                href={CHROME_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileOpen(false)}
+                className="mt-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-full text-center hover:bg-primary/90 btn-primary-3d"
+              >
+                Get Baloney for Free
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
     </div>
   );

@@ -767,6 +767,8 @@ async function backendTextDetection(
       edit_magnitude: mapping.edit_magnitude,
       feature_vector: featureVector,
       sentence_scores: sentenceScores,
+      primaryAvailable: true,
+      confidenceCapped: false,
     };
   } catch (error) {
     console.warn("[Baloney] Backend unavailable, falling back:", error);
@@ -817,6 +819,8 @@ async function backendImageDetection(
       trust_score: mapping.trust_score,
       classification: mapping.verdict,
       edit_magnitude: mapping.edit_magnitude,
+      primaryAvailable: true,
+      confidenceCapped: false,
     };
   } catch (error) {
     console.warn(
@@ -895,6 +899,7 @@ export async function realTextDetection(
             label: "Pangram (99.85%)",
             available: false,
             status: "not_run",
+            tier: "primary",
           },
           synthid_text: {
             score: 1.0,
@@ -902,6 +907,7 @@ export async function realTextDetection(
             label: "SynthID (Google Watermark)",
             available: true,
             status: "success",
+            tier: "watermark",
           },
           roberta: {
             score: 0,
@@ -909,6 +915,7 @@ export async function realTextDetection(
             label: "RoBERTa GPT-2",
             available: false,
             status: "not_run",
+            tier: "fallback",
           },
           chatgpt: {
             score: 0,
@@ -916,6 +923,7 @@ export async function realTextDetection(
             label: "ChatGPT Detector",
             available: false,
             status: "not_run",
+            tier: "fallback",
           },
           embeddings: {
             score: 0,
@@ -923,6 +931,7 @@ export async function realTextDetection(
             label: "Sentence Embeddings",
             available: false,
             status: "not_run",
+            tier: "fallback",
           },
           statistical: {
             score: stats.signal,
@@ -930,8 +939,11 @@ export async function realTextDetection(
             label: "Statistical (12 features)",
             available: true,
             status: "success",
+            tier: "fallback",
           },
         },
+        primaryAvailable: true,
+        confidenceCapped: false,
         synthid_text_result: "watermarked",
       };
     }
@@ -981,6 +993,7 @@ export async function realTextDetection(
           label: "Pangram (99.85%)",
           available: true,
           status: "success",
+          tier: "primary",
         },
         synthid_text: {
           score: synthidAvailable
@@ -992,6 +1005,7 @@ export async function realTextDetection(
           label: "SynthID (Google Watermark)",
           available: synthidAvailable,
           status: synthidAvailable ? "success" : "unavailable",
+          tier: "watermark",
         },
         roberta: {
           score: 0,
@@ -999,6 +1013,7 @@ export async function realTextDetection(
           label: "RoBERTa GPT-2",
           available: false,
           status: "not_run",
+          tier: "fallback",
         },
         chatgpt: {
           score: 0,
@@ -1006,6 +1021,7 @@ export async function realTextDetection(
           label: "ChatGPT Detector",
           available: false,
           status: "not_run",
+          tier: "fallback",
         },
         embeddings: {
           score: 0,
@@ -1013,6 +1029,7 @@ export async function realTextDetection(
           label: "Sentence Embeddings",
           available: false,
           status: "not_run",
+          tier: "fallback",
         },
         statistical: {
           score: stats.signal,
@@ -1020,6 +1037,7 @@ export async function realTextDetection(
           label: "Statistical (12 features)",
           available: true,
           status: "success",
+          tier: "fallback",
         },
       };
 
@@ -1037,6 +1055,8 @@ export async function realTextDetection(
         feature_vector: featureVector,
         sentence_scores: sentenceScores,
         method_scores: methodScores,
+        primaryAvailable: true,
+        confidenceCapped: false,
         pangram_classification: pangramResult.classification,
         pangram_windows: pangramResult.windows?.map((w) => ({
           start: text.indexOf(w.text),
@@ -1108,6 +1128,7 @@ export async function realTextDetection(
         label: "Pangram (99.85%)",
         available: false,
         status: "unavailable",
+        tier: "primary",
       },
       synthid_text: {
         score: synthidAvailable
@@ -1119,6 +1140,7 @@ export async function realTextDetection(
         label: "SynthID (Google Watermark)",
         available: synthidAvailable,
         status: synthidAvailable ? "success" : "unavailable",
+        tier: "watermark",
       },
       roberta: {
         score: hfScore ?? 0,
@@ -1126,6 +1148,7 @@ export async function realTextDetection(
         label: "RoBERTa GPT-2",
         available: hfScore !== null,
         status: hfScore !== null ? "success" : "error",
+        tier: "fallback",
       },
       chatgpt: {
         score: chatgptScore ?? 0,
@@ -1133,6 +1156,7 @@ export async function realTextDetection(
         label: "ChatGPT Detector",
         available: chatgptScore !== null,
         status: chatgptScore !== null ? "success" : "error",
+        tier: "fallback",
       },
       embeddings: {
         score: embeddingScore,
@@ -1140,6 +1164,7 @@ export async function realTextDetection(
         label: "Sentence Embeddings",
         available: true,
         status: "success",
+        tier: "fallback",
       },
       statistical: {
         score: stats.signal,
@@ -1147,6 +1172,7 @@ export async function realTextDetection(
         label: "Statistical (12 features)",
         available: true,
         status: "success",
+        tier: "fallback",
       },
     };
 
@@ -1154,20 +1180,33 @@ export async function realTextDetection(
     const mapping = mapVerdict(aiProbability, text.length);
     const featureVector = buildFeatureVector(stats);
 
+    // Cap fallback confidence at 60%
+    const FALLBACK_MAX_CONFIDENCE = 0.6;
+    let confidenceCapped = false;
+    let finalConfidence = mapping.confidence;
+    if (finalConfidence > FALLBACK_MAX_CONFIDENCE) {
+      finalConfidence = FALLBACK_MAX_CONFIDENCE;
+      confidenceCapped = true;
+    }
+    const caveat =
+      "Primary model unavailable — reduced confidence. " + mapping.caveat;
+
     return {
       verdict: mapping.verdict,
-      confidence: mapping.confidence,
+      confidence: finalConfidence,
       ai_probability: aiProbability,
       model_used:
         modelName + (synthidResult ? "+synthid:" + synthidResult : ""),
       text_stats: textStats,
-      caveat: mapping.caveat,
+      caveat,
       trust_score: mapping.trust_score,
       classification: mapping.verdict,
       edit_magnitude: mapping.edit_magnitude,
       feature_vector: featureVector,
       sentence_scores: sentenceScores,
       method_scores: methodScores,
+      primaryAvailable: false,
+      confidenceCapped,
       synthid_text_result: synthidResult,
     };
   } catch (error) {
@@ -1955,6 +1994,7 @@ export async function realImageDetection(
             label: "SynthID Image (Google)",
             available: true,
             status: "success",
+            tier: "watermark",
           },
           sightengine: {
             score: 0,
@@ -1962,6 +2002,7 @@ export async function realImageDetection(
             label: "SightEngine (98.3%)",
             available: false,
             status: "not_run",
+            tier: "primary",
           },
           vit: {
             score: 0,
@@ -1969,6 +2010,7 @@ export async function realImageDetection(
             label: "ViT AI Detector",
             available: false,
             status: "not_run",
+            tier: "fallback",
           },
           sdxl: {
             score: 0,
@@ -1976,6 +2018,7 @@ export async function realImageDetection(
             label: "SDXL Detector",
             available: false,
             status: "not_run",
+            tier: "fallback",
           },
           frequency: {
             score: freqScore,
@@ -1983,6 +2026,7 @@ export async function realImageDetection(
             label: "Frequency/DCT Analysis",
             available: true,
             status: "success",
+            tier: "fallback",
           },
           metadata: {
             score: metaScore,
@@ -1990,8 +2034,11 @@ export async function realImageDetection(
             label: "Metadata/EXIF/C2PA",
             available: true,
             status: "success",
+            tier: "fallback",
           },
         },
+        primaryAvailable: true,
+        confidenceCapped: false,
       };
     }
 
@@ -2015,6 +2062,7 @@ export async function realImageDetection(
           label: "SightEngine (98.3%)",
           available: true,
           status: "success",
+          tier: "primary",
         },
         synthid_image: {
           score: synthidAvail
@@ -2028,6 +2076,7 @@ export async function realImageDetection(
           label: "SynthID Image (Google)",
           available: synthidAvail,
           status: synthidAvail ? "success" : "unavailable",
+          tier: "watermark",
         },
         vit: {
           score: 0,
@@ -2035,6 +2084,7 @@ export async function realImageDetection(
           label: "ViT AI Detector",
           available: false,
           status: "not_run",
+          tier: "fallback",
         },
         sdxl: {
           score: 0,
@@ -2042,6 +2092,7 @@ export async function realImageDetection(
           label: "SDXL Detector",
           available: false,
           status: "not_run",
+          tier: "fallback",
         },
         frequency: {
           score: freqScore,
@@ -2049,6 +2100,7 @@ export async function realImageDetection(
           label: "Frequency/DCT Analysis",
           available: true,
           status: "success",
+          tier: "fallback",
         },
         metadata: {
           score: metaScore,
@@ -2056,6 +2108,7 @@ export async function realImageDetection(
           label: "Metadata/EXIF/C2PA",
           available: true,
           status: "success",
+          tier: "fallback",
         },
       };
       let modelName =
@@ -2081,6 +2134,7 @@ export async function realImageDetection(
             label: "Reality Defender (Deep Scan)",
             available: true,
             status: "success",
+            tier: "escalation",
           };
           modelName += "+reality-defender";
         } else {
@@ -2090,6 +2144,7 @@ export async function realImageDetection(
             label: "Reality Defender (Deep Scan)",
             available: false,
             status: "error",
+            tier: "escalation",
           };
         }
       }
@@ -2106,6 +2161,8 @@ export async function realImageDetection(
         classification: mapping.verdict,
         edit_magnitude: mapping.edit_magnitude,
         method_scores: methodScores,
+        primaryAvailable: true,
+        confidenceCapped: false,
       };
     }
 
@@ -2172,6 +2229,7 @@ export async function realImageDetection(
         label: "SightEngine (98.3%)",
         available: false,
         status: "unavailable",
+        tier: "primary",
       },
       synthid_image: {
         score: synthidAvail
@@ -2183,6 +2241,7 @@ export async function realImageDetection(
         label: "SynthID Image (Google)",
         available: synthidAvail,
         status: synthidAvail ? "success" : "unavailable",
+        tier: "watermark",
       },
       vit: {
         score: vitScore ?? 0,
@@ -2190,6 +2249,7 @@ export async function realImageDetection(
         label: "ViT AI Detector",
         available: vitScore !== null,
         status: vitScore !== null ? "success" : "error",
+        tier: "fallback",
       },
       sdxl: {
         score: sdxlScore ?? 0,
@@ -2197,6 +2257,7 @@ export async function realImageDetection(
         label: "SDXL Detector",
         available: sdxlScore !== null,
         status: sdxlScore !== null ? "success" : "error",
+        tier: "fallback",
       },
       frequency: {
         score: freqScore,
@@ -2204,6 +2265,7 @@ export async function realImageDetection(
         label: "Frequency/DCT Analysis",
         available: true,
         status: "success",
+        tier: "fallback",
       },
       metadata: {
         score: metaScore,
@@ -2211,6 +2273,7 @@ export async function realImageDetection(
         label: "Metadata/EXIF/C2PA",
         available: true,
         status: "success",
+        tier: "fallback",
       },
     };
 
@@ -2231,6 +2294,7 @@ export async function realImageDetection(
           label: "Reality Defender (Deep Scan)",
           available: true,
           status: "success",
+          tier: "escalation",
         };
         modelName += "+reality-defender";
       } else {
@@ -2240,6 +2304,7 @@ export async function realImageDetection(
           label: "Reality Defender (Deep Scan)",
           available: false,
           status: "error",
+          tier: "escalation",
         };
       }
     }
@@ -2250,9 +2315,18 @@ export async function realImageDetection(
 
     const mapping = mapImageVerdict(compositeScore);
 
+    // Cap fallback confidence at 60%
+    const FALLBACK_MAX_CONFIDENCE = 0.6;
+    let confidenceCapped = false;
+    let finalConfidence = mapping.confidence;
+    if (finalConfidence > FALLBACK_MAX_CONFIDENCE) {
+      finalConfidence = FALLBACK_MAX_CONFIDENCE;
+      confidenceCapped = true;
+    }
+
     return {
       verdict: mapping.verdict,
-      confidence: mapping.confidence,
+      confidence: finalConfidence,
       primary_score: precise(vitScore ?? freqScore),
       secondary_score: precise(sdxlScore ?? freqScore),
       model_used: modelName,
@@ -2261,6 +2335,8 @@ export async function realImageDetection(
       classification: mapping.verdict,
       edit_magnitude: mapping.edit_magnitude,
       method_scores: methodScores,
+      primaryAvailable: false,
+      confidenceCapped,
     };
   } catch (error) {
     console.error(
@@ -2290,6 +2366,8 @@ export async function realVideoDetection(
       frame_scores: [],
       model_used: "none",
       duration_seconds: 0,
+      primaryAvailable: false,
+      confidenceCapped: false,
     };
   }
 
@@ -2321,6 +2399,8 @@ export async function realVideoDetection(
       frame_scores: [],
       model_used: "multi-frame:none",
       duration_seconds: 0,
+      primaryAvailable: false,
+      confidenceCapped: false,
     };
   }
 
@@ -2378,5 +2458,7 @@ export async function realVideoDetection(
     frame_scores: frameScores.map((s) => precise(s)),
     model_used: modelUsed,
     duration_seconds: precise(duration, 1),
+    primaryAvailable: false,
+    confidenceCapped: false,
   };
 }
