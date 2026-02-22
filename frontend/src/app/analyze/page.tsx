@@ -14,6 +14,8 @@ import { AnimatedPercentage } from "./AnimatedPercentage";
 import { ImageDetectorPanel } from "./ImageDetectorPanel";
 import { VideoDetectorPanel } from "./VideoDetectorPanel";
 import { MethodBreakdown } from "./MethodBreakdown";
+import { SourceContext } from "./SourceContext";
+import { PipelineStageBadge } from "./PipelineStageBadge";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -66,6 +68,8 @@ function AnalyzeContent() {
   >(null);
   const [externalVideoResult, setExternalVideoResult] =
     useState<VideoDetectionResult | null>(null);
+  const [sourceUrl, setSourceUrl] = useState<string | undefined>();
+  const [sourcePageUrl, setSourcePageUrl] = useState<string | undefined>();
 
   useEffect(() => {
     const resultParam = searchParams.get("result");
@@ -75,6 +79,10 @@ function AnalyzeContent() {
       const parsed = JSON.parse(decodeURIComponent(resultParam));
       const result = parsed.result || parsed;
       const type = parsed.type;
+
+      // Extract source URLs
+      setSourceUrl(parsed.sourceUrl || result.sourceUrl);
+      setSourcePageUrl(parsed.sourcePageUrl || result.sourcePageUrl);
 
       if (type === "text" || result.feature_vector || result.sentence_scores) {
         setActiveTab("text");
@@ -130,13 +138,25 @@ function AnalyzeContent() {
 
         {/* Tab Content */}
         {activeTab === "text" && (
-          <TextPanel externalResult={externalTextResult} />
+          <TextPanel
+            externalResult={externalTextResult}
+            sourceUrl={sourceUrl}
+            sourcePageUrl={sourcePageUrl}
+          />
         )}
         {activeTab === "image" && (
-          <ImageDetectorPanel externalResult={externalImageResult} />
+          <ImageDetectorPanel
+            externalResult={externalImageResult}
+            sourceUrl={sourceUrl}
+            sourcePageUrl={sourcePageUrl}
+          />
         )}
         {activeTab === "video" && (
-          <VideoDetectorPanel externalResult={externalVideoResult} />
+          <VideoDetectorPanel
+            externalResult={externalVideoResult}
+            sourceUrl={sourceUrl}
+            sourcePageUrl={sourcePageUrl}
+          />
         )}
       </div>
     </main>
@@ -149,14 +169,20 @@ function AnalyzeContent() {
 
 function TextPanel({
   externalResult,
+  sourceUrl,
+  sourcePageUrl,
 }: {
   externalResult?: TextDetectionResult | null;
+  sourceUrl?: string;
+  sourcePageUrl?: string;
 }) {
   const userId = useUserId();
   const [text, setText] = useState("");
   const [result, setResult] = useState<TextDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const hasExternalSource = !!(externalResult && sourceUrl);
 
   useEffect(() => {
     if (externalResult) setResult(externalResult);
@@ -187,60 +213,72 @@ function TextPanel({
 
   return (
     <div className="space-y-4">
-      <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 space-y-4">
-        <textarea
-          className="w-full min-h-[200px] bg-base border border-secondary/10 rounded-lg p-4 text-secondary placeholder-secondary/40 resize-y focus:outline-none focus:border-primary/50 text-sm font-body"
-          placeholder="Paste text to analyze for AI content..."
-          value={text}
-          onChange={(e) => setText(e.target.value)}
+      {/* Source context (extension flow) or input area (direct flow) */}
+      {hasExternalSource ? (
+        <SourceContext
+          sourceUrl={sourceUrl}
+          sourcePageUrl={sourcePageUrl}
+          type="text"
         />
+      ) : (
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 space-y-4">
+          <textarea
+            className="w-full min-h-[200px] bg-base border border-secondary/10 rounded-lg p-4 text-secondary placeholder-secondary/40 resize-y focus:outline-none focus:border-primary/50 text-sm font-body"
+            placeholder="Paste text to analyze for AI content..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
 
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-secondary/40">
-            {text.length} characters
-            {text.length > 0 && text.length < 20 && (
-              <span className="text-primary ml-2">Minimum 20 characters</span>
-            )}
-            {text.length >= 20 && text.length < 100 && (
-              <span className="text-amber-600 ml-2">
-                Short text may produce less accurate results
-              </span>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-secondary/40">
+              {text.length} characters
+              {text.length > 0 && text.length < 20 && (
+                <span className="text-primary ml-2">Minimum 20 characters</span>
+              )}
+              {text.length >= 20 && text.length < 100 && (
+                <span className="text-amber-600 ml-2">
+                  Short text may produce less accurate results
+                </span>
+              )}
+            </div>
           </div>
+
+          <button
+            onClick={handleAnalyze}
+            disabled={loading || text.trim().length < 20}
+            className="btn-primary-3d px-6 py-2.5 bg-primary text-white rounded-full font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
+          >
+            {loading ? (
+              <>
+                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              "Analyze Text"
+            )}
+          </button>
+
+          {error && <p className="text-primary text-sm">{error}</p>}
         </div>
-
-        <button
-          onClick={handleAnalyze}
-          disabled={loading || text.trim().length < 20}
-          className="btn-primary-3d px-6 py-2.5 bg-primary text-white rounded-full font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2"
-        >
-          {loading ? (
-            <>
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Analyzing...
-            </>
-          ) : (
-            "Analyze Text"
-          )}
-        </button>
-
-        {error && <p className="text-primary text-sm">{error}</p>}
-      </div>
+      )}
 
       {/* Results */}
       {result && (
         <div className="space-y-4">
-          {/* Summary row */}
+          {/* Tier 1: Summary row — gauge + verdict + AI probability + pipeline badge */}
           <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 flex flex-wrap items-center gap-8">
             <TrustScoreGauge score={result.trust_score} />
 
             <div className="flex flex-col gap-3">
-              {/* Verdict badge */}
-              <div
-                className="px-3 py-1.5 rounded-full text-sm font-semibold text-white w-fit"
-                style={{ background: verdictColor }}
-              >
-                {verdictLabel}
+              {/* Verdict badge + pipeline stage */}
+              <div className="flex items-center gap-2">
+                <div
+                  className="px-3 py-1.5 rounded-full text-sm font-semibold text-white w-fit"
+                  style={{ background: verdictColor }}
+                >
+                  {verdictLabel}
+                </div>
+                <PipelineStageBadge modelUsed={result.model_used} />
               </div>
               <div>
                 <p className="text-secondary/50 text-xs">AI Probability</p>
@@ -263,15 +301,25 @@ function TextPanel({
             )}
           </div>
 
+          {/* Tier 1: Method breakdown — promoted position */}
           {result.method_scores &&
             Object.keys(result.method_scores).length > 0 && (
               <MethodBreakdown
                 methodScores={result.method_scores}
                 type="text"
+                modelUsed={result.model_used}
               />
             )}
-          <SentenceHeatmap sentenceScores={result.sentence_scores} />
-          <ScoreBreakdown featureVector={result.feature_vector} />
+
+          {/* Tier 2: Sentence heatmap — slightly dimmed */}
+          <div className="opacity-80">
+            <SentenceHeatmap sentenceScores={result.sentence_scores} />
+          </div>
+
+          {/* Tier 3: Score breakdown — dimmed */}
+          <div className="opacity-60">
+            <ScoreBreakdown featureVector={result.feature_vector} />
+          </div>
         </div>
       )}
     </div>

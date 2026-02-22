@@ -18,7 +18,11 @@ export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <svg viewBox="0 0 140 140" className="w-36 h-36" aria-label={`Trust score: ${Math.round(score * 100)}%`}>
+      <svg
+        viewBox="0 0 140 140"
+        className="w-36 h-36"
+        aria-label={`Human score: ${Math.round(score * 100)}%`}
+      >
         {/* Track */}
         <circle
           cx="70"
@@ -61,7 +65,7 @@ export function TrustScoreGauge({ score }: TrustScoreGaugeProps) {
           / 100
         </text>
       </svg>
-      <p className="text-secondary/50 text-sm">Trust Score</p>
+      <p className="text-secondary/50 text-sm">Human Score</p>
     </div>
   );
 }
