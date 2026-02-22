@@ -413,16 +413,42 @@ function createDetectionDot(el, result) {
     if (pos === "static") parent.style.position = "relative";
   }
 
+  // Extract top method names for tooltip
+  let methodNames = "";
+  if (result.method_scores) {
+    const topMethods = Object.entries(result.method_scores)
+      .filter(([, m]) => m.available)
+      .sort((a, b) => b[1].weight - a[1].weight)
+      .slice(0, 2)
+      .map(([, m]) => m.label);
+    if (topMethods.length > 0) {
+      methodNames = topMethods.join(" + ");
+    }
+  }
+
   const dot = document.createElement("div");
-  dot.className = "baloney-dot";
+  dot.className =
+    "baloney-dot" + (methodNames ? " baloney-dot--has-methods" : "");
   dot.style.background = color;
   dot.style.opacity = opacity;
 
-  const labelSpan = document.createElement("span");
-  labelSpan.className = "baloney-dot__label";
-  labelSpan.textContent = `${pct}% AI`;
-  labelSpan.style.color = "#fff";
-  dot.appendChild(labelSpan);
+  const labelWrap = document.createElement("div");
+  labelWrap.className = "baloney-dot__label";
+  labelWrap.style.color = "#fff";
+
+  const line1 = document.createElement("span");
+  line1.className = "baloney-dot__label-line1";
+  line1.textContent = `${pct}% AI`;
+  labelWrap.appendChild(line1);
+
+  if (methodNames) {
+    const line2 = document.createElement("span");
+    line2.className = "baloney-dot__label-line2";
+    line2.textContent = methodNames;
+    labelWrap.appendChild(line2);
+  }
+
+  dot.appendChild(labelWrap);
 
   // Click → open sidepanel with full analysis
   dot.addEventListener("click", (e) => {
@@ -598,6 +624,30 @@ function updatePageIndicator() {
   else pageIndicator.classList.add("baloney-page-indicator--alert");
 
   pagePanel.innerHTML = "";
+
+  // Stats header: Scanned | Flagged | AI Rate
+  const totalScanned = sessionStats.scanned + sessionStats.textScanned;
+  const totalFlagged = sessionStats.flaggedAI + sessionStats.textFlagged;
+  const aiRate =
+    totalScanned > 0 ? Math.round((totalFlagged / totalScanned) * 100) : 0;
+
+  const statsHeader = document.createElement("div");
+  statsHeader.className = "baloney-page-stats";
+  statsHeader.innerHTML = `
+    <div class="baloney-page-stat">
+      <div class="baloney-page-stat-value">${totalScanned}</div>
+      <div class="baloney-page-stat-label">Scanned</div>
+    </div>
+    <div class="baloney-page-stat">
+      <div class="baloney-page-stat-value">${totalFlagged}</div>
+      <div class="baloney-page-stat-label">Flagged</div>
+    </div>
+    <div class="baloney-page-stat">
+      <div class="baloney-page-stat-value">${aiRate}%</div>
+      <div class="baloney-page-stat-label">AI Rate</div>
+    </div>
+  `;
+  pagePanel.appendChild(statsHeader);
 
   const title = document.createElement("div");
   title.className = "baloney-page-panel__title";
@@ -1239,6 +1289,29 @@ function showTextToastResult(result, textPreview) {
   const resultData = JSON.stringify({ result, type: "text" });
   const analyzeUrl = `https://baloney.app/analyze?result=${encodeURIComponent(resultData)}`;
 
+  // Method mini-bars (top 2 methods)
+  let methodsHTML = "";
+  if (result.method_scores) {
+    const methods = Object.entries(result.method_scores)
+      .filter(([, m]) => m.available)
+      .sort((a, b) => b[1].weight - a[1].weight)
+      .slice(0, 2);
+    if (methods.length > 0) {
+      methodsHTML = '<div class="baloney-toast-methods">';
+      methods.forEach(([, m]) => {
+        const pct = Math.round(m.score * 100);
+        const mColor =
+          m.score > 0.65 ? "#d4456b" : m.score > 0.35 ? "#f59e0b" : "#16a34a";
+        methodsHTML += `<div class="baloney-toast-method-row">
+          <span class="baloney-toast-method-label">${m.label}</span>
+          <div class="baloney-toast-method-bar"><div style="width:${pct}%;background:${mColor}"></div></div>
+          <span class="baloney-toast-method-pct">${pct}%</span>
+        </div>`;
+      });
+      methodsHTML += "</div>";
+    }
+  }
+
   card.style.borderLeftColor = color;
 
   card.innerHTML = `
@@ -1255,6 +1328,7 @@ function showTextToastResult(result, textPreview) {
     <div class="baloney-toast-card__bar">
       <div class="baloney-toast-card__bar-fill" style="background:${color}" id="baloney-toast-bar-fill"></div>
     </div>
+    ${methodsHTML}
     ${reasons.length > 0 ? `<div class="baloney-toast-card__reasons">${reasons.map((r) => `<div class="baloney-toast-card__reason">\u2022 ${r}</div>`).join("")}</div>` : ""}
     ${sentencesHTML}
     ${caveatHTML}

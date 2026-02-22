@@ -19,6 +19,14 @@ import { VideoDetectorPanel } from "./VideoDetectorPanel";
 import { MethodBreakdown } from "./MethodBreakdown";
 import { SourceContext } from "./SourceContext";
 import { PipelineStageBadge } from "./PipelineStageBadge";
+import { SynthIDBadge } from "./SynthIDBadge";
+import { TextStatsCard } from "./TextStatsCard";
+import { PangramWindows } from "./PangramWindows";
+import { EditMagnitudeGauge } from "./EditMagnitudeGauge";
+import { FeatureRadar } from "./FeatureRadar";
+import { ProvenanceCard } from "./ProvenanceCard";
+import { ExportActions } from "./ExportActions";
+import { ScanMetadata } from "./ScanMetadata";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -79,6 +87,7 @@ function AnalyzeContent() {
     useState<VideoDetectionResult | null>(null);
   const [sourceUrl, setSourceUrl] = useState<string | undefined>();
   const [sourcePageUrl, setSourcePageUrl] = useState<string | undefined>();
+  const [parseError, setParseError] = useState(false);
 
   useEffect(() => {
     const resultParam = searchParams.get("result");
@@ -115,6 +124,7 @@ function AnalyzeContent() {
       }
     } catch (err) {
       console.error("[Baloney] Failed to parse result param:", err);
+      setParseError(true);
     }
   }, [searchParams]);
 
@@ -128,6 +138,21 @@ function AnalyzeContent() {
         <p className="text-secondary/50 mb-8">
           Analyze text, images, and video for AI-generated content
         </p>
+
+        {parseError && (
+          <div
+            className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 mb-8"
+            role="alert"
+          >
+            <h2 className="font-display text-lg text-red-700 mb-2">
+              Invalid Analysis Data
+            </h2>
+            <p className="text-red-600/70 text-sm">
+              The analysis data in the URL could not be parsed. Try running the
+              analysis again.
+            </p>
+          </div>
+        )}
 
         {/* Tabs — accessible */}
         <div className="flex gap-8 mb-8" role="tablist">
@@ -381,12 +406,11 @@ function TextPanel({
       {/* Results */}
       {result && (
         <div className="space-y-4">
-          {/* Tier 1: Summary row — gauge + verdict + AI probability + pipeline badge */}
+          {/* Tier 1: Summary row — gauge + verdict + AI% + words */}
           <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 flex flex-wrap items-center gap-8">
             <TrustScoreGauge score={result.trust_score} />
 
             <div className="flex flex-col gap-3">
-              {/* Verdict badge + pipeline stage */}
               <div className="flex items-center gap-2">
                 <div
                   className="px-3 py-1.5 rounded-full text-sm font-semibold text-white w-fit"
@@ -408,6 +432,11 @@ function TextPanel({
               </div>
             </div>
 
+            {/* Edit Magnitude Gauge */}
+            {result.edit_magnitude !== undefined && (
+              <EditMagnitudeGauge magnitude={result.edit_magnitude} />
+            )}
+
             {result.caveat && (
               <div className="flex-1 min-w-[200px] bg-base rounded-lg border border-secondary/10 px-4 py-3">
                 <p className="text-secondary/50 text-xs leading-relaxed">
@@ -417,7 +446,10 @@ function TextPanel({
             )}
           </div>
 
-          {/* Tier 1: Method breakdown — promoted position */}
+          {/* SynthID Badge */}
+          <SynthIDBadge synthidResult={result.synthid_text_result} />
+
+          {/* Method Breakdown */}
           {result.method_scores &&
             Object.keys(result.method_scores).length > 0 && (
               <MethodBreakdown
@@ -429,15 +461,36 @@ function TextPanel({
               />
             )}
 
-          {/* Tier 2: Sentence heatmap — slightly dimmed */}
-          <div className="opacity-80">
-            <SentenceHeatmap sentenceScores={result.sentence_scores} />
-          </div>
+          {/* Pangram Segment Analysis */}
+          <PangramWindows windows={result.pangram_windows} />
 
-          {/* Tier 3: Score breakdown — dimmed */}
-          <div className="opacity-60">
-            <ScoreBreakdown featureVector={result.feature_vector} />
-          </div>
+          {/* Sentence Heatmap */}
+          <SentenceHeatmap sentenceScores={result.sentence_scores} />
+
+          {/* Text Statistics */}
+          <TextStatsCard textStats={result.text_stats} />
+
+          {/* Score Breakdown with full opacity */}
+          <ScoreBreakdown featureVector={result.feature_vector} />
+
+          {/* Feature Radar */}
+          <FeatureRadar featureVector={result.feature_vector} />
+
+          {/* Provenance */}
+          <ProvenanceCard
+            scanId={result.scan_id}
+            sourceUrl={sourceUrl}
+            modelUsed={result.model_used}
+          />
+
+          {/* Export Actions */}
+          <ExportActions
+            result={result as unknown as Record<string, unknown>}
+            type="text"
+          />
+
+          {/* Scan Metadata */}
+          <ScanMetadata modelUsed={result.model_used} scanId={result.scan_id} />
         </div>
       )}
     </div>

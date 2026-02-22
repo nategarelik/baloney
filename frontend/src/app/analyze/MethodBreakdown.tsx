@@ -52,6 +52,23 @@ function parsePipelineDescription(model: string): string | null {
   return parts.length > 0 ? parts.join(", ") : null;
 }
 
+const METHOD_DESCRIPTIONS: Record<string, string> = {
+  pangram: "Pangram: 99.85% accuracy SOTA commercial API (Emi & Spero 2024)",
+  sightengine:
+    "SightEngine: 98.3% accuracy, ARIA benchmark #1, 120+ AI generators",
+  sightengine_video: "SightEngine: Native server-side video analysis",
+  synthid_text: "Google SynthID: Detects watermarks in Gemini-generated text",
+  synthid_image:
+    "Google SynthID: Detects watermarks in Imagen-generated images",
+  statistical:
+    "Statistical: 12-feature linguistic analysis (burstiness, entropy, readability)",
+  frequency:
+    "Frequency/DCT: Multi-scale variance + high-frequency energy analysis",
+  metadata:
+    "Metadata/EXIF: Camera provenance, C2PA markers, AI tool signatures",
+  reality_defender: "Reality Defender: Advanced deepfake detection escalation",
+};
+
 export function MethodBreakdown({
   methodScores,
   type,
@@ -115,7 +132,10 @@ export function MethodBreakdown({
           return (
             <div key={key} style={{ opacity: isAvailable ? 1 : 0.4 }}>
               <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-secondary/70 flex items-center gap-1.5">
+                <span
+                  className="text-secondary/70 flex items-center gap-1.5"
+                  title={METHOD_DESCRIPTIONS[key] || method.label}
+                >
                   {method.label}
                   {method.tier === "primary" && isAvailable && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-700 font-semibold">
@@ -125,6 +145,16 @@ export function MethodBreakdown({
                   {method.tier === "watermark" && isAvailable && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
                       WATERMARK
+                    </span>
+                  )}
+                  {method.tier === "escalation" && isAvailable && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-700 font-semibold">
+                      ESCALATION
+                    </span>
+                  )}
+                  {method.tier === "fallback" && isAvailable && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary/60 font-semibold">
+                      FALLBACK
                     </span>
                   )}
                 </span>
