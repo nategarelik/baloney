@@ -1073,7 +1073,328 @@ function init() {
 }
 
 // ──────────────────────────────────────────────
-// Context menu result toasts
+// Toast Card System (v0.5.0 — replaces selection popup + inline underlines)
+// ──────────────────────────────────────────────
+
+let activeToastCard = null;
+let toastAutoDismissTimer = null;
+let toastLastText = null;
+
+function getToastBottom() {
+  return pageIndicator ? 72 : 24;
+}
+
+function dismissTextToast(animate = true) {
+  if (toastAutoDismissTimer) {
+    clearTimeout(toastAutoDismissTimer);
+    toastAutoDismissTimer = null;
+  }
+  if (!activeToastCard) return;
+
+  if (animate) {
+    activeToastCard.style.animation = "baloney-card-out 0.2s ease forwards";
+    const card = activeToastCard;
+    setTimeout(() => card?.remove(), 200);
+  } else {
+    activeToastCard.remove();
+  }
+  activeToastCard = null;
+}
+
+function createToastCardShell() {
+  dismissTextToast(false);
+
+  const card = document.createElement("div");
+  card.className = "baloney-toast-card";
+  card.id = "baloney-toast-card";
+  card.style.bottom = `${getToastBottom()}px`;
+
+  card.addEventListener("mouseenter", () => {
+    if (toastAutoDismissTimer) {
+      clearTimeout(toastAutoDismissTimer);
+      toastAutoDismissTimer = null;
+    }
+  });
+  card.addEventListener("mouseleave", () => {
+    startAutoDismiss(3000);
+  });
+
+  document.body.appendChild(card);
+  activeToastCard = card;
+  return card;
+}
+
+function startAutoDismiss(ms = 12000) {
+  if (toastAutoDismissTimer) clearTimeout(toastAutoDismissTimer);
+  toastAutoDismissTimer = setTimeout(() => dismissTextToast(true), ms);
+}
+
+function showTextToastLoading(textPreview) {
+  const card = createToastCardShell();
+  card.dataset.state = "loading";
+
+  const preview = (textPreview || "").slice(0, 80);
+  const previewSuffix = (textPreview || "").length > 80 ? "\u2026" : "";
+
+  card.innerHTML = `
+    <div class="baloney-toast-card__header">
+      <span class="baloney-toast-card__icon">\uD83D\uDC37</span>
+      <span class="baloney-toast-card__title">Baloney Text Check</span>
+    </div>
+    <div class="baloney-toast-card__loading">
+      <div class="baloney-scan-spinner"></div>
+      <span>Sniffing for AI\u2026</span>
+    </div>
+    ${preview ? `<div class="baloney-toast-card__preview">\u201C${preview.replace(/</g, "&lt;").replace(/>/g, "&gt;")}${previewSuffix}\u201D</div>` : ""}
+    <div class="baloney-toast-card__skeleton">
+      <div class="baloney-toast-card__skeleton-bar" style="width:70%"></div>
+      <div class="baloney-toast-card__skeleton-bar" style="width:100%"></div>
+      <div class="baloney-toast-card__skeleton-bar" style="width:45%"></div>
+    </div>
+  `;
+}
+
+function showTextToastResult(result, textPreview) {
+  if (!result || !result.verdict) {
+    showTextToastError("No result returned");
+    return;
+  }
+
+  const card = activeToastCard || createToastCardShell();
+  card.dataset.state = "result";
+
+  const color = VERDICT_COLORS[result.verdict] || "#4a3728";
+  const label = VERDICT_LABELS[result.verdict] || result.verdict;
+  const confidence = Math.round((result.confidence || 0) * 100);
+  const reasons = getTextReasons(result).slice(0, 2);
+
+  // Sentence breakdown
+  let sentencesHTML = "";
+  const sentences = result.sentence_scores || [];
+  const visibleSentences = sentences.slice(0, 3);
+  const hiddenCount = Math.max(0, sentences.length - 3);
+
+  if (visibleSentences.length > 0) {
+    sentencesHTML = `<div class="baloney-toast-card__sentences">`;
+    visibleSentences.forEach((s, i) => {
+      const pct = Math.round(s.ai_probability * 100);
+      const barColor =
+        s.ai_probability > 0.6
+          ? "#d4456b"
+          : s.ai_probability > 0.4
+            ? "#f59e0b"
+            : "#16a34a";
+      const safeText = s.text
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+      const sPreview =
+        safeText.length > 50 ? safeText.slice(0, 50) + "\u2026" : safeText;
+      sentencesHTML += `
+        <div class="baloney-toast-card__sentence" style="animation-delay:${i * 80}ms">
+          <div class="baloney-toast-card__sentence-bar">
+            <div class="baloney-toast-card__sentence-fill" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+          <span class="baloney-toast-card__sentence-pct">${pct}%</span>
+          <span class="baloney-toast-card__sentence-text" title="${safeText}">${sPreview}</span>
+        </div>
+      `;
+    });
+    if (hiddenCount > 0) {
+      sentencesHTML += `<div class="baloney-toast-card__more" id="baloney-toast-more">+${hiddenCount} more</div>`;
+    }
+    sentencesHTML += `</div>`;
+  }
+
+  // Caveat
+  let caveatHTML = "";
+  if (result.caveat) {
+    const safeCaveat = result.caveat
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    caveatHTML = `<div class="baloney-toast-card__caveat">${safeCaveat}</div>`;
+  }
+
+  // Footer
+  const model = (result.model_used || result.model || "unknown").replace(
+    /</g,
+    "&lt;",
+  );
+  const resultData = JSON.stringify({ result, type: "text" });
+  const analyzeUrl = `https://trustlens-nu.vercel.app/analyze?result=${encodeURIComponent(resultData)}`;
+
+  card.style.borderLeftColor = color;
+
+  card.innerHTML = `
+    <div class="baloney-toast-card__header">
+      <span class="baloney-toast-card__icon">\uD83D\uDC37</span>
+      <span class="baloney-toast-card__title">Baloney Text Check</span>
+      <button class="baloney-toast-card__close" id="baloney-toast-close">\u00D7</button>
+    </div>
+    <div class="baloney-toast-card__verdict" id="baloney-toast-verdict">
+      <div class="baloney-toast-card__verdict-dot" style="background:${color}"></div>
+      <span class="baloney-toast-card__verdict-label">${label}</span>
+      <span class="baloney-toast-card__verdict-pct">${confidence}%</span>
+    </div>
+    <div class="baloney-toast-card__bar">
+      <div class="baloney-toast-card__bar-fill" style="background:${color}" id="baloney-toast-bar-fill"></div>
+    </div>
+    ${reasons.length > 0 ? `<div class="baloney-toast-card__reasons">${reasons.map((r) => `<div class="baloney-toast-card__reason">\u2022 ${r}</div>`).join("")}</div>` : ""}
+    ${sentencesHTML}
+    ${caveatHTML}
+    <div class="baloney-toast-card__footer">
+      <span class="baloney-toast-card__model">${model}</span>
+      <a href="${analyzeUrl}" target="_blank" class="baloney-toast-card__link">View Full Data \u2192</a>
+    </div>
+  `;
+
+  // Animate confidence bar fill
+  requestAnimationFrame(() => {
+    const barFill = document.getElementById("baloney-toast-bar-fill");
+    if (barFill) {
+      requestAnimationFrame(() => {
+        barFill.style.width = `${confidence}%`;
+      });
+    }
+  });
+
+  // Expand hidden sentences
+  const moreBtn = document.getElementById("baloney-toast-more");
+  if (moreBtn && hiddenCount > 0) {
+    moreBtn.addEventListener("click", () => {
+      const container = moreBtn.parentElement;
+      sentences.slice(3).forEach((s, i) => {
+        const pct = Math.round(s.ai_probability * 100);
+        const barColor =
+          s.ai_probability > 0.6
+            ? "#d4456b"
+            : s.ai_probability > 0.4
+              ? "#f59e0b"
+              : "#16a34a";
+        const safeText = s.text
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+        const sPreview =
+          safeText.length > 50 ? safeText.slice(0, 50) + "\u2026" : safeText;
+        const el = document.createElement("div");
+        el.className = "baloney-toast-card__sentence";
+        el.style.animationDelay = `${(i + 3) * 80}ms`;
+        el.innerHTML = `
+          <div class="baloney-toast-card__sentence-bar">
+            <div class="baloney-toast-card__sentence-fill" style="width:${pct}%;background:${barColor}"></div>
+          </div>
+          <span class="baloney-toast-card__sentence-pct">${pct}%</span>
+          <span class="baloney-toast-card__sentence-text" title="${safeText}">${sPreview}</span>
+        `;
+        container.insertBefore(el, moreBtn);
+      });
+      moreBtn.remove();
+    });
+  }
+
+  // Close button
+  const closeBtn = document.getElementById("baloney-toast-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissTextToast(true);
+    });
+  }
+
+  // Click verdict → open sidepanel
+  const verdictEl = document.getElementById("baloney-toast-verdict");
+  if (verdictEl) {
+    verdictEl.style.cursor = "pointer";
+    verdictEl.addEventListener("click", () => openSidepanel(result, "text"));
+  }
+
+  // Escape to dismiss
+  const escHandler = (e) => {
+    if (e.key === "Escape") {
+      dismissTextToast(true);
+      document.removeEventListener("keydown", escHandler);
+    }
+  };
+  document.addEventListener("keydown", escHandler);
+
+  // Stats
+  updateTextStats(result.verdict);
+  updatePageStats("text", result.verdict);
+
+  // Page indicator
+  const textSnippet = (textPreview || "").slice(0, 40);
+  addFlaggedItem(
+    document.body,
+    result.verdict,
+    "Text: " + textSnippet + "\u2026",
+  );
+
+  startAutoDismiss(12000);
+}
+
+function showTextToastError(errorMsg) {
+  const card = activeToastCard || createToastCardShell();
+  card.dataset.state = "error";
+  card.style.borderLeftColor = "#d4456b";
+
+  card.innerHTML = `
+    <div class="baloney-toast-card__header">
+      <span class="baloney-toast-card__icon">\uD83D\uDC37</span>
+      <span class="baloney-toast-card__title">Baloney Text Check</span>
+      <button class="baloney-toast-card__close" id="baloney-toast-close">\u00D7</button>
+    </div>
+    <div class="baloney-toast-card__error">
+      <div class="baloney-toast-card__error-msg">Analysis failed</div>
+      <button class="baloney-toast-card__retry" id="baloney-toast-retry">Try Again</button>
+    </div>
+  `;
+
+  const closeBtn = document.getElementById("baloney-toast-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      dismissTextToast(true);
+    });
+  }
+
+  const retryBtn = document.getElementById("baloney-toast-retry");
+  if (retryBtn && toastLastText) {
+    retryBtn.addEventListener("click", () => {
+      showTextToastLoading(toastLastText.slice(0, 80));
+      chrome.runtime.sendMessage(
+        { type: "analyze-text", text: toastLastText.slice(0, 2000) },
+        (response) => {
+          if (response && response.verdict) {
+            showTextToastResult(response, toastLastText);
+          } else {
+            showTextToastError("Still unavailable");
+          }
+        },
+      );
+    });
+  }
+
+  startAutoDismiss(12000);
+}
+
+function showTextToastMinLength() {
+  const card = createToastCardShell();
+  card.dataset.state = "min-length";
+
+  card.innerHTML = `
+    <div class="baloney-toast-card__header">
+      <span class="baloney-toast-card__icon">\uD83D\uDC37</span>
+      <span class="baloney-toast-card__title">Baloney Text Check</span>
+    </div>
+    <div class="baloney-toast-card__min-length">Select at least 20 characters to analyze.</div>
+  `;
+
+  startAutoDismiss(4000);
+}
+
+// ──────────────────────────────────────────────
+// Context menu result toasts (image scan — kept)
 // ──────────────────────────────────────────────
 
 function showToast(lines, verdict) {
@@ -1134,21 +1455,50 @@ function verdictLabel(result) {
   }
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+// ──────────────────────────────────────────────
+// Message listeners
+// ──────────────────────────────────────────────
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Image context menu result (kept as-is)
   if (message.type === "show-result" && message.result) {
-    const result = message.result;
-    showToast(["Baloney: Image Scan", verdictLabel(result)], result.verdict);
+    showToast(
+      ["Baloney: Image Scan", verdictLabel(message.result)],
+      message.result.verdict,
+    );
   }
 
-  if (message.type === "show-text-result" && message.result) {
-    const result = message.result;
-    const preview =
-      (message.text || "").slice(0, 60) +
-      ((message.text?.length ?? 0) > 60 ? "\u2026" : "");
-    showToast(
-      ["Baloney: Text Check", verdictLabel(result), `"${preview}"`],
-      result.verdict,
+  // Keyboard shortcut: return selected text
+  if (message.type === "get-selected-text") {
+    sendResponse({ text: window.getSelection()?.toString() || "" });
+    return;
+  }
+
+  // Toast card: loading state
+  if (message.type === "show-text-toast-loading") {
+    toastLastText = null;
+    showTextToastLoading(message.textPreview);
+  }
+
+  // Toast card: full result
+  if (message.type === "show-text-toast-result") {
+    toastLastText = message.text || null;
+    showTextToastResult(
+      message.result,
+      message.textPreview || (message.text || "").slice(0, 80),
     );
+  }
+
+  // Toast card: error
+  if (message.type === "show-text-toast-error") {
+    toastLastText = message.text || null;
+    showTextToastError(message.errorMsg);
+  }
+
+  // Legacy: show-text-result → redirect to toast card
+  if (message.type === "show-text-result" && message.result) {
+    toastLastText = message.text || null;
+    showTextToastResult(message.result, (message.text || "").slice(0, 80));
   }
 });
 
