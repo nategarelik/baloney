@@ -16,6 +16,7 @@ import type {
   MethodScore,
 } from "./types";
 import { computeTextStats } from "./mock-detectors";
+import { DETECTION_CONFIG } from "./detection-config";
 
 // ──────────────────────────────────────────────
 // Helpers
@@ -94,36 +95,62 @@ interface VerdictMapping {
 }
 
 function mapVerdict(aiProbability: number, textLength: number): VerdictMapping {
-  if (aiProbability > 0.75) {
+  const T = DETECTION_CONFIG.text.verdictThresholds;
+  const F = DETECTION_CONFIG.text.verdictFormulas;
+
+  if (aiProbability > T.aiGenerated) {
     return {
       verdict: "ai_generated",
       confidence: precise(aiProbability),
-      trust_score: precise(1 - aiProbability * 0.95),
-      edit_magnitude: precise(0.8 + aiProbability * 0.2),
+      trust_score: precise(
+        1 - aiProbability * F.aiGenerated.trustScoreMultiplier,
+      ),
+      edit_magnitude: precise(
+        F.aiGenerated.editMagnitudeBase +
+          aiProbability * F.aiGenerated.editMagnitudeScale,
+      ),
       caveat:
-        textLength < 200
+        textLength < DETECTION_CONFIG.text.shortTextThreshold
           ? "Short text — AI detection confidence is reduced. Patterns consistent with AI-generated text detected."
           : "Patterns consistent with AI-generated text detected. Text detection is experimental and should not be considered definitive.",
     };
   }
 
-  if (aiProbability > 0.55) {
+  if (aiProbability > T.heavyEdit) {
     return {
       verdict: "heavy_edit",
-      confidence: precise(0.6 + (aiProbability - 0.55) * 1.0),
-      trust_score: precise(0.25 + (0.75 - aiProbability) * 1.0),
-      edit_magnitude: precise(0.55 + (aiProbability - 0.55) * 1.25),
+      confidence: precise(
+        F.heavyEdit.confidenceBase +
+          (aiProbability - T.heavyEdit) * F.heavyEdit.confidenceScale,
+      ),
+      trust_score: precise(
+        F.heavyEdit.trustScoreBase +
+          (T.aiGenerated - aiProbability) * F.heavyEdit.trustScoreScale,
+      ),
+      edit_magnitude: precise(
+        F.heavyEdit.editMagnitudeBase +
+          (aiProbability - T.heavyEdit) * F.heavyEdit.editMagnitudeScale,
+      ),
       caveat:
         "Significant AI-assisted editing detected. Content appears substantially modified by AI tools.",
     };
   }
 
-  if (aiProbability > 0.35) {
+  if (aiProbability > T.lightEdit) {
     return {
       verdict: "light_edit",
-      confidence: precise(0.5 + (aiProbability - 0.35) * 1.0),
-      trust_score: precise(0.45 + (0.55 - aiProbability) * 1.0),
-      edit_magnitude: precise(0.2 + (aiProbability - 0.35) * 1.75),
+      confidence: precise(
+        F.lightEdit.confidenceBase +
+          (aiProbability - T.lightEdit) * F.lightEdit.confidenceScale,
+      ),
+      trust_score: precise(
+        F.lightEdit.trustScoreBase +
+          (T.heavyEdit - aiProbability) * F.lightEdit.trustScoreScale,
+      ),
+      edit_magnitude: precise(
+        F.lightEdit.editMagnitudeBase +
+          (aiProbability - T.lightEdit) * F.lightEdit.editMagnitudeScale,
+      ),
       caveat:
         "Minor AI assistance likely. Content appears primarily human-written with some AI refinement.",
     };
@@ -132,8 +159,11 @@ function mapVerdict(aiProbability: number, textLength: number): VerdictMapping {
   return {
     verdict: "human",
     confidence: precise(1 - aiProbability),
-    trust_score: precise(0.75 + (0.35 - aiProbability) * 0.66),
-    edit_magnitude: precise(aiProbability * 0.57),
+    trust_score: precise(
+      F.human.trustScoreBase +
+        (T.lightEdit - aiProbability) * F.human.trustScoreScale,
+    ),
+    edit_magnitude: precise(aiProbability * F.human.editMagnitudeScale),
     caveat:
       "Text appears human-written, but AI text detection has known limitations. Heavily edited AI text may appear human.",
   };
@@ -336,6 +366,10 @@ function methodD_statistical(
   text: string,
   textStats: TextStats,
 ): StatisticalSignal {
+  const W = DETECTION_CONFIG.text.statisticalWeights;
+  const N = DETECTION_CONFIG.text.normalization;
+  const FK = DETECTION_CONFIG.text.fleschKincaid;
+
   const wordCounts = sentenceWordCounts(text);
   const mean =
     wordCounts.length > 0
@@ -349,7 +383,7 @@ function methodD_statistical(
 
   // Burstiness: Human text has high variance in sentence length
   // Test data: AI avg 0.35, Human avg 0.73 — strongest discriminator
-  const burstiness = precise(Math.min(variance / 100, 1));
+  const burstiness = precise(Math.min(variance / N.burstinessScale, 1));
 
   // Type-Token Ratio: AI tends toward ~0.55 TTR
   const ttr = textStats.lexical_diversity;
@@ -364,23 +398,37 @@ function methodD_statistical(
   // vs human text (avg ~12 words). Normalize using sigmoid around threshold.
   // Test data: AI avg 21.6, Human avg 12.5
   const sentLenSignal = precise(
-    clamp((textStats.avg_sentence_length - 10) / 15, 0, 1),
+    clamp(
+      (textStats.avg_sentence_length - N.sentenceLengthOffset) /
+        N.sentenceLengthScale,
+      0,
+      1,
+    ),
   );
 
   // Word length signal: AI text uses longer words (avg ~6.3 chars)
   // vs human text (avg ~4.7 chars). Normalize similarly.
   // Test data: AI avg 6.28, Human avg 4.72
   const wordLenSignal = precise(
-    clamp((textStats.avg_word_length - 4.0) / 3.0, 0, 1),
+    clamp(
+      (textStats.avg_word_length - N.wordLengthOffset) / N.wordLengthScale,
+      0,
+      1,
+    ),
   );
 
   // Flesch-Kincaid readability approximation
   // AI clusters at higher grade levels due to longer sentences + bigger words
-  const avgSyllables = textStats.avg_word_length * 0.4; // rough syllable proxy
-  const fk = 0.39 * textStats.avg_sentence_length + 11.8 * avgSyllables - 15.59;
-  const fkNorm = clamp(fk / 20, 0, 1); // normalize to 0-1
+  const avgSyllables = textStats.avg_word_length * N.syllableProxy; // rough syllable proxy
+  const fk =
+    FK.sentenceCoeff * textStats.avg_sentence_length +
+    FK.syllableCoeff * avgSyllables +
+    FK.constant;
+  const fkNorm = clamp(fk / N.readabilityScale, 0, 1); // normalize to 0-1
   const readability =
-    fkNorm > 0.45 ? precise(0.5 + fkNorm * 0.5) : precise(fkNorm * 0.6);
+    fkNorm > N.readabilityBreakpoint
+      ? precise(N.readabilityHighBase + fkNorm * N.readabilityHighScale)
+      : precise(fkNorm * N.readabilityLowScale);
 
   // ── v2.0: New statistical features ──
 
@@ -399,7 +447,9 @@ function methodD_statistical(
   }
   const transitionRate = transitionCount / totalWords;
   // AI text: ~0.03-0.06 transition rate; Human: ~0.01-0.02
-  const transitionSignal = precise(clamp(transitionRate * 25, 0, 1));
+  const transitionSignal = precise(
+    clamp(transitionRate * N.transitionRateScale, 0, 1),
+  );
 
   // v2.0 Feature 2: Hedging phrase frequency
   // LLMs systematically hedge more than human writers
@@ -407,7 +457,7 @@ function methodD_statistical(
   for (const phrase of AI_HEDGING_PHRASES) {
     if (lowerText.includes(phrase)) hedgingCount++;
   }
-  const hedgingSignal = precise(clamp(hedgingCount / 4, 0, 1));
+  const hedgingSignal = precise(clamp(hedgingCount / N.hedgingScale, 0, 1));
 
   // v2.0 Feature 3: Punctuation pattern analysis
   // AI text: fewer em-dashes, exclamation marks, parentheticals
@@ -417,7 +467,11 @@ function methodD_statistical(
     textStats.sentence_count > 0 ? commaCount / textStats.sentence_count : 0;
   // AI averages ~2.5 commas/sentence vs human ~1.5
   const commaDensitySignal = precise(
-    clamp((commasPerSentence - 1.0) / 3.0, 0, 1),
+    clamp(
+      (commasPerSentence - N.commaDensityOffset) / N.commaDensityScale,
+      0,
+      1,
+    ),
   );
 
   const exclamationCount = (text.match(/!/g) || []).length;
@@ -427,7 +481,9 @@ function methodD_statistical(
     (exclamationCount + questionCount + emDashCount) / totalWords;
   // Human text: higher expressive punctuation rate
   // Low expressive rate → more AI-like
-  const expressiveSignal = precise(clamp(1 - expressiveRate * 50, 0, 1));
+  const expressiveSignal = precise(
+    clamp(1 - expressiveRate * N.expressiveScale, 0, 1),
+  );
 
   // v2.0 Feature 4: Paragraph opening patterns
   // AI tends to start paragraphs with similar structures
@@ -482,18 +538,18 @@ function methodD_statistical(
   // Combined statistical AI signal — v2.0 weights with new features
   // Original 6 features (60%) + 5 new features (40%)
   const signal = precise(
-    (1 - burstiness) * 0.18 + // strongest: low burstiness = AI
-      sentLenSignal * 0.14 + // strong: long sentences = AI
-      wordLenSignal * 0.1 + // moderate: long words = AI
-      readability * 0.08 + // moderate: high grade level = AI
-      (1 - ttr) * 0.05 + // weak: low diversity = AI
-      (1 - perplexityNorm) * 0.05 + // weak: low perplexity proxy = AI
-      transitionSignal * 0.12 + // NEW strong: high transition words = AI
-      hedgingSignal * 0.08 + // NEW moderate: hedging = AI
-      commaDensitySignal * 0.05 + // NEW weak: high comma density = AI
-      expressiveSignal * 0.05 + // NEW weak: low expressive punct = AI
-      paragraphRepetitionSignal * 0.04 + // NEW weak: paragraph starts repeat = AI
-      entropySignal * 0.06, // NEW moderate: low bigram entropy = AI
+    (1 - burstiness) * W.burstiness + // strongest: low burstiness = AI
+      sentLenSignal * W.sentenceLength + // strong: long sentences = AI
+      wordLenSignal * W.wordLength + // moderate: long words = AI
+      readability * W.readability + // moderate: high grade level = AI
+      (1 - ttr) * W.ttr + // weak: low diversity = AI
+      (1 - perplexityNorm) * W.perplexity + // weak: low perplexity proxy = AI
+      transitionSignal * W.transition + // NEW strong: high transition words = AI
+      hedgingSignal * W.hedging + // NEW moderate: hedging = AI
+      commaDensitySignal * W.commaDensity + // NEW weak: high comma density = AI
+      expressiveSignal * W.expressive + // NEW weak: low expressive punct = AI
+      paragraphRepetitionSignal * W.paragraphRepetition + // NEW weak: paragraph starts repeat = AI
+      entropySignal * W.bigramEntropy, // NEW moderate: low bigram entropy = AI
   );
 
   return { burstiness, ttr, perplexityNorm, repetition, readability, signal };
@@ -539,7 +595,10 @@ async function methodP_pangram(text: string): Promise<PangramResult | null> {
   if (!apiKey) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.pangram,
+  );
 
   try {
     const response = await fetch("https://text.api.pangram.com/v3", {
@@ -579,6 +638,8 @@ function scoreSentencesReal(
   text: string,
   aiProbability: number,
 ): SentenceScore[] {
+  const SA = DETECTION_CONFIG.text.sentenceAdjustments;
+
   const sentences = splitSentences(text).filter((s) => s.length > 10);
   const wordCounts = sentences.map(
     (s) => s.split(/\s+/).filter((w) => w.length > 0).length,
@@ -612,12 +673,12 @@ function scoreSentencesReal(
     const deviation = avgLen > 0 ? Math.abs(sentLen - avgLen) / avgLen : 0;
 
     // Feature 1: Sentence length uniformity
-    if (deviation <= 0.25) {
-      prob += 0.04; // close to avg = more uniform = more AI-like
-    } else if (deviation > 0.5) {
-      prob -= 0.06; // far from avg = more variable = more human-like
+    if (deviation <= SA.uniformThreshold) {
+      prob += SA.uniformBoost; // close to avg = more uniform = more AI-like
+    } else if (deviation > SA.variableThreshold) {
+      prob -= SA.variableReduction; // far from avg = more variable = more human-like
     } else {
-      prob -= 0.02;
+      prob -= SA.moderateReduction;
     }
 
     // v2.0 Feature 2: Word length in sentence — AI uses uniformly longer words
@@ -626,10 +687,10 @@ function scoreSentencesReal(
         ? Math.abs(sentenceAvgWordLens[i] - overallAvgWordLen) /
           overallAvgWordLen
         : 0;
-    if (wordLenDev <= 0.15) {
-      prob += 0.03; // very uniform word length across sentences = AI
-    } else if (wordLenDev > 0.3) {
-      prob -= 0.03;
+    if (wordLenDev <= SA.wordLenUniformThreshold) {
+      prob += SA.wordLenUniformBoost; // very uniform word length across sentences = AI
+    } else if (wordLenDev > SA.wordLenVariableThreshold) {
+      prob -= SA.wordLenVariableReduction;
     }
 
     // v2.0 Feature 3: Transition word at sentence start
@@ -638,13 +699,13 @@ function scoreSentencesReal(
       lowerSent.startsWith(p),
     );
     if (startsWithTransition) {
-      prob += 0.05;
+      prob += SA.transitionStartBoost;
     }
 
     // v2.0 Feature 4: Comma density in sentence
     const commas = (sentence.match(/,/g) || []).length;
-    if (sentLen > 0 && commas / sentLen > 0.15) {
-      prob += 0.02; // high comma density = AI-like
+    if (sentLen > 0 && commas / sentLen > SA.commaHighDensityThreshold) {
+      prob += SA.commaHighDensityBoost; // high comma density = AI-like
     }
 
     return {
@@ -781,11 +842,14 @@ export async function realTextDetection(
       // SynthID confirmed — high-confidence AI, no need for further analysis
       const stats = methodD_statistical(text, textStats);
       const featureVector = buildFeatureVector(stats);
-      const mapping = mapVerdict(0.97, text.length);
+      const mapping = mapVerdict(
+        DETECTION_CONFIG.text.synthidOverride,
+        text.length,
+      );
       return {
         verdict: mapping.verdict,
         confidence: mapping.confidence,
-        ai_probability: 0.97,
+        ai_probability: DETECTION_CONFIG.text.synthidOverride,
         model_used: "synthid:watermarked",
         text_stats: textStats,
         caveat:
@@ -794,26 +858,29 @@ export async function realTextDetection(
         classification: mapping.verdict,
         edit_magnitude: mapping.edit_magnitude,
         feature_vector: featureVector,
-        sentence_scores: scoreSentencesReal(text, 0.97),
+        sentence_scores: scoreSentencesReal(
+          text,
+          DETECTION_CONFIG.text.synthidOverride,
+        ),
         method_scores: {
           pangram: {
             score: 0,
-            weight: 0.38,
-            label: "Pangram (99.85%)",
+            weight: DETECTION_CONFIG.display.textMethods.pangram.weight,
+            label: DETECTION_CONFIG.display.textMethods.pangram.label,
             available: false,
             status: "not_run",
           },
           synthid_text: {
             score: 1.0,
             weight: 1.0,
-            label: "SynthID (Google Watermark)",
+            label: DETECTION_CONFIG.display.textMethods.synthidText.label,
             available: true,
             status: "success",
           },
           statistical: {
             score: stats.signal,
-            weight: 0.18,
-            label: "Statistical (12 features)",
+            weight: DETECTION_CONFIG.display.textMethods.statistical.weight,
+            label: DETECTION_CONFIG.display.textMethods.statistical.label,
             available: true,
             status: "success",
           },
@@ -833,8 +900,9 @@ export async function realTextDetection(
       let aiProbability = pangramResult.score;
 
       // Short text confidence scaling
-      if (text.length < 200) {
-        const lengthPenalty = text.length / 200;
+      if (text.length < DETECTION_CONFIG.text.shortTextScalingThreshold) {
+        const lengthPenalty =
+          text.length / DETECTION_CONFIG.text.shortTextScalingThreshold;
         aiProbability = precise(0.5 + (aiProbability - 0.5) * lengthPenalty);
       }
 
@@ -864,7 +932,7 @@ export async function realTextDetection(
         pangram: {
           score: pangramResult.score,
           weight: 1.0,
-          label: "Pangram (99.85%)",
+          label: DETECTION_CONFIG.display.textMethods.pangram.label,
           available: true,
           status: "success",
         },
@@ -875,14 +943,14 @@ export async function realTextDetection(
               : 0.5
             : 0,
           weight: 0.0,
-          label: "SynthID (Google Watermark)",
+          label: DETECTION_CONFIG.display.textMethods.synthidText.label,
           available: synthidAvailable,
           status: synthidAvailable ? "success" : "unavailable",
         },
         statistical: {
           score: stats.signal,
-          weight: 0.18,
-          label: "Statistical (12 features)",
+          weight: DETECTION_CONFIG.display.textMethods.statistical.weight,
+          label: DETECTION_CONFIG.display.textMethods.statistical.label,
           available: true,
           status: "success",
         },
@@ -944,7 +1012,7 @@ export async function realTextDetection(
         pangram: {
           score: 0,
           weight: 0.5,
-          label: "Pangram (99.85%)",
+          label: DETECTION_CONFIG.display.textMethods.pangram.label,
           available: false,
           status: "unavailable",
           tier: "primary" as const,
@@ -1036,8 +1104,12 @@ export async function realTextDetection(
 // ──────────────────────────────────────────────
 
 function methodF_frequency(imageBytes: Buffer): number {
+  const FN = DETECTION_CONFIG.image.frequencyNormalization;
+  const FW = DETECTION_CONFIG.image.frequencyWeights.withSlope;
+  const FB = DETECTION_CONFIG.image.frequencyWeights.fallback;
+
   // Extract raw pixel data from image bytes for frequency analysis
-  const size = Math.min(imageBytes.length, 65536); // Cap analysis size
+  const size = Math.min(imageBytes.length, FN.totalSamplesCap); // Cap analysis size
   const samples = new Float64Array(size);
   for (let i = 0; i < size; i++) {
     samples[i] = imageBytes[i] / 255.0;
@@ -1045,7 +1117,7 @@ function methodF_frequency(imageBytes: Buffer): number {
 
   // ── Signal 1: Multi-scale local variance analysis ──
   // Use 3 window sizes to capture texture at different scales
-  const windowSizes = [8, 16, 32];
+  const windowSizes = FN.windowSizes;
   const scaleUniformities: number[] = [];
 
   for (const windowSize of windowSizes) {
@@ -1069,7 +1141,9 @@ function methodF_frequency(imageBytes: Buffer): number {
       const varOfVar =
         localVariances.reduce((sum, v) => sum + Math.pow(v - avgVar, 2), 0) /
         localVariances.length;
-      scaleUniformities.push(clamp(1 - varOfVar * 1000, 0, 1));
+      scaleUniformities.push(
+        clamp(1 - varOfVar * FN.varianceOfVarianceScale, 0, 1),
+      );
     }
   }
 
@@ -1079,25 +1153,26 @@ function methodF_frequency(imageBytes: Buffer): number {
       : 0.5;
 
   // ── Signal 2: High-frequency energy (adjacent pixel differences) ──
-  const analyzeLen = Math.min(samples.length, 20000);
+  const analyzeLen = Math.min(samples.length, FN.analysisLengthCap);
   let highFreqEnergy = 0;
   for (let i = 1; i < analyzeLen; i++) {
     highFreqEnergy += Math.abs(samples[i] - samples[i - 1]);
   }
   highFreqEnergy /= Math.max(analyzeLen - 1, 1);
-  const smoothness = clamp(1 - highFreqEnergy * 5, 0, 1);
+  const smoothness = clamp(1 - highFreqEnergy * FN.highFreqEnergyScale, 0, 1);
 
   // ── Signal 3: DCT coefficient analysis (simplified) ──
   // AI images have different DCT coefficient distributions than real photos
   // Compute block-DCT energy distribution (8x8 blocks, like JPEG)
-  const blockSize = 8;
+  const blockSize = FN.dctBlockSize;
   let lowFreqDCTEnergy = 0;
   let highFreqDCTEnergy = 0;
   let dctBlocks = 0;
 
   for (
     let blockStart = 0;
-    blockStart + blockSize * blockSize <= Math.min(samples.length, 32768);
+    blockStart + blockSize * blockSize <=
+    Math.min(samples.length, FN.dctSamplesCap);
     blockStart += blockSize * blockSize
   ) {
     // Simple 1D DCT approximation per block
@@ -1120,14 +1195,16 @@ function methodF_frequency(imageBytes: Buffer): number {
   let dctRatioSignal = 0.5;
   if (dctBlocks > 0 && highFreqDCTEnergy > 0) {
     const dctRatio =
-      lowFreqDCTEnergy / dctBlocks / (highFreqDCTEnergy / dctBlocks + 0.001);
-    dctRatioSignal = clamp(dctRatio * 2, 0, 1); // Higher ratio = smoother = more AI
+      lowFreqDCTEnergy /
+      dctBlocks /
+      (highFreqDCTEnergy / dctBlocks + FN.dctEpsilon);
+    dctRatioSignal = clamp(dctRatio * FN.dctRatioScale, 0, 1); // Higher ratio = smoother = more AI
   }
 
   // ── Signal 4: Edge density analysis ──
   // Real photos have more complex, varied edges; AI images have cleaner edges
   let edgeCount = 0;
-  const edgeThreshold = 0.08; // ~20/255 difference between adjacent pixels
+  const edgeThreshold = FN.edgeThreshold; // ~20/255 difference between adjacent pixels
   for (let i = 1; i < analyzeLen; i++) {
     if (Math.abs(samples[i] - samples[i - 1]) > edgeThreshold) {
       edgeCount++;
@@ -1135,7 +1212,7 @@ function methodF_frequency(imageBytes: Buffer): number {
   }
   const edgeDensity = edgeCount / Math.max(analyzeLen - 1, 1);
   // Low edge density = smoother = more likely AI
-  const edgeSignal = clamp(1 - edgeDensity * 3, 0, 1);
+  const edgeSignal = clamp(1 - edgeDensity * FN.edgeDensityScale, 0, 1);
 
   // ── Signal 5: Spectral slope estimation ──
   // AI images have steeper spectral decay (1/f^β with higher β)
@@ -1145,24 +1222,24 @@ function methodF_frequency(imageBytes: Buffer): number {
       scaleUniformities[scaleUniformities.length - 1] - scaleUniformities[0];
     // Large positive diff = more uniform at larger scales = natural spectral decay (human)
     // Small/negative diff = uniformly smooth across scales = AI
-    const slopeSignal = clamp(0.5 - slopeDiff * 2, 0, 1);
+    const slopeSignal = clamp(FN.slopeBase - slopeDiff * FN.slopeScale, 0, 1);
 
     // v2.0: Weighted composite with 5 signals
     return precise(
-      avgUniformity * 0.25 +
-        smoothness * 0.2 +
-        dctRatioSignal * 0.25 +
-        edgeSignal * 0.15 +
-        slopeSignal * 0.15,
+      avgUniformity * FW.uniformity +
+        smoothness * FW.smoothness +
+        dctRatioSignal * FW.dctRatio +
+        edgeSignal * FW.edge +
+        slopeSignal * FW.slope,
     );
   }
 
   // Fallback if not enough scale data
   return precise(
-    avgUniformity * 0.3 +
-      smoothness * 0.25 +
-      dctRatioSignal * 0.25 +
-      edgeSignal * 0.2,
+    avgUniformity * FB.uniformity +
+      smoothness * FB.smoothness +
+      dctRatioSignal * FB.dctRatio +
+      edgeSignal * FB.edge,
   );
 }
 
@@ -1175,6 +1252,9 @@ function methodF_frequency(imageBytes: Buffer): number {
 // ──────────────────────────────────────────────
 
 function methodG_metadata(base64Image: string): number {
+  const S = DETECTION_CONFIG.image.metadata.suspicion;
+  const A = DETECTION_CONFIG.image.metadata.authenticity;
+
   // Extract MIME type from data URI
   const mimeMatch = base64Image.match(/^data:(image\/[a-zA-Z+]+);base64,/);
   const mimeType = mimeMatch ? mimeMatch[1] : "unknown";
@@ -1185,7 +1265,7 @@ function methodG_metadata(base64Image: string): number {
   try {
     bytes = Buffer.from(raw, "base64");
   } catch {
-    return 0.3; // Can't decode = suspicious
+    return DETECTION_CONFIG.image.metadata.decodeFailScore; // Can't decode = suspicious
   }
 
   let suspicion = 0;
@@ -1203,7 +1283,7 @@ function methodG_metadata(base64Image: string): number {
       }
     }
     if (!hasExif) {
-      suspicion += 0.2; // JPEG without EXIF is suspicious
+      suspicion += S.jpegNoExif; // JPEG without EXIF is suspicious
     } else {
       const exifSlice = bytes.slice(0, 4000).toString("ascii");
 
@@ -1213,9 +1293,9 @@ function methodG_metadata(base64Image: string): number {
           exifSlice,
         );
       if (hasCamera) {
-        authenticity += 0.15; // Camera brand found = likely real
+        authenticity += A.camera; // Camera brand found = likely real
       } else {
-        suspicion += 0.08;
+        suspicion += S.noCamera;
       }
 
       // v2.0: Check for valid TIFF header within EXIF (indicates real EXIF structure)
@@ -1227,16 +1307,16 @@ function methodG_metadata(base64Image: string): number {
         const hasTiffHeader =
           exifHeader.includes("II") || exifHeader.includes("MM");
         if (hasTiffHeader) {
-          authenticity += 0.08; // Proper TIFF structure = more likely real
+          authenticity += A.tiffHeader; // Proper TIFF structure = more likely real
         } else {
-          suspicion += 0.05; // Invalid EXIF structure
+          suspicion += S.invalidTiff; // Invalid EXIF structure
         }
       }
 
       // v2.0: Check for GPS data (most phone cameras embed location)
       const hasGPS = exifSlice.includes("GPS");
       if (hasGPS) {
-        authenticity += 0.05;
+        authenticity += A.gps;
       }
 
       // v2.0: Check for software editing tags (Photoshop, GIMP = edited but not AI)
@@ -1245,7 +1325,7 @@ function methodG_metadata(base64Image: string): number {
       );
       if (hasSoftware) {
         // Edited photo — slight suspicion but not AI-generated
-        suspicion += 0.03;
+        suspicion += S.softwareEditing;
       }
     }
 
@@ -1258,10 +1338,10 @@ function methodG_metadata(base64Image: string): number {
       }
     }
     if (hasJFIF && !hasExif) {
-      suspicion += 0.05; // JFIF-only JPEG = stripped metadata
+      suspicion += S.jfifNoExif; // JFIF-only JPEG = stripped metadata
     }
   } else if (mimeType === "image/png") {
-    suspicion += 0.08; // PNG from cameras is uncommon
+    suspicion += S.pngFormat; // PNG from cameras is uncommon
 
     // v2.0: Check for iTXt/tEXt chunks with AI tool signatures
     const pngText = bytes.slice(0, 8000).toString("ascii");
@@ -1270,31 +1350,34 @@ function methodG_metadata(base64Image: string): number {
         pngText,
       );
     if (hasAISignature) {
-      suspicion += 0.4; // Strong AI tool signature found
+      suspicion += S.aiSignature; // Strong AI tool signature found
     }
 
     // v2.0: Check for PNG "Software" field
     const hasCreationTool = /tEXt|iTXt/i.test(pngText);
     if (!hasCreationTool) {
-      suspicion += 0.03; // No text metadata at all
+      suspicion += S.noTextMetadata; // No text metadata at all
     }
   } else if (mimeType === "image/webp") {
     // v2.0: WebP is increasingly common from AI tools
-    suspicion += 0.05;
+    suspicion += S.webpFormat;
   }
 
   // ── Check 2: File structure analysis ──
   // Very small file size for image data
-  if (bytes.length < 5000) {
-    suspicion += 0.05;
+  if (bytes.length < DETECTION_CONFIG.image.metadata.smallFileThreshold) {
+    suspicion += S.smallFile;
   }
 
   // v2.0: Very uniform file size suggests specific generator output
   // Many AI generators produce images in specific size ranges
   const kbSize = bytes.length / 1024;
-  if (kbSize > 200 && kbSize < 300) {
+  if (
+    kbSize > DETECTION_CONFIG.image.metadata.sdxlSizeRange.min &&
+    kbSize < DETECTION_CONFIG.image.metadata.sdxlSizeRange.max
+  ) {
     // SDXL default output range
-    suspicion += 0.03;
+    suspicion += S.sdxlSizeRange;
   }
 
   // v2.0: Check for C2PA/Content Credentials markers
@@ -1302,11 +1385,16 @@ function methodG_metadata(base64Image: string): number {
   const headerStr = bytes.slice(0, 4000).toString("ascii");
   const hasC2PA = /c2pa|contentauth|Content Credentials/i.test(headerStr);
   if (hasC2PA) {
-    authenticity += 0.2; // Strong authenticity signal
+    authenticity += A.c2pa; // Strong authenticity signal
   }
 
   // v2.0: Final score combines suspicion minus authenticity
-  const finalScore = clamp(suspicion - authenticity * 0.5, 0, 1);
+  const finalScore = clamp(
+    suspicion -
+      authenticity * DETECTION_CONFIG.image.metadata.authenticityWeight,
+    0,
+    1,
+  );
 
   return precise(finalScore);
 }
@@ -1328,7 +1416,10 @@ async function methodS_sightEngine(
   if (!apiUser || !apiSecret) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.sightEngine,
+  );
 
   try {
     const formData = new FormData();
@@ -1376,7 +1467,10 @@ async function methodS_sightEngineURL(
   if (!apiUser || !apiSecret) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.sightEngineUrl,
+  );
 
   try {
     const params = new URLSearchParams({
@@ -1418,7 +1512,10 @@ export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
   formData.append("api_secret", apiSecret);
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 30000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.sightEngineVideo,
+  );
 
   try {
     const response = await fetch(
@@ -1487,7 +1584,10 @@ async function methodSynthID_text(
   if (!backendUrl) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.synthidText,
+  );
 
   try {
     const response = await fetch(`${backendUrl}/api/synthid-text`, {
@@ -1572,7 +1672,10 @@ async function methodSynthID_image(
   if (!projectId || !accessToken) return null;
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    DETECTION_CONFIG.timeouts.synthidImage,
+  );
 
   try {
     const base64Image = imageBytes.toString("base64");
@@ -1654,38 +1757,67 @@ function mapImageVerdict(compositeScore: number): {
   trust_score: number;
   edit_magnitude: number;
 } {
-  if (compositeScore > 0.65) {
+  const T = DETECTION_CONFIG.image.verdictThresholds;
+  const F = DETECTION_CONFIG.image.verdictFormulas;
+
+  if (compositeScore > T.aiGenerated) {
     return {
       verdict: "ai_generated",
       confidence: precise(compositeScore),
-      trust_score: precise(1 - compositeScore * 0.95),
-      edit_magnitude: precise(0.8 + compositeScore * 0.2),
+      trust_score: precise(
+        1 - compositeScore * F.aiGenerated.trustScoreMultiplier,
+      ),
+      edit_magnitude: precise(
+        F.aiGenerated.editMagnitudeBase +
+          compositeScore * F.aiGenerated.editMagnitudeScale,
+      ),
     };
   }
 
-  if (compositeScore > 0.45) {
+  if (compositeScore > T.heavyEdit) {
     return {
       verdict: "heavy_edit",
-      confidence: precise(0.55 + (compositeScore - 0.45) * 1.0),
-      trust_score: precise(0.3 + (0.65 - compositeScore) * 1.0),
-      edit_magnitude: precise(0.5 + (compositeScore - 0.45) * 1.5),
+      confidence: precise(
+        F.heavyEdit.confidenceBase +
+          (compositeScore - T.heavyEdit) * F.heavyEdit.confidenceScale,
+      ),
+      trust_score: precise(
+        F.heavyEdit.trustScoreBase +
+          (T.aiGenerated - compositeScore) * F.heavyEdit.trustScoreScale,
+      ),
+      edit_magnitude: precise(
+        F.heavyEdit.editMagnitudeBase +
+          (compositeScore - T.heavyEdit) * F.heavyEdit.editMagnitudeScale,
+      ),
     };
   }
 
-  if (compositeScore > 0.3) {
+  if (compositeScore > T.lightEdit) {
     return {
       verdict: "light_edit",
-      confidence: precise(0.5 + (compositeScore - 0.3) * 0.7),
-      trust_score: precise(0.5 + (0.45 - compositeScore) * 1.5),
-      edit_magnitude: precise(0.2 + (compositeScore - 0.3) * 2.0),
+      confidence: precise(
+        F.lightEdit.confidenceBase +
+          (compositeScore - T.lightEdit) * F.lightEdit.confidenceScale,
+      ),
+      trust_score: precise(
+        F.lightEdit.trustScoreBase +
+          (T.heavyEdit - compositeScore) * F.lightEdit.trustScoreScale,
+      ),
+      edit_magnitude: precise(
+        F.lightEdit.editMagnitudeBase +
+          (compositeScore - T.lightEdit) * F.lightEdit.editMagnitudeScale,
+      ),
     };
   }
 
   return {
     verdict: "human",
     confidence: precise(1 - compositeScore),
-    trust_score: precise(0.8 + (0.3 - compositeScore) * 0.66),
-    edit_magnitude: precise(compositeScore * 0.5),
+    trust_score: precise(
+      F.human.trustScoreBase +
+        (T.lightEdit - compositeScore) * F.human.trustScoreScale,
+    ),
+    edit_magnitude: precise(compositeScore * F.human.editMagnitudeScale),
   };
 }
 
@@ -1716,11 +1848,11 @@ export async function realImageDetection(
       // SynthID confirmed — high-confidence AI, no need for further analysis
       const freqScore = methodF_frequency(bytes);
       const metaScore = methodG_metadata(base64Image);
-      const mapping = mapImageVerdict(0.95);
+      const mapping = mapImageVerdict(DETECTION_CONFIG.image.synthidOverride);
       return {
         verdict: mapping.verdict,
         confidence: mapping.confidence,
-        primary_score: 0.95,
+        primary_score: DETECTION_CONFIG.image.synthidOverride,
         secondary_score: precise(freqScore),
         model_used: "synthid-image:detected",
         ensemble_used: false,
@@ -1731,28 +1863,28 @@ export async function realImageDetection(
           synthid_image: {
             score: 1.0,
             weight: 1.0,
-            label: "SynthID Image (Google)",
+            label: DETECTION_CONFIG.display.imageMethods.synthidImage.label,
             available: true,
             status: "success",
           },
           sightengine: {
             score: 0,
-            weight: 0.32,
-            label: "SightEngine (98.3%)",
+            weight: DETECTION_CONFIG.display.imageMethods.sightengine.weight,
+            label: DETECTION_CONFIG.display.imageMethods.sightengine.label,
             available: false,
             status: "not_run",
           },
           frequency: {
             score: freqScore,
-            weight: 0.18,
-            label: "Frequency/DCT Analysis",
+            weight: DETECTION_CONFIG.display.imageMethods.frequency.weight,
+            label: DETECTION_CONFIG.display.imageMethods.frequency.label,
             available: true,
             status: "success",
           },
           metadata: {
             score: metaScore,
-            weight: 0.13,
-            label: "Metadata/EXIF/C2PA",
+            weight: DETECTION_CONFIG.display.imageMethods.metadata.weight,
+            label: DETECTION_CONFIG.display.imageMethods.metadata.label,
             available: true,
             status: "success",
           },
@@ -1776,7 +1908,7 @@ export async function realImageDetection(
         sightengine: {
           score: sightEngineScore,
           weight: 1.0,
-          label: "SightEngine (98.3%)",
+          label: DETECTION_CONFIG.display.imageMethods.sightengine.label,
           available: true,
           status: "success",
         },
@@ -1789,21 +1921,21 @@ export async function realImageDetection(
                 : 0.5
             : 0,
           weight: 0.0,
-          label: "SynthID Image (Google)",
+          label: DETECTION_CONFIG.display.imageMethods.synthidImage.label,
           available: synthidAvail,
           status: synthidAvail ? "success" : "unavailable",
         },
         frequency: {
           score: freqScore,
-          weight: 0.18,
-          label: "Frequency/DCT Analysis",
+          weight: DETECTION_CONFIG.display.imageMethods.frequency.weight,
+          label: DETECTION_CONFIG.display.imageMethods.frequency.label,
           available: true,
           status: "success",
         },
         metadata: {
           score: metaScore,
-          weight: 0.13,
-          label: "Metadata/EXIF/C2PA",
+          weight: DETECTION_CONFIG.display.imageMethods.metadata.weight,
+          label: DETECTION_CONFIG.display.imageMethods.metadata.label,
           available: true,
           status: "success",
         },
@@ -1836,7 +1968,9 @@ export async function realImageDetection(
     );
     const freqScore = methodF_frequency(bytes);
     const metaScore = methodG_metadata(base64Image);
-    const localScore = freqScore * 0.6 + metaScore * 0.4;
+    const localScore =
+      freqScore * DETECTION_CONFIG.image.localFallbackWeights.frequency +
+      metaScore * DETECTION_CONFIG.image.localFallbackWeights.metadata;
     const mapping = mapImageVerdict(localScore);
     return {
       verdict: mapping.verdict,
@@ -1853,8 +1987,8 @@ export async function realImageDetection(
       method_scores: {
         sightengine: {
           score: 0,
-          weight: 0.32,
-          label: "SightEngine (98.3%)",
+          weight: DETECTION_CONFIG.display.imageMethods.sightengine.weight,
+          label: DETECTION_CONFIG.display.imageMethods.sightengine.label,
           available: false,
           status: "unavailable",
           tier: "primary",
@@ -1862,23 +1996,23 @@ export async function realImageDetection(
         synthid_image: {
           score: 0,
           weight: 0.37,
-          label: "SynthID Image (Google)",
+          label: DETECTION_CONFIG.display.imageMethods.synthidImage.label,
           available: false,
           status: "unavailable",
           tier: "primary",
         },
         frequency: {
           score: freqScore,
-          weight: 0.6,
-          label: "Frequency/DCT Analysis",
+          weight: DETECTION_CONFIG.image.localFallbackWeights.frequency,
+          label: DETECTION_CONFIG.display.imageMethods.frequency.label,
           available: true,
           status: "success",
           tier: "fallback",
         },
         metadata: {
           score: metaScore,
-          weight: 0.4,
-          label: "Metadata/EXIF/C2PA",
+          weight: DETECTION_CONFIG.image.localFallbackWeights.metadata,
+          label: DETECTION_CONFIG.display.imageMethods.metadata.label,
           available: true,
           status: "success",
           tier: "fallback",

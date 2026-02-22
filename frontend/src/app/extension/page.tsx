@@ -21,99 +21,30 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { DETECTION_CONFIG } from "@/lib/detection-config";
 
-/* ─── Real test data from vitest run (36/36 pass, Feb 22 2026) ─── */
+/* ─── Real test data from DETECTION_CONFIG.evaluation ─── */
+
+const EVAL = DETECTION_CONFIG.evaluation;
 
 const PIPELINE_STATS = {
-  totalTests: 36,
-  totalPassed: 36,
-  testSuites: 10,
-  totalSamples: 205,
-  aiSamples: 105,
-  humanSamples: 100,
+  totalTests: EVAL.totalTests,
+  totalPassed: EVAL.totalPassed,
+  testSuites: EVAL.testSuites,
+  totalSamples: EVAL.totalSamples,
+  aiSamples: EVAL.aiSamples,
+  humanSamples: EVAL.humanSamples,
 };
 
-const TEXT_METRICS = {
-  precision: 93.2,
-  specificity: 97.0,
-  accuracy: 67.3,
-  recall: 39.0,
-  f1: 55.0,
-  cohensD: 1.197,
-  effectSize: "LARGE",
-  aiSignalMean: 0.5362,
-  humanSignalMean: 0.3413,
-  separation: 0.1949,
-};
+const TEXT_METRICS = EVAL.text;
 
-const IMAGE_METRICS = {
-  accuracy: 83.3,
-  smoothVsNoisy: { smooth: 0.9988, noisy: 0.2806 },
-  avgAiFreq: 0.7325,
-  avgHumanFreq: 0.2744,
-};
+const IMAGE_METRICS = EVAL.image;
 
-const ENSEMBLE_SENSITIVITY = [
-  { name: "Read-heavy", accuracy: 69.8, f1: 61.3 },
-  { name: "Burst-heavy", accuracy: 66.3, f1: 54.3 },
-  { name: "Current", accuracy: 67.3, f1: 55.0 },
-  { name: "Equal weights", accuracy: 55.6, f1: 26.0 },
-];
+const ENSEMBLE_SENSITIVITY = EVAL.ensembleSensitivity;
 
-const THRESHOLD_ANALYSIS = [
-  {
-    name: "Lenient (0.70/0.50/0.30)",
-    accuracy: 69.3,
-    fpRate: 8.0,
-    fnRate: 52.4,
-  },
-  {
-    name: "Current (0.75/0.55/0.35)",
-    accuracy: 67.3,
-    fpRate: 3.0,
-    fnRate: 61.0,
-  },
-  {
-    name: "Strict (0.80/0.60/0.40)",
-    accuracy: 65.4,
-    fpRate: 1.0,
-    fnRate: 66.7,
-  },
-];
+const THRESHOLD_ANALYSIS = EVAL.thresholdAnalysis;
 
-const FEATURE_SEPARATION = [
-  {
-    feature: "Signal (composite)",
-    aiMean: 0.5362,
-    humanMean: 0.3413,
-    delta: "+0.1949",
-  },
-  {
-    feature: "Burstiness",
-    aiMean: 0.5718,
-    humanMean: 0.7805,
-    delta: "-0.2087",
-  },
-  {
-    feature: "Readability",
-    aiMean: 0.9478,
-    humanMean: 0.8074,
-    delta: "+0.1404",
-  },
-  {
-    feature: "Avg Sentence Len",
-    aiMean: 20.79,
-    humanMean: 16.04,
-    delta: "+4.75",
-  },
-  { feature: "Avg Word Len", aiMean: 5.84, humanMean: 4.73, delta: "+1.11" },
-  {
-    feature: "Perplexity Norm",
-    aiMean: 0.7397,
-    humanMean: 0.9265,
-    delta: "-0.1868",
-  },
-];
+const FEATURE_SEPARATION = EVAL.featureSeparation;
 
 const TEXT_METHODS = [
   {

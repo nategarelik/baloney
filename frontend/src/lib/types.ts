@@ -258,17 +258,6 @@ export interface ContentProvenance {
   last_seen: string;
 }
 
-export interface InformationDietScore {
-  user_id: string;
-  score: number;
-  letter_grade: string;
-  ai_content_ratio: number;
-  source_diversity: number;
-  trend_direction: number;
-  awareness_actions: number;
-  computed_at: string;
-}
-
 // ──────────────────────────────────────────────
 // Tracker (from /api/analytics/tracker)
 // ──────────────────────────────────────────────
@@ -359,5 +348,4 @@ export interface FeedPostData {
   imageUrl: string;
   caption: string;
   isAiGenerated: boolean;
-  expectedConfidence: number;
 }

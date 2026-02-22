@@ -1,8 +1,12 @@
 // evaluation-data.ts — Real evaluation pipeline
 // Runs methodD_statistical on ALL labeled text samples from datasets.ts
 // and computes genuine metrics at build time (module-level execution).
+//
+// NOTE: Uses v1 statistical weights (7-feature) — same divergence as
+// analysis-system.test.ts. Verdict thresholds shared via DETECTION_CONFIG.
 
 import { computeTextStats } from "./mock-detectors";
+import { DETECTION_CONFIG } from "./detection-config";
 import type { TextStats } from "./types";
 import {
   AI_TEXT_SAMPLES,
@@ -30,7 +34,7 @@ function sentenceWordCounts(text: string): number[] {
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
   return sentences.map(
-    (s) => s.split(/\s+/).filter((w) => w.length > 0).length
+    (s) => s.split(/\s+/).filter((w) => w.length > 0).length,
   );
 }
 
@@ -45,7 +49,7 @@ interface StatisticalSignal {
 
 function methodD_statistical(
   text: string,
-  textStats: TextStats
+  textStats: TextStats,
 ): StatisticalSignal {
   const wordCounts = sentenceWordCounts(text);
   const mean =
@@ -64,15 +68,14 @@ function methodD_statistical(
   const repetition = precise(clamp(1 - ttr, 0, 1));
 
   const sentLenSignal = precise(
-    clamp((textStats.avg_sentence_length - 10) / 15, 0, 1)
+    clamp((textStats.avg_sentence_length - 10) / 15, 0, 1),
   );
   const wordLenSignal = precise(
-    clamp((textStats.avg_word_length - 4.0) / 3.0, 0, 1)
+    clamp((textStats.avg_word_length - 4.0) / 3.0, 0, 1),
   );
 
   const avgSyllables = textStats.avg_word_length * 0.4;
-  const fk =
-    0.39 * textStats.avg_sentence_length + 11.8 * avgSyllables - 15.59;
+  const fk = 0.39 * textStats.avg_sentence_length + 11.8 * avgSyllables - 15.59;
   const fkNorm = clamp(fk / 20, 0, 1);
   const readability =
     fkNorm > 0.45 ? precise(0.5 + fkNorm * 0.5) : precise(fkNorm * 0.6);
@@ -84,7 +87,7 @@ function methodD_statistical(
       readability * 0.15 +
       (1 - ttr) * 0.1 +
       (1 - perplexityNorm) * 0.1 +
-      repetition * 0.05
+      repetition * 0.05,
   );
 
   return { burstiness, ttr, perplexityNorm, repetition, readability, signal };
@@ -239,7 +242,7 @@ export interface ConfusionMatrix {
 
 function computeConfusionMatrix(
   samples: ScoredSample[],
-  threshold: number
+  threshold: number,
 ): ConfusionMatrix {
   let tp = 0,
     fp = 0,
@@ -272,7 +275,7 @@ export interface DomainAccuracy {
 
 function computeDomainAccuracy(
   samples: ScoredSample[],
-  threshold: number
+  threshold: number,
 ): DomainAccuracy[] {
   // Group by category
   const groups = new Map<string, ScoredSample[]>();
@@ -315,17 +318,19 @@ function mergeDomains(detailed: DomainAccuracy[]): DomainAccuracy[] {
     if (cat.includes("creative") || cat.includes("writing")) return "creative";
     if (cat.includes("email")) return "email";
     if (cat.includes("blog") || cat.includes("listicle")) return "blog";
-    if (cat.includes("technical") || cat.includes("mistral")) return "technical";
+    if (cat.includes("technical") || cat.includes("mistral"))
+      return "technical";
     if (cat.includes("news")) return "news";
-    if (cat.includes("essay") || cat.includes("report") || cat.includes("persuasive"))
+    if (
+      cat.includes("essay") ||
+      cat.includes("report") ||
+      cat.includes("persuasive")
+    )
       return "essay";
     if (cat.includes("review")) return "review";
-    if (
-      cat.includes("medical") ||
-      cat.includes("legal")
-    )
-      return "professional";
-    if (cat.includes("short") || cat.includes("edge-short")) return "short-text";
+    if (cat.includes("medical") || cat.includes("legal")) return "professional";
+    if (cat.includes("short") || cat.includes("edge-short"))
+      return "short-text";
     if (
       cat.includes("esl") ||
       cat.includes("non-native") ||
@@ -346,8 +351,7 @@ function mergeDomains(detailed: DomainAccuracy[]): DomainAccuracy[] {
 
   for (const d of detailed) {
     const bucket = classify(d.domain);
-    if (!buckets[bucket])
-      buckets[bucket] = { correct: 0, total: 0 };
+    if (!buckets[bucket]) buckets[bucket] = { correct: 0, total: 0 };
     // Reconstruct correct count from accuracy and count
     buckets[bucket].correct += Math.round((d.accuracy / 100) * d.count);
     buckets[bucket].total += d.count;
@@ -373,7 +377,7 @@ export interface AblationEntry {
 
 function computeF1WithSignal(
   samples: ScoredSample[],
-  getSignal: (s: ScoredSample) => number
+  getSignal: (s: ScoredSample) => number,
 ): number {
   // Find best threshold for this signal using Youden's J
   const totalPositive = samples.filter((s) => s.label === "ai").length;
@@ -419,7 +423,7 @@ function computeF1WithSignal(
   const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
   const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
   return precision + recall > 0
-    ? precise((2 * precision * recall) / (precision + recall) * 100, 1)
+    ? precise(((2 * precision * recall) / (precision + recall)) * 100, 1)
     : 0;
 }
 
@@ -431,7 +435,10 @@ function computeAblation(samples: ScoredSample[]): AblationEntry[] {
   const ttrF1 = computeF1WithSignal(samples, (s) => 1 - s.stats.ttr);
   const readF1 = computeF1WithSignal(samples, (s) => s.stats.readability);
   const repF1 = computeF1WithSignal(samples, (s) => s.stats.repetition);
-  const perpF1 = computeF1WithSignal(samples, (s) => 1 - s.stats.perplexityNorm);
+  const perpF1 = computeF1WithSignal(
+    samples,
+    (s) => 1 - s.stats.perplexityNorm,
+  );
 
   return [
     { method: "Full Signal", f1: fullF1 },
@@ -455,7 +462,7 @@ export interface SummaryStatEntry {
 function computeSummaryStats(
   cm: ConfusionMatrix,
   auc: number,
-  samples: ScoredSample[]
+  samples: ScoredSample[],
 ): SummaryStatEntry[] {
   const total = cm.tp + cm.fp + cm.fn + cm.tn;
   const accuracy = total > 0 ? (cm.tp + cm.tn) / total : 0;
@@ -531,7 +538,7 @@ export const optimalThreshold: number = findOptimalThreshold(scoredSamples);
 
 export const confusionMatrix: ConfusionMatrix = computeConfusionMatrix(
   scoredSamples,
-  optimalThreshold
+  optimalThreshold,
 );
 
 const rawDomainData = computeDomainAccuracy(scoredSamples, optimalThreshold);
@@ -542,7 +549,7 @@ export const ablationData: AblationEntry[] = computeAblation(scoredSamples);
 export const summaryStats: SummaryStatEntry[] = computeSummaryStats(
   confusionMatrix,
   aucRoc,
-  scoredSamples
+  scoredSamples,
 );
 
 export const totalSamples: number = scoredSamples.length;
@@ -550,9 +557,12 @@ export const totalSamples: number = scoredSamples.length;
 // Overall accuracy for reference line on per-domain chart
 export const overallAccuracy: number = precise(
   ((confusionMatrix.tp + confusionMatrix.tn) /
-    (confusionMatrix.tp + confusionMatrix.fp + confusionMatrix.fn + confusionMatrix.tn)) *
+    (confusionMatrix.tp +
+      confusionMatrix.fp +
+      confusionMatrix.fn +
+      confusionMatrix.tn)) *
     100,
-  1
+  1,
 );
 
 // Diagonal reference line for ROC chart
@@ -626,12 +636,44 @@ export const pangramValidationData: PangramValidationData = {
   confusionMatrix: { tp: 36, fp: 46, fn: 0, tn: 4 },
   optimalThreshold: 0.01,
   perModelAccuracy: [
-    { model: "gemini", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 36 },
+    {
+      model: "gemini",
+      accuracy: 100,
+      detection_rate: 100,
+      avg_confidence: 1.0,
+      avg_ai_assisted: 0,
+      avg_window_high_conf: 100,
+      n: 36,
+    },
   ],
   perPlatformAccuracy: [
-    { platform: "x", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 15 },
-    { platform: "facebook", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 14 },
-    { platform: "linkedin", accuracy: 100, detection_rate: 100, avg_confidence: 1.0, avg_ai_assisted: 0, avg_window_high_conf: 100, n: 7 },
+    {
+      platform: "x",
+      accuracy: 100,
+      detection_rate: 100,
+      avg_confidence: 1.0,
+      avg_ai_assisted: 0,
+      avg_window_high_conf: 100,
+      n: 15,
+    },
+    {
+      platform: "facebook",
+      accuracy: 100,
+      detection_rate: 100,
+      avg_confidence: 1.0,
+      avg_ai_assisted: 0,
+      avg_window_high_conf: 100,
+      n: 14,
+    },
+    {
+      platform: "linkedin",
+      accuracy: 100,
+      detection_rate: 100,
+      avg_confidence: 1.0,
+      avg_ai_assisted: 0,
+      avg_window_high_conf: 100,
+      n: 7,
+    },
   ],
   confidenceDistribution: [
     { bucket: "0.0-0.1", ai_count: 0, human_count: 4 },

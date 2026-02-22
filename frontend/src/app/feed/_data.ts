@@ -13,7 +13,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Golden hour at the lake. No filter needed when nature does the work.",
     isAiGenerated: false,
-    expectedConfidence: 0.92,
   },
   {
     id: "post-02",
@@ -26,7 +25,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Rainy nights in the city hit different. NYC never sleeps, even in the rain.",
     isAiGenerated: false,
-    expectedConfidence: 0.88,
   },
   {
     id: "post-03",
@@ -38,7 +36,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/pasta-dish/600/600",
     caption: "Homemade truffle pasta. Recipe in bio!",
     isAiGenerated: false,
-    expectedConfidence: 0.95,
   },
   {
     id: "post-04",
@@ -50,7 +47,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/mountain-hike/600/750",
     caption: "3am wake-up was worth it. Sunrise at 12,000ft.",
     isAiGenerated: false,
-    expectedConfidence: 0.91,
   },
   // ── AI-generated images (~7) ────────────────────
   {
@@ -63,7 +59,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/floating-castle/600/600",
     caption: "What if cities floated in the clouds? Imagination has no limits.",
     isAiGenerated: true,
-    expectedConfidence: 0.94,
   },
   {
     id: "post-06",
@@ -75,7 +70,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/cyber-portrait/600/600",
     caption: "Portrait study: neon cyberpunk vibes. What do you think?",
     isAiGenerated: true,
-    expectedConfidence: 0.97,
   },
   {
     id: "post-07",
@@ -88,7 +82,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Lost in an enchanted forest. The light through the crystal trees is unreal.",
     isAiGenerated: true,
-    expectedConfidence: 0.91,
   },
   // ── More real photographs ───────────────────────
   {
@@ -101,7 +94,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/golden-retriever/600/600",
     caption: "Someone's ready for their walk. Those eyes though!",
     isAiGenerated: false,
-    expectedConfidence: 0.93,
   },
   {
     id: "post-09",
@@ -113,7 +105,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/latte-art/600/600",
     caption: "Today's latte art. The barista absolutely nailed it.",
     isAiGenerated: false,
-    expectedConfidence: 0.89,
   },
   // ── More AI images ──────────────────────────────
   {
@@ -127,7 +118,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Space whales migrating through the nebula. The universe is full of wonders we haven't discovered yet.",
     isAiGenerated: true,
-    expectedConfidence: 0.96,
   },
   {
     id: "post-11",
@@ -140,7 +130,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Retrofuturism at its finest. What 1960s architects thought 2026 would look like.",
     isAiGenerated: true,
-    expectedConfidence: 0.88,
   },
   // ── More real content ───────────────────────────
   {
@@ -153,7 +142,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/gym-workout/600/600",
     caption: "Leg day. No excuses. 5am grind never stops.",
     isAiGenerated: false,
-    expectedConfidence: 0.9,
   },
   {
     id: "post-13",
@@ -165,7 +153,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/cozy-reading/600/600",
     caption: "Sunday vibes. Hot tea, good book, rain outside. Perfect.",
     isAiGenerated: false,
-    expectedConfidence: 0.87,
   },
   // ── Ambiguous posts (~2) ────────────────────────
   {
@@ -179,7 +166,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Blending digital techniques with traditional painting. Where does one end and the other begin?",
     isAiGenerated: false,
-    expectedConfidence: 0.52,
   },
   {
     id: "post-15",
@@ -192,7 +178,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "AI-enhanced photo restoration of my grandpa's 1960s slide collection. Technology meets nostalgia.",
     isAiGenerated: false,
-    expectedConfidence: 0.48,
   },
   // ── More AI content ─────────────────────────────
   {
@@ -206,7 +191,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Alien botanical garden. What plants would grow on a planet with two suns?",
     isAiGenerated: true,
-    expectedConfidence: 0.93,
   },
   // ── Final real photos ───────────────────────────
   {
@@ -220,7 +204,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Last night was incredible. The energy in the crowd was unmatched.",
     isAiGenerated: false,
-    expectedConfidence: 0.86,
   },
   {
     id: "post-18",
@@ -232,7 +215,6 @@ export const FEED_POSTS: FeedPostData[] = [
     imageUrl: "https://picsum.photos/seed/dewdrop-leaf/600/600",
     caption: "A whole universe in a single dewdrop. 100mm macro lens, f/2.8.",
     isAiGenerated: false,
-    expectedConfidence: 0.94,
   },
   // ── Final AI image ──────────────────────────────
   {
@@ -246,7 +228,6 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Underwater metropolis concept. Humanity's next frontier might be beneath the waves.",
     isAiGenerated: true,
-    expectedConfidence: 0.95,
   },
   {
     id: "post-20",
@@ -259,6 +240,5 @@ export const FEED_POSTS: FeedPostData[] = [
     caption:
       "Another day, another sunset. This one from Malibu. Nature's daily masterpiece.",
     isAiGenerated: false,
-    expectedConfidence: 0.91,
   },
 ];

@@ -20,6 +20,7 @@ const VERDICT_CLASSES = {
   human: "human",
 };
 
+// TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.dotColors
 const VERDICT_COLORS = {
   ai_generated: "#d4456b",
   heavy_edit: "#f97316",
@@ -39,24 +40,31 @@ function getTextReasons(result) {
   if (!fv) return reasons;
 
   if (fv.burstiness !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.burstiness < 0.2)
       reasons.push("Sentence lengths are very uniform, typical of AI writing");
+    // TODO: consider adding to detection-config.ts
     else if (fv.burstiness > 0.5)
       reasons.push("Varied sentence rhythm suggests human writing style");
   }
   if (fv.type_token_ratio !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.type_token_ratio < 0.4)
       reasons.push("Vocabulary is repetitive, a common AI pattern");
+    // TODO: consider adding to detection-config.ts
     else if (fv.type_token_ratio > 0.7)
       reasons.push("Rich vocabulary diversity indicates human authorship");
   }
   if (fv.perplexity !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.perplexity < 80)
       reasons.push("Text is highly predictable, consistent with AI generation");
+    // TODO: consider adding to detection-config.ts
     else if (fv.perplexity > 150)
       reasons.push("Unpredictable word choices suggest human creativity");
   }
   if (fv.repetition_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (fv.repetition_score > 0.6)
       reasons.push("High phrase repetition detected");
   }
@@ -66,22 +74,28 @@ function getTextReasons(result) {
 function getImageReasons(result) {
   const reasons = [];
   if (result.primary_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.primary_score > 0.7)
       reasons.push("Visual patterns strongly match AI generation signatures");
+    // TODO: consider adding to detection-config.ts
     else if (result.primary_score < 0.3)
       reasons.push("Visual patterns consistent with authentic photography");
   }
   if (result.secondary_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.secondary_score > 0.6)
       reasons.push("Frequency analysis shows unusually smooth gradients");
+    // TODO: consider adding to detection-config.ts
     else if (result.secondary_score < 0.3)
       reasons.push("Natural noise patterns detected in image data");
   }
   if (result.edit_magnitude !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.edit_magnitude > 0.7)
       reasons.push("Significant digital manipulation detected");
   }
   if (result.trust_score !== undefined) {
+    // TODO: consider adding to detection-config.ts
     if (result.trust_score > 0.75) reasons.push("High authenticity confidence");
   }
   return reasons;
@@ -105,6 +119,7 @@ function pct(val) {
   return Math.round(val * 100);
 }
 
+// TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
 function scoreColor(score) {
   if (score > 0.65) return "#d4456b";
   if (score > 0.35) return "#f59e0b";
@@ -153,6 +168,7 @@ function renderQuickStats(result, type) {
   const edit = pct(result.edit_magnitude);
   const color = VERDICT_COLORS[result.verdict] || "#4a3728";
 
+  // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
   return `
     <div class="quick-stats">
       <div class="stat-box">
@@ -288,6 +304,7 @@ function renderFeatureAnalysis(result) {
   const fv = result.feature_vector;
   if (!fv) return "";
 
+  // TODO: consider adding to detection-config.ts (feature interpretation thresholds)
   const features = [
     {
       name: "Burstiness",
@@ -323,6 +340,7 @@ function renderFeatureAnalysis(result) {
   features.forEach((f) => {
     if (f.value === undefined || f.value === null) return;
     const barPct = Math.min(100, Math.round((f.value / f.max) * 100));
+    // TODO: consider adding to detection-config.ts (feature bar color thresholds)
     const color =
       f.name === "Perplexity"
         ? f.value < 80
@@ -384,6 +402,7 @@ function renderPangramWindows(result) {
     const widthPct = (((w.end - w.start) / totalLen) * 100).toFixed(1);
     const cls = (w.classification || "mixed").toLowerCase();
     const bgColor = classColors[cls] || "#f59e0b";
+    // TODO: consider adding to detection-config.ts
     const opacity = 0.4 + (w.confidence || 0.5) * 0.6;
     legendItems.add(cls);
     barHtml += `<div class="pangram-segment" style="width:${widthPct}%;background:${bgColor};opacity:${opacity}" title="${esc(cls)} (${pct(w.ai_assistance_score)}% AI, ${pct(w.confidence)}% conf)"></div>`;
@@ -523,6 +542,7 @@ function renderResult(data) {
     let sentHtml = "";
     result.sentence_scores.forEach((s) => {
       const sp = pct(s.ai_probability);
+      // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
       const barColor =
         s.ai_probability > 0.6
           ? "#d4456b"
