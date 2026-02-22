@@ -27,6 +27,16 @@
   justify-content: center;
 }
 
+.baloney-dot--has-methods:hover {
+  width: 150px;
+  height: 32px;
+  border-radius: 10px;
+  padding: 2px 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .baloney-dot__label {
   opacity: 0;
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -35,6 +45,21 @@
   white-space: nowrap;
   transition: opacity 0.15s ease 0.05s;
   pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.baloney-dot__label-line1 {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.baloney-dot__label-line2 {
+  font-size: 8px;
+  font-weight: 500;
+  opacity: 0.85;
 }
 
 .baloney-dot:hover .baloney-dot__label {
@@ -652,4 +677,69 @@
 @keyframes baloney-fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+/* ── Toast method mini-bars ── */
+
+.baloney-toast-methods {
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 16px;
+}
+.baloney-toast-method-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+.baloney-toast-method-label {
+  color: rgba(74,55,40,0.6);
+  min-width: 80px;
+  font-size: 10px;
+}
+.baloney-toast-method-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(74,55,40,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.baloney-toast-method-bar > div {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.baloney-toast-method-pct {
+  color: rgba(74,55,40,0.5);
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ── Page panel stats header ── */
+
+.baloney-page-stats {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(74,55,40,0.1);
+  margin-bottom: 6px;
+}
+.baloney-page-stat {
+  flex: 1;
+  text-align: center;
+}
+.baloney-page-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #4a3728;
+}
+.baloney-page-stat-label {
+  font-size: 9px;
+  color: rgba(74,55,40,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }

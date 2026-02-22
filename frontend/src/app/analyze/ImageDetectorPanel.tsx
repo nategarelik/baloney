@@ -12,6 +12,11 @@ import { AnimatedPercentage } from "./AnimatedPercentage";
 import { MethodBreakdown } from "./MethodBreakdown";
 import { SourceContext } from "./SourceContext";
 import { PipelineStageBadge } from "./PipelineStageBadge";
+import { TrustScoreGauge } from "./TrustScoreGauge";
+import { EditMagnitudeGauge } from "./EditMagnitudeGauge";
+import { ProvenanceCard } from "./ProvenanceCard";
+import { ExportActions } from "./ExportActions";
+import { ScanMetadata } from "./ScanMetadata";
 
 const VERDICT_LABELS: Record<string, string> = {
   ai_generated: "AI Generated",
@@ -342,23 +347,13 @@ export function ImageDetectorPanel({
             </div>
           </div>
 
-          {/* Tier 2: Human Score — small contextualized stat */}
-          <div className="bg-base-dark/70 border border-secondary/8 rounded-lg px-4 py-3 flex items-center gap-3">
-            <div className="text-lg font-semibold text-secondary">
-              {Math.round(result.trust_score * 100)}%
-            </div>
-            <div>
-              <p className="text-secondary/50 text-xs">Human Score</p>
-              <p className="text-secondary/30 text-[10px]">
-                How likely this content is genuine
-              </p>
-            </div>
+          {/* Visual Gauges */}
+          <div className="flex flex-wrap items-center gap-6">
+            <TrustScoreGauge score={result.trust_score} />
+            {result.edit_magnitude !== undefined && (
+              <EditMagnitudeGauge magnitude={result.edit_magnitude} />
+            )}
           </div>
-
-          {/* Tier 3: Model info */}
-          <p className="text-secondary/30 text-xs">
-            Model: {result.model_used}
-          </p>
         </div>
       )}
 
@@ -375,6 +370,28 @@ export function ImageDetectorPanel({
             confidenceCapped={result.confidenceCapped}
           />
         )}
+
+      {/* Provenance */}
+      {result && !loading && (
+        <ProvenanceCard
+          scanId={result.scan_id}
+          sourceUrl={sourceUrl}
+          modelUsed={result.model_used}
+        />
+      )}
+
+      {/* Export Actions */}
+      {result && !loading && (
+        <ExportActions
+          result={result as unknown as Record<string, unknown>}
+          type="image"
+        />
+      )}
+
+      {/* Scan Metadata */}
+      {result && !loading && (
+        <ScanMetadata modelUsed={result.model_used} scanId={result.scan_id} />
+      )}
     </div>
   );
 }

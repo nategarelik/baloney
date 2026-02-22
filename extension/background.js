@@ -74,10 +74,11 @@ async function fetchImageAsBase64(imageUrl) {
 }
 
 // Send image to backend for detection (with timeout)
-async function detectImage(base64Image, platform, sourceDomain) {
+async function detectImage(base64Image, platform, sourceDomain, pageUrl) {
   const userId = await getUserId();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const pageUrlHash = pageUrl ? await hashString(pageUrl) : null;
 
   try {
     const response = await fetch(`${API_URL}/api/detect/image`, {
@@ -89,6 +90,7 @@ async function detectImage(base64Image, platform, sourceDomain) {
         user_id: userId,
         platform: platform,
         source_domain: sourceDomain,
+        page_url_hash: pageUrlHash,
       }),
     });
 
@@ -100,13 +102,18 @@ async function detectImage(base64Image, platform, sourceDomain) {
 }
 
 // Detect with retry — real API only, no fake fallback
-async function detectWithFallback(base64Image, platform, sourceDomain) {
+async function detectWithFallback(
+  base64Image,
+  platform,
+  sourceDomain,
+  pageUrl,
+) {
   const maxRetries = 2;
   let lastError;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      return await detectImage(base64Image, platform, sourceDomain);
+      return await detectImage(base64Image, platform, sourceDomain, pageUrl);
     } catch (error) {
       lastError = error;
       // Only retry on network/timeout errors, not 4xx
@@ -124,6 +131,15 @@ async function detectWithFallback(base64Image, platform, sourceDomain) {
     model: "api-unavailable",
     error: lastError?.message || "Detection API unreachable",
   };
+}
+
+// Hash a string using SHA-256 (for page_url_hash)
+async function hashString(s) {
+  const enc = new TextEncoder().encode(s);
+  const hash = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(hash)]
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // Extract domain from URL
@@ -254,6 +270,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         base64,
         detectPlatform(tab?.url),
         extractDomain(info.srcUrl),
+        tab?.url,
       );
       chrome.tabs.sendMessage(tab.id, {
         type: "show-result",
@@ -317,7 +334,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const sourceDomain = extractDomain(message.url);
 
     fetchImageAsBase64(message.url)
-      .then((base64) => detectWithFallback(base64, platform, sourceDomain))
+      .then((base64) =>
+        detectWithFallback(base64, platform, sourceDomain, tabUrl),
+      )
       .then((result) => sendResponse(result))
       .catch((error) => {
         console.error("[Baloney] Detection error:", error);
@@ -333,7 +352,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const platform = detectPlatform(tabUrl);
     const base64 = message.base64 || message.url;
 
-    detectWithFallback(base64, platform, null)
+    detectWithFallback(base64, platform, null, tabUrl)
       .then((result) => sendResponse(result))
       .catch((error) => {
         console.error("[Baloney] Video frame detection error:", error);

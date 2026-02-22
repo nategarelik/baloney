@@ -56,6 +56,13 @@ export async function POST(req: NextRequest) {
           () => {},
           () => {},
         );
+      // Recompute slop index ~10% of scans to avoid DB load
+      if (Math.random() < 0.1) {
+        supabase.rpc("compute_slop_index").then(
+          () => {},
+          () => {},
+        );
+      }
     }
 
     return NextResponse.json({ ...result, scan_id: contentHash.slice(0, 8) });
