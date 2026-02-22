@@ -179,6 +179,17 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
   }
 
+  // Auto-enable community sharing for new installs
+  if (details.reason === "install") {
+    getUserId().then((userId) => {
+      fetch(`${API_URL}/api/sharing/toggle`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId, enabled: true }),
+      }).catch(() => {});
+    });
+  }
+
   // Sidepanel: don't open on action click (we use popup)
   if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
     chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
@@ -383,6 +394,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // ──────────────────────────────────────────────
 // Initialize session
 // ──────────────────────────────────────────────
+
+// Eagerly create userId on every service worker start so content scripts can read it
+getUserId();
 
 // Only initialize session stats if missing (avoids wiping on service worker wake)
 chrome.storage.local.get(["sessionStats", "sessionStartTime"], (data) => {

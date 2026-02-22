@@ -45,6 +45,18 @@ export async function POST(req: NextRequest) {
         p_classification: result.classification,
         p_edit_magnitude: result.edit_magnitude,
       });
+
+      // Recompute user scores (fire-and-forget, don't delay response)
+      supabase.rpc("compute_exposure_score", { p_user_id: user_id }).then(
+        () => {},
+        () => {},
+      );
+      supabase
+        .rpc("compute_information_diet_score", { p_user_id: user_id })
+        .then(
+          () => {},
+          () => {},
+        );
     }
 
     return NextResponse.json({ ...result, scan_id: contentHash.slice(0, 8) });

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
 import { detectText } from "@/lib/api";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { TextDetectionResult, VideoDetectionResult } from "@/lib/types";
 import { TrustScoreGauge } from "./TrustScoreGauge";
 import { SentenceHeatmap } from "./SentenceHeatmap";
@@ -152,6 +152,7 @@ function TextPanel({
 }: {
   externalResult?: TextDetectionResult | null;
 }) {
+  const userId = useUserId();
   const [text, setText] = useState("");
   const [result, setResult] = useState<TextDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -166,7 +167,7 @@ function TextPanel({
     setLoading(true);
     setError(null);
     try {
-      const data = await detectText(text, DEMO_USER_ID, "manual_upload");
+      const data = await detectText(text, userId, "manual_upload");
       setResult(data);
       localStorage.setItem("baloney_has_scanned", "true");
       window.dispatchEvent(new Event("storage"));
@@ -262,9 +263,13 @@ function TextPanel({
             )}
           </div>
 
-          {result.method_scores && Object.keys(result.method_scores).length > 0 && (
-            <MethodBreakdown methodScores={result.method_scores} type="text" />
-          )}
+          {result.method_scores &&
+            Object.keys(result.method_scores).length > 0 && (
+              <MethodBreakdown
+                methodScores={result.method_scores}
+                type="text"
+              />
+            )}
           <SentenceHeatmap sentenceScores={result.sentence_scores} />
           <ScoreBreakdown featureVector={result.feature_vector} />
         </div>
