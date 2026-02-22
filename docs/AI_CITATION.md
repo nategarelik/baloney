@@ -82,3 +82,11 @@ Additional detection methods implemented locally (no external API):
 ## Team
 
 - **Nathaniel Garelik** — Full Stack Developer, Product Owner
+- **Ben Verhaalen** — Frontend Design, UI/UX
+
+## Development Stats
+
+- **53 human prompts** across 12 Claude Code sessions
+- **28-hour build** — February 21-22, 2026, MadData26
+- **v5.0 pipeline** uses Pangram, SightEngine, Google SynthID as primary APIs
+- Reality Defender integrated but not active in v5.0 pipeline (reserved for deepfake escalation)

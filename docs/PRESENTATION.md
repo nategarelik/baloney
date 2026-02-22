@@ -314,3 +314,67 @@ Everything else in the pitch exists to set up and support this sentence.
 | `frontend/src/app/feed/_data.ts` | Ground-truth fallback — the safety net |
 | `frontend/src/lib/evaluation-data.ts` | Pre-computed eval data — works offline |
 | `docs/AI_CITATION.md` | AI tools disclosure — have ready if asked |
+
+---
+
+## Our Story — Development Timeline
+
+```
+BALONEY DEVELOPMENT TIMELINE (28 hours)
+========================================
+
+Feb 21, 11:50  TrustLens v0.1.0 — initial AI detection platform
+Feb 21, 12:17  Domain migration to trustlens-nu.vercel.app
+Feb 21, 13:24  Rebrand to Baloney — name, palette, pig mascot
+Feb 21, 13:58  Universal scanning + content filtering + diet page
+Feb 21, 14:51  Design system: warm cream/pink/brown, Young Serif + DM Sans
+Feb 21, 15:14  README rewritten for product presentation
+Feb 21, 17:23  Extension v0.3.0 — selection-based text, hover borders, real ML
+Feb 21, 17:54  Extension v0.4.0 — warm theme, detection dots, Chrome sidepanel
+Feb 21, 19:04  Dashboard revamp — navbar dropdown, hero animations, warm theme
+Feb 21, 19:38  Live data pipeline — all-users dashboard + 15s auto-refresh
+Feb 21, 19:55  v2.0 detection engine — multi-model ensemble (text + image + video)
+Feb 21, 20:29  Phishing detection with 80+ HTML feature extraction
+Feb 21, 22:19  v3.0 — Mac Studio local inference (9-model ensemble)
+Feb 22, 04:09  v3.1 — highest-accuracy models from published research
+Feb 22, ~05:00 v5.0 — commercial API ensemble (Pangram + SightEngine + SynthID)
+Feb 22, ~06:00 207-sample evaluation: ROC AUC 0.982, ablation study
+Feb 22, ~07:00 8 new dashboard visualizations, evaluation dashboard
+Feb 22, ~08:00 Product page overhaul, supported sites, analytics display
+Feb 22, ~09:00 Final UI polish, loading states, hydration fixes
+```
+
+**53 human prompts across 12 Claude Code sessions** — every one a deliberate architectural decision made by Nate and Ben, validated and executed with AI assistance.
+
+---
+
+## Next Steps — Research & Go-to-Market
+
+### Research Opportunities
+
+- **Misinformation velocity study:** Measure how fast AI-generated content spreads vs. human-written content across platforms using provenance hash tracking
+- **Platform accountability index:** Longitudinal AI Slop Index data to hold platforms publicly accountable — publish weekly reports
+- **Detection arms race research:** Continuously evaluate new generator models (GPT-5, Gemini 2, etc.) against our ensemble — contribute to the academic detection benchmark landscape
+- **Cross-platform content migration:** Track how the same AI content propagates from one platform to another using SHA-256 hashes
+- **Information diet correlation study:** Correlate AI content exposure with user behavior patterns — what happens when people know?
+- **Data protection insights:** Learn how users interact with AI content when given transparent detection signals — informing better web safety standards
+
+### Go-to-Market
+
+- **Month 1-3:** Chrome Web Store launch (free), 1,000 beta users from university communities
+- **Month 3-6:** 10,000 users, AI Slop Index becomes a weekly published metric
+- **Month 6-9:** API launch ($500-5K/month) for advertisers, media companies, brand safety
+- **Month 9-12:** Enterprise tier for platform integrity teams, seed fundraise on network effect
+- **Revenue model:** Free extension (each user = sensor) → API subscriptions → enterprise contracts
+
+---
+
+## Our Philosophy
+
+> **The lens:** We didn't use AI to build this — we *directed* AI to build this. Every architectural decision, every data collection choice, every privacy safeguard, every method of analysis came from our own judgment. From the very first prompt, we understood that agentic systems are tools of amplification — they amplify the quality of human thinking. We had the programming foundation between us, and a passion for collaborative problem-solving that made every session seamless.
+>
+> **Why we built it:** We were motivated by the violence and disinformation we see enabled by AI-generated content today. Wars are being fought partly on information battlegrounds. People are being radicalized by synthetic media they can't distinguish from reality. We aren't introducing a new surveillance system or a Big Brother. We're building a **better tool to use the web** — one that empowers individuals with transparency, not control.
+>
+> **What makes this research:** Every scan generates a data point. Every data point contributes to understanding how AI content flows through the internet. The research opportunities are immense — from measuring misinformation velocity to studying how detection awareness changes user behavior to creating the first independent platform accountability metric. This isn't just a hackathon project. This is the seed of publishable research into data protection, content provenance, and informed media consumption.
+>
+> **How we used Claude:** We used Claude Code (Opus 4.6 + Sonnet 4.6) as a validation engine. We conceptualized the architecture, designed the database schema, chose the detection methods, and made every product decision ourselves. Claude validated our code, wrote and ran tests to eliminate human error, and helped us move at the speed our ideas demanded. 53 deliberate prompts across 12 sessions — each one a human decision, amplified by AI execution. See [docs/AI_CITATION.md](docs/AI_CITATION.md) for full transparency.

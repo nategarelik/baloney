@@ -1,4 +1,4 @@
-// extension/background.js — Baloney Background Service Worker (v0.4.0)
+// extension/background.js — Baloney Background Service Worker (v0.5.0)
 // Handles image fetching (bypasses CORS via host_permissions), API communication,
 // storage defaults, migration, and sidepanel management.
 
@@ -451,4 +451,4 @@ if (chrome.sidePanel && chrome.sidePanel.setPanelBehavior) {
   chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
 }
 
-console.log("[Baloney] Background service worker initialized (v0.4.0)");
+console.log("[Baloney] Background service worker initialized (v0.5.0)");
