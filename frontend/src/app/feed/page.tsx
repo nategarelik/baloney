@@ -5,14 +5,16 @@ import { FeedPost } from "./FeedPost";
 import { FeedStatsBar } from "./FeedStatsBar";
 import { FEED_POSTS } from "./_data";
 import { detectImage } from "@/lib/api";
-import { DEMO_USER_ID, RequestQueue } from "@/lib/constants";
+import { RequestQueue } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { DetectionResult } from "@/lib/types";
 
 const requestQueue = new RequestQueue(3);
 
 export default function FeedPage() {
+  const userId = useUserId();
   const [results, setResults] = useState<Map<string, DetectionResult>>(
-    new Map()
+    new Map(),
   );
   const [scannedCount, setScannedCount] = useState(0);
   const [flaggedCount, setFlaggedCount] = useState(0);
@@ -22,7 +24,8 @@ export default function FeedPage() {
 
   const handleScan = useCallback(
     async (postId: string): Promise<DetectionResult | null> => {
-      if (scannedIds.current.has(postId)) return resultsRef.current.get(postId) ?? null;
+      if (scannedIds.current.has(postId))
+        return resultsRef.current.get(postId) ?? null;
       scannedIds.current.add(postId);
 
       const post = FEED_POSTS.find((p) => p.id === postId);
@@ -38,7 +41,7 @@ export default function FeedPage() {
             reader.readAsDataURL(blob);
           });
 
-          return detectImage(base64, DEMO_USER_ID, "demo_feed");
+          return detectImage(base64, userId, "demo_feed");
         });
 
         const detectionResult = result as DetectionResult;
@@ -52,8 +55,8 @@ export default function FeedPage() {
         const fallbackVerdict = post.isAiGenerated
           ? "ai_generated"
           : post.expectedConfidence < 0.55
-          ? "light_edit"
-          : "human";
+            ? "light_edit"
+            : "human";
         const fallback: DetectionResult = {
           verdict: fallbackVerdict,
           confidence: post.expectedConfidence,
@@ -63,7 +66,9 @@ export default function FeedPage() {
           ensemble_used: false,
           trust_score: post.isAiGenerated ? 0.1 : post.expectedConfidence,
           classification: fallbackVerdict,
-          edit_magnitude: post.isAiGenerated ? 0.9 : 1 - post.expectedConfidence,
+          edit_magnitude: post.isAiGenerated
+            ? 0.9
+            : 1 - post.expectedConfidence,
         };
         setResults((prev) => new Map(prev).set(postId, fallback));
         setScannedCount((c) => c + 1);
@@ -73,7 +78,7 @@ export default function FeedPage() {
         return fallback;
       }
     },
-    []
+    [userId],
   );
 
   return (

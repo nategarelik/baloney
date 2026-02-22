@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { detectImage } from "@/lib/api";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { DetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 import { MethodBreakdown } from "./MethodBreakdown";
@@ -28,6 +28,7 @@ interface ImageDetectorPanelProps {
 export function ImageDetectorPanel({
   externalResult,
 }: ImageDetectorPanelProps) {
+  const userId = useUserId();
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,34 +40,37 @@ export function ImageDetectorPanel({
     if (externalResult) setResult(externalResult);
   }, [externalResult]);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image file");
-      return;
-    }
-
-    setError(null);
-    setResult(null);
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target?.result as string;
-      setPreview(base64);
-      setLoading(true);
-
-      try {
-        const data = await detectImage(base64, DEMO_USER_ID, "manual_upload");
-        setResult(data);
-        localStorage.setItem("baloney_has_scanned", "true");
-        window.dispatchEvent(new Event("storage"));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Analysis failed");
-      } finally {
-        setLoading(false);
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload an image file");
+        return;
       }
-    };
-    reader.readAsDataURL(file);
-  }, []);
+
+      setError(null);
+      setResult(null);
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        setPreview(base64);
+        setLoading(true);
+
+        try {
+          const data = await detectImage(base64, userId, "manual_upload");
+          setResult(data);
+          localStorage.setItem("baloney_has_scanned", "true");
+          window.dispatchEvent(new Event("storage"));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Analysis failed");
+        } finally {
+          setLoading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [userId],
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -202,9 +206,12 @@ export function ImageDetectorPanel({
       )}
 
       {/* Method breakdown */}
-      {result && !loading && result.method_scores && Object.keys(result.method_scores).length > 0 && (
-        <MethodBreakdown methodScores={result.method_scores} type="image" />
-      )}
+      {result &&
+        !loading &&
+        result.method_scores &&
+        Object.keys(result.method_scores).length > 0 && (
+          <MethodBreakdown methodScores={result.method_scores} type="image" />
+        )}
     </div>
   );
 }

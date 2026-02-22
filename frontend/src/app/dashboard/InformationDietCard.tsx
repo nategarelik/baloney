@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { InformationDietScore } from "@/lib/types";
 
 const GRADE_COLORS: Record<string, string> = {
@@ -66,16 +66,17 @@ function MetricBar({ label, value, color }: MetricBarProps) {
 }
 
 export function InformationDietCard() {
+  const userId = useUserId();
   const [data, setData] = useState<InformationDietScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/information-diet?user_id=${DEMO_USER_ID}`)
+    fetch(`/api/information-diet?user_id=${userId}`)
       .then((r) => r.json())
       .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return (

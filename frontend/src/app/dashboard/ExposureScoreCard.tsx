@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { ExposureScore } from "@/lib/types";
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -21,16 +21,17 @@ const LEVEL_THRESHOLDS = [
 ];
 
 export function ExposureScoreCard() {
+  const userId = useUserId();
   const [data, setData] = useState<ExposureScore | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/exposure-score?user_id=${DEMO_USER_ID}`)
+    fetch(`/api/exposure-score?user_id=${userId}`)
       .then((r) => r.json())
       .then(setData)
       .catch(() => setData(null))
       .finally(() => setLoading(false));
-  }, []);
+  }, [userId]);
 
   if (loading) {
     return (
@@ -44,16 +45,22 @@ export function ExposureScoreCard() {
   if (!data) return null;
 
   const nextLevel = LEVEL_THRESHOLDS.find((t) => t.min > data.score);
-  const currentLevel = [...LEVEL_THRESHOLDS].reverse().find((t) => t.min <= data.score);
+  const currentLevel = [...LEVEL_THRESHOLDS]
+    .reverse()
+    .find((t) => t.min <= data.score);
   const progressToNext = nextLevel
-    ? ((data.score - (currentLevel?.min ?? 0)) / (nextLevel.min - (currentLevel?.min ?? 0))) * 100
+    ? ((data.score - (currentLevel?.min ?? 0)) /
+        (nextLevel.min - (currentLevel?.min ?? 0))) *
+      100
     : 100;
 
   return (
     <div className="bg-base-dark rounded-xl p-6 border border-secondary/10">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-secondary">Exposure Score</h3>
-        <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${LEVEL_COLORS[data.level] ?? "bg-slate-600"}`}>
+        <span
+          className={`text-xs font-bold px-2 py-1 rounded-full text-white ${LEVEL_COLORS[data.level] ?? "bg-slate-600"}`}
+        >
           {data.level}
         </span>
       </div>
@@ -89,11 +96,15 @@ export function ExposureScoreCard() {
         </div>
         <div className="bg-secondary/5 rounded-lg p-3">
           <div className="text-secondary/50 text-xs">Streak</div>
-          <div className="text-secondary font-bold">{data.streak_days} days</div>
+          <div className="text-secondary font-bold">
+            {data.streak_days} days
+          </div>
         </div>
         <div className="bg-secondary/5 rounded-lg p-3">
           <div className="text-secondary/50 text-xs">Platforms</div>
-          <div className="text-secondary font-bold">{Math.round(data.platform_diversity * 4)}/4</div>
+          <div className="text-secondary font-bold">
+            {Math.round(data.platform_diversity * 4)}/4
+          </div>
         </div>
       </div>
     </div>

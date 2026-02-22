@@ -1351,6 +1351,28 @@ window.addEventListener("baloney-update-sites", (e) => {
 });
 
 // ──────────────────────────────────────────────
+// Identity bridge: share userId with webapp via localStorage
+// ──────────────────────────────────────────────
+
+if (
+  window.location.hostname === "trustlens-nu.vercel.app" ||
+  window.location.hostname === "localhost"
+) {
+  chrome.storage.local.get("userId", (data) => {
+    if (data.userId) {
+      try {
+        localStorage.setItem("baloney-user-id", data.userId);
+        window.dispatchEvent(
+          new CustomEvent("baloney-userid-ready", {
+            detail: { userId: data.userId },
+          }),
+        );
+      } catch {}
+    }
+  });
+}
+
+// ──────────────────────────────────────────────
 // Start
 // ──────────────────────────────────────────────
 

@@ -15,7 +15,7 @@ import type {
   DomainLeaderboard as DomainLeaderboardType,
   ScanRecord,
 } from "@/lib/types";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 
 interface CommunityTabProps {
   analytics: CommunityAnalytics | null;
@@ -32,6 +32,7 @@ export function CommunityTab({
   scans,
   loading,
 }: CommunityTabProps) {
+  const userId = useUserId();
   if (loading || !analytics) {
     return (
       <div className="space-y-6">
@@ -109,7 +110,7 @@ export function CommunityTab({
       </ChartCard>
 
       {/* Share toggle */}
-      <ShareToggle userId={DEMO_USER_ID} />
+      <ShareToggle userId={userId} />
     </div>
   );
 }

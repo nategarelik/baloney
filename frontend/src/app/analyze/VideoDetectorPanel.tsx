@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { detectVideo } from "@/lib/api";
-import { DEMO_USER_ID } from "@/lib/constants";
+import { useUserId } from "@/hooks/useUserId";
 import type { VideoDetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 import { MethodBreakdown } from "./MethodBreakdown";
@@ -25,7 +25,10 @@ interface VideoDetectorPanelProps {
   externalResult?: VideoDetectionResult | null;
 }
 
-export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) {
+export function VideoDetectorPanel({
+  externalResult,
+}: VideoDetectorPanelProps) {
+  const userId = useUserId();
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<VideoDetectionResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,34 +40,37 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
     if (externalResult) setResult(externalResult);
   }, [externalResult]);
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.type.startsWith("video/")) {
-      setError("Please upload a video file");
-      return;
-    }
-
-    setError(null);
-    setResult(null);
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64 = e.target?.result as string;
-      setPreview(base64);
-      setLoading(true);
-
-      try {
-        const data = await detectVideo(base64, DEMO_USER_ID, "manual_upload");
-        setResult(data);
-        localStorage.setItem("baloney_has_scanned", "true");
-        window.dispatchEvent(new Event("storage"));
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Analysis failed");
-      } finally {
-        setLoading(false);
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.type.startsWith("video/")) {
+        setError("Please upload a video file");
+        return;
       }
-    };
-    reader.readAsDataURL(file);
-  }, []);
+
+      setError(null);
+      setResult(null);
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target?.result as string;
+        setPreview(base64);
+        setLoading(true);
+
+        try {
+          const data = await detectVideo(base64, userId, "manual_upload");
+          setResult(data);
+          localStorage.setItem("baloney_has_scanned", "true");
+          window.dispatchEvent(new Event("storage"));
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Analysis failed");
+        } finally {
+          setLoading(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    },
+    [userId],
+  );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -76,7 +82,9 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
     [handleFile],
   );
 
-  const color = result ? VERDICT_COLORS[result.verdict] || "#4a3728" : "#4a3728";
+  const color = result
+    ? VERDICT_COLORS[result.verdict] || "#4a3728"
+    : "#4a3728";
   const label = result ? VERDICT_LABELS[result.verdict] || result.verdict : "";
 
   return (
@@ -130,7 +138,9 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
       {loading && (
         <div className="flex items-center justify-center gap-3 py-6">
           <span className="inline-block w-5 h-5 border-2 border-secondary/20 border-t-primary rounded-full animate-spin" />
-          <span className="text-secondary/60 font-medium">Analyzing video frames...</span>
+          <span className="text-secondary/60 font-medium">
+            Analyzing video frames...
+          </span>
         </div>
       )}
 
@@ -155,17 +165,37 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
                 {label}
               </p>
               <p className="text-secondary/50 text-sm">
-                <AnimatedPercentage value={result.confidence} className="font-semibold text-secondary" />
-                {" "}confidence
+                <AnimatedPercentage
+                  value={result.confidence}
+                  className="font-semibold text-secondary"
+                />{" "}
+                confidence
               </p>
             </div>
           </div>
 
           {/* Stats grid */}
           <div className="grid grid-cols-3 gap-3">
-            <StatBox label="Frames Analyzed" value={String(result.frames_analyzed)} />
-            <StatBox label="AI Frames" value={String(result.frames_flagged_ai)} color={result.frames_flagged_ai > 0 ? "#d4456b" : "#16a34a"} />
-            <StatBox label="AI Frame Rate" value={`${Math.round(result.ai_frame_percentage * 100)}%`} color={result.ai_frame_percentage > 0.5 ? "#d4456b" : result.ai_frame_percentage > 0.3 ? "#f59e0b" : "#16a34a"} />
+            <StatBox
+              label="Frames Analyzed"
+              value={String(result.frames_analyzed)}
+            />
+            <StatBox
+              label="AI Frames"
+              value={String(result.frames_flagged_ai)}
+              color={result.frames_flagged_ai > 0 ? "#d4456b" : "#16a34a"}
+            />
+            <StatBox
+              label="AI Frame Rate"
+              value={`${Math.round(result.ai_frame_percentage * 100)}%`}
+              color={
+                result.ai_frame_percentage > 0.5
+                  ? "#d4456b"
+                  : result.ai_frame_percentage > 0.3
+                    ? "#f59e0b"
+                    : "#16a34a"
+              }
+            />
           </div>
 
           {/* Per-frame bar chart */}
@@ -209,20 +239,28 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
       )}
 
       {/* Method breakdown */}
-      {result && !loading && result.method_scores && Object.keys(result.method_scores).length > 0 && (
-        <MethodBreakdown methodScores={result.method_scores} type="video" />
-      )}
+      {result &&
+        !loading &&
+        result.method_scores &&
+        Object.keys(result.method_scores).length > 0 && (
+          <MethodBreakdown methodScores={result.method_scores} type="video" />
+        )}
     </div>
   );
 }
 
-function StatBox({ label, value, color }: { label: string; value: string; color?: string }) {
+function StatBox({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color?: string;
+}) {
   return (
     <div className="bg-secondary/5 rounded-lg p-3 text-center">
-      <p
-        className="font-display text-xl"
-        style={color ? { color } : undefined}
-      >
+      <p className="font-display text-xl" style={color ? { color } : undefined}>
         {value}
       </p>
       <p className="text-secondary/50 text-[10px] mt-0.5">{label}</p>
