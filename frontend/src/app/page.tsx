@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 
-const CHROME_STORE_URL = "https://chromewebstore.google.com/";
+const CHROME_STORE_URL =
+  "https://github.com/nategarelik/baloney/tree/master/extension";
 
 export default function Home() {
   return (
