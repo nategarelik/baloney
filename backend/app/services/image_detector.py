@@ -1,90 +1,133 @@
 # backend/app/services/image_detector.py
-# Hybrid: HuggingFace Inference API for CLIP + local FFT + EXIF analysis
+# Baloney Image AI Detection — 4-Signal Local Ensemble on Apple Silicon MPS
+#
+# Models (all run locally, zero API dependency):
+#   1. SigLIP Deepfake Detector  (prithivMLmods/deepfake-detector-model-v1) — 94.44% accuracy
+#   2. ViT Deepfake Detector v2  (prithivMLmods/Deep-Fake-Detector-v2-Model) — 92.12% accuracy, 56k test samples
+#   3. FFT Frequency Analysis    — spectral domain artifact detection (radial profile + DCT)
+#   4. EXIF Metadata Analysis    — camera data forensics
+#
+# Designed for Mac Studio M2 Ultra with MPS acceleration.
 
-import httpx
+import torch
 import numpy as np
-import base64
-import os
 import io
 import logging
+import time
 
 from PIL import Image
 from PIL.ExifTags import TAGS
+from transformers import AutoModelForImageClassification, AutoImageProcessor
 
 logger = logging.getLogger(__name__)
 
-HF_API = "https://api-inference.huggingface.co/models"
+
+# ── Device Selection ─────────────────────────────────────────────
+def get_device() -> torch.device:
+    if torch.backends.mps.is_available():
+        return torch.device("mps")
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
 
 
-def _get_hf_token() -> str | None:
-    return os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_API_KEY")
+DEVICE = get_device()
+logger.info(f"Image detector using device: {DEVICE}")
 
 
-# ── CLIP via HuggingFace Inference API ────────────────────────────
+# ── Model Registry ───────────────────────────────────────────────
 
-async def clip_detect(image_bytes: bytes) -> dict:
-    """Zero-shot CLIP classification via HF Inference API."""
-    token = _get_hf_token()
-    if not token:
-        return {"clip_score": 0.5, "success": False, "error": "No HF token configured"}
+IMAGE_MODEL_IDS = {
+    "siglip_deepfake": "prithivMLmods/deepfake-detector-model-v1",
+    "vit_deepfake_v2": "prithivMLmods/Deep-Fake-Detector-v2-Model",
+}
 
-    b64 = base64.b64encode(image_bytes).decode("utf-8")
-    headers = {"Authorization": f"Bearer {token}"}
-    payload = {
-        "inputs": {"image": b64},
-        "parameters": {
-            "candidate_labels": [
-                "a real photograph taken with a camera",
-                "an AI generated synthetic digital image",
-            ]
-        },
-    }
+# Ensemble weights (sum to 1.0)
+# SigLIP is primary (94.44% acc), ViT-v2 is secondary (92.12% acc)
+IMAGE_ENSEMBLE_WEIGHTS = {
+    "siglip": 0.35,    # Primary — SigLIP-based, highest accuracy
+    "vit_v2": 0.25,    # Secondary — ViT-based, diversifying architecture
+    "fft": 0.22,       # Frequency domain analysis
+    "exif": 0.18,      # Metadata forensics
+}
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        try:
-            resp = await client.post(
-                f"{HF_API}/openai/clip-vit-base-patch32",
-                headers=headers,
-                json=payload,
-            )
-
-            # Handle cold start (model loading on HF side)
-            if resp.status_code == 503:
-                import asyncio
-                wait = resp.json().get("estimated_time", 20)
-                await asyncio.sleep(min(wait, 30))
-                resp = await client.post(
-                    f"{HF_API}/openai/clip-vit-base-patch32",
-                    headers=headers,
-                    json=payload,
-                    timeout=60.0,
-                )
-
-            resp.raise_for_status()
-            result = resp.json()
-
-            ai_score = 0.0
-            for item in result:
-                label = item.get("label", "")
-                if "AI generated" in label or "synthetic" in label:
-                    ai_score = item["score"]
-
-            return {"clip_score": round(ai_score, 4), "success": True}
-        except Exception as e:
-            logger.error(f"CLIP API error: {e}")
-            return {"clip_score": 0.5, "success": False, "error": str(e)}
+# Singletons
+_image_models: dict = {}
+_image_processors: dict = {}
 
 
-# ── FFT Frequency Analysis (runs locally, no API) ────────────────
+# ── Model Loading ────────────────────────────────────────────────
+
+def load_all_image_models():
+    """Load all image detection models into memory on the target device."""
+    global _image_models, _image_processors
+
+    # 1. SigLIP Deepfake Detector (94.44% accuracy)
+    if "siglip" not in _image_models:
+        mid = IMAGE_MODEL_IDS["siglip_deepfake"]
+        logger.info(f"Loading {mid}...")
+        t0 = time.time()
+        _image_processors["siglip"] = AutoImageProcessor.from_pretrained(mid)
+        _image_models["siglip"] = AutoModelForImageClassification.from_pretrained(mid)
+        _image_models["siglip"].eval().to(DEVICE)
+        logger.info(f"  SigLIP deepfake detector loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _image_models['siglip'].parameters()):,} params)")
+
+    # 2. ViT Deepfake Detector v2 (92.12% accuracy, validated on 56k samples)
+    if "vit_v2" not in _image_models:
+        mid = IMAGE_MODEL_IDS["vit_deepfake_v2"]
+        logger.info(f"Loading {mid}...")
+        t0 = time.time()
+        _image_processors["vit_v2"] = AutoImageProcessor.from_pretrained(mid)
+        _image_models["vit_v2"] = AutoModelForImageClassification.from_pretrained(mid)
+        _image_models["vit_v2"].eval().to(DEVICE)
+        logger.info(f"  ViT deepfake detector v2 loaded in {time.time()-t0:.1f}s ({sum(p.numel() for p in _image_models['vit_v2'].parameters()):,} params)")
+
+    logger.info("All image detection models loaded and ready.")
+
+
+# ── Individual Model Predictions ─────────────────────────────────
+
+def _predict_classifier(model_key: str, pil_image: Image.Image) -> float:
+    """Generic image classifier prediction. Returns AI/fake probability 0-1."""
+    model = _image_models[model_key]
+    processor = _image_processors[model_key]
+
+    inputs = processor(images=pil_image, return_tensors="pt")
+    pixel_values = inputs["pixel_values"].to(DEVICE)
+
+    with torch.no_grad():
+        outputs = model(pixel_values=pixel_values)
+        logits = outputs.logits
+        probs = torch.softmax(logits, dim=-1)
+
+    # Find AI/Fake/Artificial label
+    labels = model.config.id2label
+    ai_idx = None
+    for idx, label in labels.items():
+        if label.lower() in ("artificial", "fake", "label_1", "ai", "deepfake", "ai_generated"):
+            ai_idx = int(idx)
+            break
+
+    if ai_idx is not None:
+        return probs[0][ai_idx].item()
+
+    # Invert human/real label
+    for idx, label in labels.items():
+        if label.lower() in ("human", "real", "label_0", "authentic"):
+            return 1.0 - probs[0][int(idx)].item()
+
+    return probs[0][-1].item()
+
+
+# ── FFT Frequency Analysis (local, instant) ─────────────────────
 
 def frequency_analysis(image_bytes: bytes) -> dict:
     """
     AI-generated images have different frequency domain signatures.
-    Diffusion models produce less high-frequency content.
-    GANs produce spectral peaks from upsampling.
+    Multi-signal analysis: radial FFT profile + spectral slope + DCT blocks.
     """
     try:
-        img = Image.open(io.BytesIO(image_bytes)).convert("L")  # Grayscale
+        img = Image.open(io.BytesIO(image_bytes)).convert("L")
         img = img.resize((256, 256))
         pixel_array = np.array(img, dtype=np.float32)
 
@@ -93,11 +136,10 @@ def frequency_analysis(image_bytes: bytes) -> dict:
         f_shift = np.fft.fftshift(f_transform)
         magnitude = np.log1p(np.abs(f_shift))
 
-        # Radial average — compare low-freq vs high-freq energy
+        # Radial average profile
         center = np.array(magnitude.shape) // 2
         Y, X = np.ogrid[: magnitude.shape[0], : magnitude.shape[1]]
         distances = np.sqrt((X - center[1]) ** 2 + (Y - center[0]) ** 2)
-
         max_radius = int(np.max(distances))
         radial_profile = np.zeros(max_radius)
         for r in range(max_radius):
@@ -105,18 +147,15 @@ def frequency_analysis(image_bytes: bytes) -> dict:
             if mask.any():
                 radial_profile[r] = magnitude[mask].mean()
 
-        # Split into low/mid/high frequency bands
+        # Low/mid/high frequency bands
         third = max_radius // 3
         low_energy = radial_profile[:third].mean() if third > 0 else 0
         mid_energy = radial_profile[third : 2 * third].mean() if third > 0 else 0
         high_energy = radial_profile[2 * third :].mean() if third > 0 else 0
-
         total_energy = low_energy + mid_energy + high_energy + 1e-9
         high_ratio = high_energy / total_energy
 
-        # AI images tend to have LOWER high-frequency energy ratio
-        # Real photos: high_ratio typically 0.15-0.30
-        # AI images: high_ratio typically 0.05-0.15
+        # AI images have LOWER high-frequency energy
         freq_ai_score = max(0, min(1, 1 - (high_ratio / 0.25)))
 
         # Spectral slope (steeper = more AI-like)
@@ -127,12 +166,28 @@ def frequency_analysis(image_bytes: bytes) -> dict:
         else:
             slope_signal = 0.5
 
-        combined = 0.6 * freq_ai_score + 0.4 * slope_signal
+        # DCT-like block analysis on pixel data
+        flat = pixel_array.flatten() / 255.0
+        block_size = 64
+        local_vars = []
+        for i in range(0, len(flat) - block_size, block_size):
+            block = flat[i:i+block_size]
+            local_vars.append(np.var(block))
+
+        if local_vars:
+            avg_var = np.mean(local_vars)
+            var_of_var = np.var(local_vars)
+            uniformity_signal = max(0, min(1, 1 - var_of_var * 1000))
+        else:
+            uniformity_signal = 0.5
+
+        combined = 0.45 * freq_ai_score + 0.30 * slope_signal + 0.25 * uniformity_signal
 
         return {
             "freq_ai_score": round(float(combined), 4),
             "high_freq_ratio": round(float(high_ratio), 4),
             "spectral_slope": round(float(slope_signal), 4),
+            "block_uniformity": round(float(uniformity_signal), 4),
             "success": True,
         }
     except Exception as e:
@@ -140,7 +195,7 @@ def frequency_analysis(image_bytes: bytes) -> dict:
         return {"freq_ai_score": 0.5, "success": False, "error": str(e)}
 
 
-# ── EXIF Metadata Check (local, instant) ──────────────────────────
+# ── EXIF Metadata Check (local, instant) ────────────────────────
 
 def check_exif(image_bytes: bytes) -> dict:
     """Real photos have camera EXIF data. AI images usually don't."""
@@ -161,13 +216,15 @@ def check_exif(image_bytes: bytes) -> dict:
         has_camera = bool(tags.get("Make") or tags.get("Model"))
         has_gps = "GPSInfo" in tags
         has_exposure = bool(tags.get("ExposureTime") or tags.get("FNumber"))
+        has_datetime = bool(tags.get("DateTime") or tags.get("DateTimeOriginal"))
 
-        signals = [has_camera, has_gps, has_exposure]
+        signals = [has_camera, has_gps, has_exposure, has_datetime]
         real_signals = sum(signals)
 
-        # More camera metadata = more likely real
-        if real_signals >= 2:
-            score = 0.15
+        if real_signals >= 3:
+            score = 0.10
+        elif real_signals >= 2:
+            score = 0.20
         elif real_signals == 1:
             score = 0.35
         else:
@@ -178,49 +235,106 @@ def check_exif(image_bytes: bytes) -> dict:
             "has_camera_data": has_camera,
             "has_gps": has_gps,
             "has_exposure_data": has_exposure,
+            "has_datetime": has_datetime,
             "camera": str(tags.get("Make", "unknown")),
+            "model": str(tags.get("Model", "unknown")),
             "success": True,
         }
     except Exception:
         return {"exif_ai_score": 0.5, "has_camera_data": False, "success": False}
 
 
-# ── Combined Image Detection ─────────────────────────────────────
+# ── Combined Image Detection ───────────────────────────────────
 
-async def detect_image(image_bytes: bytes) -> dict:
-    """Ensemble of CLIP + FFT + EXIF for final image AI score."""
-    # Run CLIP async, others sync
-    clip_result = await clip_detect(image_bytes)
+def detect_image(image_bytes: bytes) -> dict:
+    """
+    Full 4-signal ensemble image detection. All local, no API calls.
+    SigLIP (94.44% acc) + ViT-v2 (92.12% acc) + FFT + EXIF.
+    Returns detailed result with per-method scores and final ensemble score.
+    """
+    t0 = time.time()
+
+    # Open image once, reuse
+    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    # Run ML models
+    siglip_score = _predict_classifier("siglip", pil_image)
+    vit_v2_score = _predict_classifier("vit_v2", pil_image)
+
+    # Run signal analysis
     fft_result = frequency_analysis(image_bytes)
     exif_result = check_exif(image_bytes)
 
-    # Weighted ensemble
-    clip_score = clip_result.get("clip_score", 0.5)
     fft_score = fft_result.get("freq_ai_score", 0.5)
     exif_score = exif_result.get("exif_ai_score", 0.5)
 
-    # Adjust weights if CLIP failed
-    if clip_result.get("success"):
-        weights = {"clip": 0.50, "fft": 0.25, "exif": 0.25}
-    else:
-        weights = {"clip": 0.0, "fft": 0.55, "exif": 0.45}
+    # Weighted ensemble with confidence-aware weighting
+    w = IMAGE_ENSEMBLE_WEIGHTS
 
-    final = (
-        weights["clip"] * clip_score
-        + weights["fft"] * fft_score
-        + weights["exif"] * exif_score
-    )
+    siglip_confidence = abs(siglip_score - 0.5) * 2
+    vit_v2_confidence = abs(vit_v2_score - 0.5) * 2
+    conf_total = siglip_confidence + vit_v2_confidence + 0.001
+
+    siglip_w = w["siglip"] * (0.5 + siglip_confidence / conf_total * 0.5)
+    vit_v2_w = w["vit_v2"] * (0.5 + vit_v2_confidence / conf_total * 0.5)
+    total_w = siglip_w + vit_v2_w + w["fft"] + w["exif"]
+
+    final_score = (
+        siglip_score * siglip_w +
+        vit_v2_score * vit_v2_w +
+        fft_score * w["fft"] +
+        exif_score * w["exif"]
+    ) / total_w
+
+    # Agreement bonus — if both classifiers agree strongly, boost confidence
+    classifiers_agree = (siglip_score > 0.7 and vit_v2_score > 0.7) or (siglip_score < 0.3 and vit_v2_score < 0.3)
+    if classifiers_agree:
+        classifier_avg = (siglip_score + vit_v2_score) / 2
+        final_score = final_score * 0.85 + classifier_avg * 0.15
+
+    final_score = round(float(np.clip(final_score, 0, 1)), 4)
+    duration_ms = round((time.time() - t0) * 1000)
+
+    # Classification
+    if final_score > 0.60:
+        classification = "ai_generated"
+    elif final_score > 0.35:
+        classification = "uncertain"
+    else:
+        classification = "likely_real"
 
     return {
-        "ai_score": round(final, 4),
-        "classification": (
-            "ai_generated" if final > 0.60
-            else "uncertain" if final > 0.35
-            else "likely_real"
-        ),
+        "ai_score": final_score,
+        "classification": classification,
+        "model": "ensemble:siglip-deepfake+vit-deepfake-v2+fft+exif",
+        "model_count": 4,
+        "device": str(DEVICE),
+        "inference_ms": duration_ms,
         "methods": {
-            "clip": clip_result,
-            "frequency": fft_result,
-            "exif": exif_result,
+            "siglip_deepfake": {
+                "score": round(siglip_score, 4),
+                "model": IMAGE_MODEL_IDS["siglip_deepfake"],
+                "accuracy": "94.44%",
+                "weight": round(siglip_w / total_w, 3),
+            },
+            "vit_deepfake_v2": {
+                "score": round(vit_v2_score, 4),
+                "model": IMAGE_MODEL_IDS["vit_deepfake_v2"],
+                "accuracy": "92.12%",
+                "weight": round(vit_v2_w / total_w, 3),
+            },
+            "frequency": {
+                **fft_result,
+                "weight": round(w["fft"] / total_w, 3),
+            },
+            "exif": {
+                **exif_result,
+                "weight": round(w["exif"] / total_w, 3),
+            },
+        },
+        "agreement": {
+            "classifiers_agree": classifiers_agree,
+            "siglip_confident": siglip_confidence > 0.6,
+            "vit_v2_confident": vit_v2_confidence > 0.6,
         },
     }
