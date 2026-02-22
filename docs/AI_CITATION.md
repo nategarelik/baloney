@@ -26,6 +26,7 @@
 - **Dashboard warm theme**: Full restyle of ~19 dashboard components from navy/dark to warm Baloney palette (cream cards, brown text, pink accents), warm Recharts chart colors, updated ChartCard/StatCard/Skeleton shared components
 - **Dashboard revamp**: Simplified personal dashboard (3 stats + per-site AI rate chart + scan table), community dashboard at `/dashboard/community` (stats + stacked bar charts by website and by medium), navbar Dashboards dropdown, hero staggered fade-in animations, `AiRateBySiteChart` multi-line Recharts component
 - **UI polish**: 3D bevel effect for primary buttons (`.btn-primary-3d`), pig logo favicon (`app/icon.png`), `HandDrawnUnderline` SVG component
+- **Data pipeline**: Live dashboard showing all users' scans via `/api/scans/all`, 15-second auto-refresh polling on both dashboards for real-time hackathon demo
 - **Documentation**: Architecture diagrams, API reference, this disclosure
 
 ## What Humans Did

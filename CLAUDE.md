@@ -57,7 +57,7 @@ Fallback detectors in `frontend/src/lib/mock-detectors.ts`:
 - Image: 35% AI (conf 0.78-0.96), 55% human, 10% inconclusive
 - Text: real text_stats + mock verdict with caveats
 
-### API Routes (16 total)
+### API Routes (17 total)
 
 All in `frontend/src/app/api/`:
 
@@ -72,6 +72,7 @@ All in `frontend/src/app/api/`:
 | `analytics/community` | GET | Community stats (sharing_enabled only) |
 | `analytics/community/trends` | GET | Daily AI rate trends |
 | `analytics/community/domains` | GET | Domain leaderboard |
+| `scans/all` | GET | All recent scans across all users (live dashboard) |
 | `sharing/toggle` | POST | Toggle community sharing |
 | `sharing/status` | GET | Get sharing preference |
 | `slop-index` | GET | Platform AI Slop Index |
@@ -115,7 +116,7 @@ All in `frontend/src/app/api/`:
 
 ### API Client
 
-`frontend/src/lib/api.ts` — 13 functions using relative URLs (no external API dependency). Includes `getSlopIndex()`, `getExposureScore()`, `getTopProvenance()`, `getInformationDietScore()`, `detectPreview()`.
+`frontend/src/lib/api.ts` — 14 functions using relative URLs (no external API dependency). Includes `getSlopIndex()`, `getExposureScore()`, `getTopProvenance()`, `getInformationDietScore()`, `detectPreview()`, `getAllScans()`.
 
 ### Demo User
 
@@ -153,9 +154,9 @@ Detection badges match extension `styles.css` exactly:
 
 ### Dashboard Components
 
-- `frontend/src/app/dashboard/page.tsx` — Personal dashboard (3 stats + AI rate by site chart + recent scans table)
+- `frontend/src/app/dashboard/page.tsx` — Live dashboard showing ALL users' scans (3 stats + AI rate by site chart + recent scans table, 15s auto-refresh)
 - `frontend/src/app/dashboard/AiRateBySiteChart.tsx` — Multi-line Recharts chart showing AI rate per platform over time
-- `frontend/src/app/dashboard/community/page.tsx` — Community dashboard (stats + By Website bar chart + By Medium bar chart)
+- `frontend/src/app/dashboard/community/page.tsx` — Community dashboard (stats + By Website bar chart + By Medium bar chart, 15s auto-refresh)
 - `frontend/src/app/dashboard/SlopIndexCard.tsx` — Platform report cards
 - `frontend/src/app/dashboard/ProvenanceTable.tsx` — Crowd-sourced truth table
 - `frontend/src/app/dashboard/CommunityTab.tsx` — Community analytics charts
