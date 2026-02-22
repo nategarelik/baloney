@@ -139,7 +139,7 @@ export function ContaminationMap() {
     return (
       <ChartCard
         title="AI Contamination Map"
-        subtitle="Platform x content category — size = volume, color = AI rate"
+        subtitle="DeviantArt and ArtStation show 55-60% AI — art communities are ground zero. Unsplash and Wikipedia stay clean at 3-5% AI."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -150,7 +150,7 @@ export function ContaminationMap() {
     return (
       <ChartCard
         title="AI Contamination Map"
-        subtitle="Platform x content category — size = volume, color = AI rate"
+        subtitle="DeviantArt and ArtStation show 55-60% AI — art communities are ground zero. Unsplash and Wikipedia stay clean at 3-5% AI."
       >
         <p className="text-secondary/50 text-sm text-center py-12">
           No data available yet.
@@ -162,7 +162,7 @@ export function ContaminationMap() {
   return (
     <ChartCard
       title="AI Contamination Map"
-      subtitle="Platform x content category — size = volume, color = AI rate"
+      subtitle="DeviantArt and ArtStation show 55-60% AI — art communities are ground zero. Unsplash and Wikipedia stay clean at 3-5% AI."
     >
       <ResponsiveContainer width="100%" height={350}>
         <Treemap

@@ -28,10 +28,26 @@ import {
   overallAccuracy,
   pangramValidationData,
 } from "@/lib/evaluation-data";
+import {
+  ensembleComparison,
+  ensembleLengthData,
+  ensembleModelDifficulty,
+  ensemblePlatformProfiles,
+  ensembleFeatureImportance,
+  ensembleClaudeEvasion,
+  ensembleConfusionMatrices,
+  ensembleOptimalWeights,
+  ensembleHonestCaveats,
+} from "@/lib/ensemble-evaluation-data";
 
-/* ─────────────────────────────────────────────────────────
+/* -------------------------------------------------------
+   Ensemble purple color constant
+   ------------------------------------------------------- */
+const ENSEMBLE_PURPLE = "#8b5cf6";
+
+/* -------------------------------------------------------
    Helper: bar color based on accuracy
-   ───────────────────────────────────────────────────────── */
+   ------------------------------------------------------- */
 function getDomainBarColor(accuracy: number): string {
   if (accuracy >= 97) return "#16a34a";
   if (accuracy >= 94) return "#22c55e";
@@ -39,9 +55,9 @@ function getDomainBarColor(accuracy: number): string {
   return "#d4456b";
 }
 
-/* ─────────────────────────────────────────────────────────
-   Custom Tooltip Components — Statistical Analysis Tab
-   ───────────────────────────────────────────────────────── */
+/* -------------------------------------------------------
+   Custom Tooltip Components -- Statistical Analysis Tab
+   ------------------------------------------------------- */
 interface TooltipPayloadEntry {
   name: string;
   value: number;
@@ -110,9 +126,9 @@ function AblationTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────
-   Custom Tooltip Components — Pangram Validation Tab
-   ───────────────────────────────────────────────────────── */
+/* -------------------------------------------------------
+   Custom Tooltip Components -- Pangram Validation Tab
+   ------------------------------------------------------- */
 function PangramRocTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   const point = payload[0];
@@ -194,14 +210,202 @@ function ConfidenceTooltip({ active, payload, label }: CustomTooltipProps) {
   );
 }
 
-/* ─────────────────────────────────────────────────────────
-   Tab type
-   ───────────────────────────────────────────────────────── */
-type TabId = "statistical" | "pangram";
+/* -------------------------------------------------------
+   Custom Tooltip Components -- Ensemble Tab
+   ------------------------------------------------------- */
+function EnsembleModelTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      className="rounded-lg px-3 py-2 text-sm shadow-md"
+      style={{
+        backgroundColor: CHART_TOOLTIP_STYLE.backgroundColor,
+        border: CHART_TOOLTIP_STYLE.border,
+        color: CHART_TOOLTIP_STYLE.color,
+      }}
+    >
+      <p className="font-medium capitalize">{label}</p>
+      {payload.map((entry) => (
+        <p key={entry.dataKey} style={{ color: entry.color }}>
+          {entry.name}: {Number(entry.value).toFixed(1)}%
+        </p>
+      ))}
+    </div>
+  );
+}
 
-/* ─────────────────────────────────────────────────────────
+function EnsembleLengthTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      className="rounded-lg px-3 py-2 text-sm shadow-md"
+      style={{
+        backgroundColor: CHART_TOOLTIP_STYLE.backgroundColor,
+        border: CHART_TOOLTIP_STYLE.border,
+        color: CHART_TOOLTIP_STYLE.color,
+      }}
+    >
+      <p className="font-medium">{label} chars</p>
+      {payload.map((entry) => (
+        <p key={entry.dataKey} style={{ color: entry.color }}>
+          {entry.name}: {Number(entry.value).toFixed(1)}%
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function FeatureTooltip({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  const entry = payload[0];
+  // Find the original feature data for AUC display
+  const featureRow = ensembleFeatureImportance.find((f) => f.feature === label);
+  return (
+    <div
+      className="rounded-lg px-3 py-2 text-sm shadow-md"
+      style={{
+        backgroundColor: CHART_TOOLTIP_STYLE.backgroundColor,
+        border: CHART_TOOLTIP_STYLE.border,
+        color: CHART_TOOLTIP_STYLE.color,
+      }}
+    >
+      <p className="font-medium">{label}</p>
+      <p>|Cohen&apos;s d|: {Number(entry.value).toFixed(3)}</p>
+      {featureRow && <p>AUC: {featureRow.auc.toFixed(3)}</p>}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------
+   Tab type
+   ------------------------------------------------------- */
+type TabId = "statistical" | "ensemble" | "pangram";
+
+/* -------------------------------------------------------
+   Confusion Matrix mini-component (reusable)
+   ------------------------------------------------------- */
+function ConfusionMatrixCard({
+  title,
+  subtitle,
+  tp,
+  fp,
+  fn,
+  tn,
+}: {
+  title: string;
+  subtitle: string;
+  tp: number;
+  fp: number;
+  fn: number;
+  tn: number;
+}) {
+  const total = tp + fp + fn + tn;
+  return (
+    <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
+      <div className="mb-4">
+        <h3 className="text-sm font-semibold text-secondary">{title}</h3>
+        <p className="text-xs text-secondary/50 mt-0.5">{subtitle}</p>
+      </div>
+      <div className="flex flex-col items-center">
+        <p className="text-xs text-secondary/50 mb-2 font-medium tracking-wider uppercase">
+          Predicted
+        </p>
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-center justify-center mr-2">
+            <p
+              className="text-xs text-secondary/50 font-medium tracking-wider uppercase"
+              style={{
+                writingMode: "vertical-lr",
+                transform: "rotate(180deg)",
+              }}
+            >
+              Actual
+            </p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-2 gap-1 ml-[72px]">
+              <span className="text-xs text-secondary/50 text-center font-medium">
+                AI
+              </span>
+              <span className="text-xs text-secondary/50 text-center font-medium">
+                Human
+              </span>
+            </div>
+            {/* Row 1: Actual AI */}
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-secondary/50 w-[68px] text-right font-medium pr-2">
+                AI
+              </span>
+              <div
+                className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
+                style={{ backgroundColor: "rgba(22, 163, 74, 0.18)" }}
+              >
+                <span className="text-2xl font-display text-secondary">
+                  {tp}
+                </span>
+                <span className="text-[10px] text-green-700 font-medium uppercase tracking-wider">
+                  TP
+                </span>
+              </div>
+              <div
+                className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
+                style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+              >
+                <span className="text-2xl font-display text-secondary">
+                  {fn}
+                </span>
+                <span className="text-[10px] text-red-700 font-medium uppercase tracking-wider">
+                  FN
+                </span>
+              </div>
+            </div>
+            {/* Row 2: Actual Human */}
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-secondary/50 w-[68px] text-right font-medium pr-2">
+                Human
+              </span>
+              <div
+                className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
+                style={{ backgroundColor: "rgba(212, 69, 107, 0.15)" }}
+              >
+                <span className="text-2xl font-display text-secondary">
+                  {fp}
+                </span>
+                <span className="text-[10px] text-red-700 font-medium uppercase tracking-wider">
+                  FP
+                </span>
+              </div>
+              <div
+                className="w-28 h-20 rounded-lg flex flex-col items-center justify-center"
+                style={{ backgroundColor: "rgba(22, 163, 74, 0.18)" }}
+              >
+                <span className="text-2xl font-display text-secondary">
+                  {tn}
+                </span>
+                <span className="text-[10px] text-green-700 font-medium uppercase tracking-wider">
+                  TN
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-secondary/50 mt-3">
+          Overall accuracy:{" "}
+          <span className="font-semibold text-secondary">
+            {total > 0
+              ? (((tp + tn) / total) * 100).toFixed(1)
+              : "0.0"}
+            %
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------------------------------
    Main Page Component
-   ───────────────────────────────────────────────────────── */
+   ------------------------------------------------------- */
 export default function EvaluationPage() {
   const [activeTab, setActiveTab] = useState<TabId>("statistical");
 
@@ -236,6 +440,13 @@ export default function EvaluationPage() {
   );
   const platformXMin = Math.max(0, Math.floor(minPlatformDetection) - 2);
 
+  // Tab definitions
+  const tabs: { id: TabId; label: string }[] = [
+    { id: "statistical", label: "Statistical Analysis" },
+    { id: "ensemble", label: "Cross-Model Ensemble" },
+    { id: "pangram", label: "Pangram Validation" },
+  ];
+
   return (
     <main className="min-h-screen bg-base">
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-16 page-top-offset">
@@ -248,14 +459,29 @@ export default function EvaluationPage() {
           -- real metrics computed from methodD statistical analysis
         </p>
 
-        {/* Tab navigation hidden for demo — defaulting to Statistical Analysis */}
+        {/* Tab Navigation */}
+        <div className="flex gap-1 mb-6 bg-secondary/5 rounded-lg p-1">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-base-dark text-secondary shadow-sm"
+                  : "text-secondary/50 hover:text-secondary/70"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-        {/* ══════════════════════════════════════════════════════
+        {/* ======================================================
             TAB: Statistical Analysis (existing content)
-            ══════════════════════════════════════════════════════ */}
+            ====================================================== */}
         {activeTab === "statistical" && (
           <>
-            {/* ── ROC Curve (full width) ── */}
+            {/* -- ROC Curve (full width) -- */}
             <div className="mb-6">
               <ChartCard
                 title="ROC Curve"
@@ -328,7 +554,7 @@ export default function EvaluationPage() {
               </ChartCard>
             </div>
 
-            {/* ── 2-column grid ── */}
+            {/* -- 2-column grid -- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Confusion Matrix */}
               <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
@@ -487,7 +713,7 @@ export default function EvaluationPage() {
               </div>
             </div>
 
-            {/* ── Per-Domain Accuracy + Ablation Study ── */}
+            {/* -- Per-Domain Accuracy + Ablation Study -- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Per-Domain Accuracy */}
               <ChartCard
@@ -581,7 +807,7 @@ export default function EvaluationPage() {
               </ChartCard>
             </div>
 
-            {/* ── Footer note ── */}
+            {/* -- Footer note -- */}
             <p className="text-xs text-secondary/40 text-center mt-4">
               Evaluation performed on a curated {totalSamples}-sample benchmark
               spanning {domainData.length} content domains. All metrics computed
@@ -592,12 +818,470 @@ export default function EvaluationPage() {
           </>
         )}
 
-        {/* ══════════════════════════════════════════════════════
+        {/* ======================================================
+            TAB: Cross-Model Ensemble
+            ====================================================== */}
+        {activeTab === "ensemble" && (
+          <>
+            {/* -- (a) Side-by-side Metrics Summary -- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-secondary">
+                    Pangram-Only Metrics
+                  </h3>
+                  <p className="text-xs text-secondary/50 mt-0.5">
+                    Single-method baseline at threshold 0.5
+                  </p>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-secondary/10">
+                      <th className="pb-2.5 text-left text-xs text-secondary/50 font-medium uppercase tracking-wider">
+                        Metric
+                      </th>
+                      <th className="pb-2.5 text-right text-xs text-secondary/50 font-medium uppercase tracking-wider">
+                        Pangram
+                      </th>
+                      <th className="pb-2.5 text-right text-xs text-secondary/50 font-medium uppercase tracking-wider">
+                        Ensemble
+                      </th>
+                      <th className="pb-2.5 text-right text-xs text-secondary/50 font-medium uppercase tracking-wider">
+                        Delta
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ensembleComparison.map((row, i) => (
+                      <tr
+                        key={row.metric}
+                        className={
+                          i < ensembleComparison.length - 1
+                            ? "border-b border-secondary/5"
+                            : ""
+                        }
+                      >
+                        <td className="py-2.5 text-secondary/70 font-medium">
+                          {row.metric}
+                        </td>
+                        <td className="py-2.5 text-right font-display text-secondary text-base">
+                          {row.pangram_only}%
+                        </td>
+                        <td className="py-2.5 text-right font-display text-base" style={{ color: ENSEMBLE_PURPLE }}>
+                          {row.ensemble}%
+                        </td>
+                        <td className={`py-2.5 text-right text-sm font-medium ${row.delta >= 0 ? "text-green-600" : "text-red-500"}`}>
+                          {row.delta >= 0 ? "+" : ""}{row.delta}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Ensemble Key Takeaway */}
+              <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-secondary">
+                    Key Takeaway
+                  </h3>
+                  <p className="text-xs text-secondary/50 mt-0.5">
+                    Pangram vs Ensemble trade-offs
+                  </p>
+                </div>
+                <div className="space-y-3 text-sm text-secondary/70">
+                  <p>
+                    The ensemble dramatically reduces false positives (FPR 90%
+                    to 2.5%) at the cost of recall (94.1% to 7.2%).
+                  </p>
+                  <p>
+                    Pangram alone flags almost everything as AI (high recall,
+                    terrible specificity). The ensemble is extremely conservative
+                    -- it barely flags anything, but when it does, it is usually
+                    right (precision 76.9%).
+                  </p>
+                  <p className="text-xs text-secondary/40 mt-4">
+                    Neither configuration is production-ready at threshold 0.5.
+                    Pangram needs threshold tuning; ensemble needs weight
+                    optimization on a larger dataset.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* -- (b) Side-by-side Confusion Matrices -- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {ensembleConfusionMatrices.map((cm) => (
+                <ConfusionMatrixCard
+                  key={cm.label}
+                  title={`Confusion Matrix: ${cm.label.includes("Pangram") ? "Pangram-only" : "Ensemble"}`}
+                  subtitle={`${cm.tp + cm.fp + cm.fn + cm.tn} samples -- ${cm.label}`}
+                  tp={cm.tp}
+                  fp={cm.fp}
+                  fn={cm.fn}
+                  tn={cm.tn}
+                />
+              ))}
+            </div>
+
+            {/* -- (c) Grouped Bar Chart: Per-Model Detection Rates -- */}
+            <div className="mb-6">
+              <ChartCard
+                title="Per-Model Detection Rates"
+                subtitle="Pangram-only vs Ensemble detection rate by AI source model"
+              >
+                <ResponsiveContainer width="100%" height={340}>
+                  <BarChart
+                    data={ensembleModelDifficulty}
+                    layout="vertical"
+                    margin={{ top: 8, right: 24, bottom: 8, left: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={CHART_COLORS.gridLine}
+                    />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                      tickFormatter={(v: number) => `${v}%`}
+                    />
+                    <YAxis
+                      dataKey="model"
+                      type="category"
+                      width={70}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                    />
+                    <Tooltip content={<EnsembleModelTooltip />} />
+                    <Legend
+                      wrapperStyle={{
+                        fontSize: 11,
+                        color: CHART_COLORS.axisLabel,
+                      }}
+                    />
+                    <Bar
+                      dataKey="pangram_det"
+                      name="Pangram"
+                      fill={CHART_COLORS.ai}
+                      radius={[0, 4, 4, 0]}
+                    />
+                    <Bar
+                      dataKey="ensemble_det"
+                      name="Ensemble"
+                      fill={ENSEMBLE_PURPLE}
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartCard>
+            </div>
+
+            {/* -- (d) Line Chart: Text Length vs Accuracy -- */}
+            <div className="mb-6">
+              <ChartCard
+                title="Text Length vs Accuracy"
+                subtitle="Detection accuracy across text length buckets (character count)"
+              >
+                <ResponsiveContainer width="100%" height={320}>
+                  <LineChart
+                    data={ensembleLengthData}
+                    margin={{ top: 16, right: 24, bottom: 8, left: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={CHART_COLORS.gridLine}
+                    />
+                    <XAxis
+                      dataKey="bucket"
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                      label={{
+                        value: "Text Length (chars)",
+                        position: "insideBottom",
+                        offset: -2,
+                        fill: CHART_COLORS.axisLabel,
+                        fontSize: 12,
+                      }}
+                    />
+                    <YAxis
+                      domain={[0, 100]}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                      tickFormatter={(v: number) => `${v}%`}
+                      label={{
+                        value: "Accuracy",
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: 10,
+                        fill: CHART_COLORS.axisLabel,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Tooltip content={<EnsembleLengthTooltip />} />
+                    <Legend
+                      wrapperStyle={{
+                        fontSize: 11,
+                        color: CHART_COLORS.axisLabel,
+                      }}
+                    />
+                    <Line
+                      dataKey="pangram_accuracy"
+                      name="Pangram Accuracy"
+                      stroke={CHART_COLORS.ai}
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: CHART_COLORS.ai, stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                    <Line
+                      dataKey="ensemble_accuracy"
+                      name="Ensemble Accuracy"
+                      stroke={ENSEMBLE_PURPLE}
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: ENSEMBLE_PURPLE, stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{ r: 5 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </ChartCard>
+            </div>
+
+            {/* -- (e) Horizontal Bar Chart: Feature Importance -- */}
+            <div className="mb-6">
+              <ChartCard
+                title="Feature Importance (Cohen's d)"
+                subtitle="Absolute Cohen's d effect size per statistical feature -- positive (pink) = higher in AI, negative (purple) = higher in human"
+              >
+                <ResponsiveContainer width="100%" height={380}>
+                  <BarChart
+                    data={ensembleFeatureImportance}
+                    layout="vertical"
+                    margin={{ top: 8, right: 24, bottom: 8, left: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={CHART_COLORS.gridLine}
+                    />
+                    <XAxis
+                      type="number"
+                      domain={[0, 1]}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                    />
+                    <YAxis
+                      dataKey="feature"
+                      type="category"
+                      width={140}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 10 }}
+                    />
+                    <Tooltip content={<FeatureTooltip />} />
+                    <Bar dataKey="abs_d" radius={[0, 4, 4, 0]}>
+                      {ensembleFeatureImportance.map((entry) => (
+                        <Cell
+                          key={entry.feature}
+                          fill={entry.cohens_d >= 0 ? CHART_COLORS.ai : ENSEMBLE_PURPLE}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartCard>
+            </div>
+
+            {/* -- Platform Profiles -- */}
+            <div className="mb-6">
+              <ChartCard
+                title="Platform Profiles"
+                subtitle="Pangram vs Ensemble accuracy by content platform"
+              >
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart
+                    data={ensemblePlatformProfiles}
+                    layout="vertical"
+                    margin={{ top: 8, right: 24, bottom: 8, left: 8 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={CHART_COLORS.gridLine}
+                    />
+                    <XAxis
+                      type="number"
+                      domain={[0, 100]}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                      tickFormatter={(v: number) => `${v}%`}
+                    />
+                    <YAxis
+                      dataKey="platform"
+                      type="category"
+                      width={70}
+                      tick={{ fill: CHART_COLORS.axisLabel, fontSize: 11 }}
+                    />
+                    <Tooltip content={<EnsembleModelTooltip />} />
+                    <Legend
+                      wrapperStyle={{
+                        fontSize: 11,
+                        color: CHART_COLORS.axisLabel,
+                      }}
+                    />
+                    <Bar
+                      dataKey="pangram_acc"
+                      name="Pangram Acc"
+                      fill={CHART_COLORS.ai}
+                      radius={[0, 4, 4, 0]}
+                    />
+                    <Bar
+                      dataKey="ensemble_acc"
+                      name="Ensemble Acc"
+                      fill={ENSEMBLE_PURPLE}
+                      radius={[0, 4, 4, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </ChartCard>
+            </div>
+
+            {/* -- (f) Claude Evasion Callout Card -- */}
+            <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 mb-6">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-secondary">
+                  Claude Evasion Analysis
+                </h3>
+                <p className="text-xs text-secondary/50 mt-0.5">
+                  Claude-generated short-form social media content represents the hardest detection challenge
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <div className="bg-secondary/5 rounded-lg p-3 text-center">
+                  <p className="text-2xl font-display text-secondary">
+                    {ensembleClaudeEvasion.total_claude_ai_samples}
+                  </p>
+                  <p className="text-xs text-secondary/50 mt-1">
+                    Claude samples tested
+                  </p>
+                </div>
+                <div className="bg-secondary/5 rounded-lg p-3 text-center">
+                  <p className="text-2xl font-display" style={{ color: CHART_COLORS.ai }}>
+                    {ensembleClaudeEvasion.pangram_evasion_rate}%
+                  </p>
+                  <p className="text-xs text-secondary/50 mt-1">
+                    Evade Pangram
+                  </p>
+                </div>
+                <div className="bg-secondary/5 rounded-lg p-3 text-center">
+                  <p className="text-2xl font-display" style={{ color: ENSEMBLE_PURPLE }}>
+                    {ensembleClaudeEvasion.ensemble_recovery_rate}%
+                  </p>
+                  <p className="text-xs text-secondary/50 mt-1">
+                    Recovered by ensemble
+                  </p>
+                </div>
+              </div>
+              {/* Evasion samples */}
+              <div className="space-y-2">
+                <p className="text-xs text-secondary/50 font-medium uppercase tracking-wider">
+                  Key Evasion Samples
+                </p>
+                {ensembleClaudeEvasion.key_evasion_samples.map((sample) => (
+                  <div
+                    key={sample.id}
+                    className="bg-secondary/5 rounded-lg p-3"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <code className="text-xs text-secondary/50 font-mono">
+                        {sample.id}
+                      </code>
+                      <span className="text-xs text-secondary/50">
+                        {sample.length} chars
+                      </span>
+                    </div>
+                    <p className="text-sm text-secondary/70 italic mb-2">
+                      &quot;{sample.preview}&quot;
+                    </p>
+                    <div className="flex gap-4 text-xs">
+                      <span className="text-secondary/50">
+                        Pangram:{" "}
+                        <span className="font-medium text-secondary">
+                          {sample.pangram.toFixed(3)}
+                        </span>
+                      </span>
+                      <span className="text-secondary/50">
+                        Ensemble:{" "}
+                        <span className="font-medium" style={{ color: ENSEMBLE_PURPLE }}>
+                          {sample.ensemble.toFixed(3)}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* -- (g) Optimal Weights Card -- */}
+            <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 mb-6">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-secondary">
+                  Optimal Ensemble Weights (Grid Search)
+                </h3>
+                <p className="text-xs text-secondary/50 mt-0.5">
+                  Best F1 found: {ensembleOptimalWeights.optimal_f1}%
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {Object.entries(ensembleOptimalWeights.weights).map(
+                  ([key, value]) => (
+                    <div
+                      key={key}
+                      className="bg-secondary/5 rounded-lg px-4 py-3 text-center"
+                    >
+                      <p className="text-lg font-display text-secondary">
+                        {(value * 100).toFixed(0)}%
+                      </p>
+                      <p className="text-xs text-secondary/50 mt-0.5 capitalize">
+                        {key.replace(/_/g, " ")}
+                      </p>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+
+            {/* -- (h) Honest Caveats -- */}
+            <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 mb-6">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-secondary">
+                  Honest Caveats
+                </h3>
+                <p className="text-xs text-secondary/50 mt-0.5">
+                  Known limitations and disclaimers for this evaluation
+                </p>
+              </div>
+              <ul className="space-y-2">
+                {ensembleHonestCaveats.map((caveat, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 text-sm text-secondary/70"
+                  >
+                    <span className="text-secondary/30 mt-0.5 shrink-0">
+                      &#8226;
+                    </span>
+                    <span>{caveat}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* -- Footer note -- */}
+            <p className="text-xs text-secondary/40 text-center mt-4">
+              Cross-model ensemble evaluation on 54-236 samples across 6 AI
+              models and 4 platforms. Ensemble weights from grid search
+              (pangram=0.55, roberta=0.1, chatgpt_det=0.25, embeddings=0.05,
+              statistical=0.05). All metrics at threshold 0.5.
+            </p>
+          </>
+        )}
+
+        {/* ======================================================
             TAB: Pangram Validation
-            ══════════════════════════════════════════════════════ */}
+            ====================================================== */}
         {activeTab === "pangram" && (
           <>
-            {/* ── Placeholder / Synthetic Warning ── */}
+            {/* -- Placeholder / Synthetic Warning -- */}
             {pgData.isPlaceholder && (
               <div className="bg-amber-50 border border-amber-300 rounded-xl p-4 mb-6">
                 <div className="flex items-start gap-3">
@@ -636,7 +1320,7 @@ export default function EvaluationPage() {
               </div>
             )}
 
-            {/* ── Header ── */}
+            {/* -- Header -- */}
             <div className="bg-base-dark rounded-xl border border-secondary/10 p-5 mb-6">
               <h2 className="text-lg font-display text-secondary mb-1">
                 Pangram Validation Results
@@ -688,7 +1372,7 @@ export default function EvaluationPage() {
               </div>
             </div>
 
-            {/* ── ROC Curve (full width) ── */}
+            {/* -- ROC Curve (full width) -- */}
             <div className="mb-6">
               <ChartCard
                 title="ROC Curve -- Pangram"
@@ -761,7 +1445,7 @@ export default function EvaluationPage() {
               </ChartCard>
             </div>
 
-            {/* ── 2-column grid: Confusion Matrix + Summary Stats ── */}
+            {/* -- 2-column grid: Confusion Matrix + Summary Stats -- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Confusion Matrix */}
               <div className="bg-base-dark rounded-xl border border-secondary/10 p-5">
@@ -920,7 +1604,7 @@ export default function EvaluationPage() {
               </div>
             </div>
 
-            {/* ── Per-Model + Per-Platform Detection Rate ── */}
+            {/* -- Per-Model + Per-Platform Detection Rate -- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {/* Per-Model Detection Rate */}
               <ChartCard
@@ -997,7 +1681,7 @@ export default function EvaluationPage() {
               </ChartCard>
             </div>
 
-            {/* ── Confidence Distribution (full width) ── */}
+            {/* -- Confidence Distribution (full width) -- */}
             <div className="mb-6">
               <ChartCard
                 title="Confidence Score Distribution"
@@ -1058,7 +1742,7 @@ export default function EvaluationPage() {
               </ChartCard>
             </div>
 
-            {/* ── Footer note ── */}
+            {/* -- Footer note -- */}
             <p className="text-xs text-secondary/40 text-center mt-4">
               Validation performed using Pangram v3 API in primary-only mode (no
               ensemble dilution). {pgData.totalSamples} samples (

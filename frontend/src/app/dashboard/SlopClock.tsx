@@ -43,7 +43,7 @@ export function SlopClock() {
     return (
       <ChartCard
         title="The Slop Clock"
-        subtitle="When AI content appears — day of week vs hour of day"
+        subtitle="AI content doesn't sleep. Bot farms post at 2-4 AM when human activity drops — bright cells reveal automated posting schedules."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -55,7 +55,7 @@ export function SlopClock() {
     return (
       <ChartCard
         title="The Slop Clock"
-        subtitle="When AI content appears — day of week vs hour of day"
+        subtitle="AI content doesn't sleep. Bot farms post at 2-4 AM when human activity drops — bright cells reveal automated posting schedules."
       >
         <div className="flex items-center justify-center h-64 text-secondary/40 text-sm">
           No data yet
@@ -79,7 +79,7 @@ export function SlopClock() {
   return (
     <ChartCard
       title="The Slop Clock"
-      subtitle="When AI content appears — day of week vs hour of day"
+      subtitle="AI content doesn't sleep. Bot farms post at 2-4 AM when human activity drops — bright cells reveal automated posting schedules."
     >
       <div className="overflow-x-auto">
         <svg
@@ -152,6 +152,7 @@ export function SlopClock() {
           )}
         </svg>
       </div>
+      <p className="text-xs text-secondary/40 mt-3 italic">Green = mostly human. Pink = AI-dominated. Look for overnight hotspots — that's where content farms operate.</p>
     </ChartCard>
   );
 }

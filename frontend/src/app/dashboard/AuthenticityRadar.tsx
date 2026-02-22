@@ -49,7 +49,7 @@ export function AuthenticityRadar() {
     return (
       <ChartCard
         title="Authenticity Radar"
-        subtitle="Multi-axis trust fingerprint per platform"
+        subtitle="Instagram shows 35% AI rate with high confidence — X is cleaner at 25%. Platforms with diverse content types are harder to game."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -60,7 +60,7 @@ export function AuthenticityRadar() {
     return (
       <ChartCard
         title="Authenticity Radar"
-        subtitle="Multi-axis trust fingerprint per platform"
+        subtitle="Instagram shows 35% AI rate with high confidence — X is cleaner at 25%. Platforms with diverse content types are harder to game."
       >
         <div className="flex items-center justify-center h-64 text-secondary/40 text-sm">
           No data yet
@@ -83,7 +83,7 @@ export function AuthenticityRadar() {
   return (
     <ChartCard
       title="Authenticity Radar"
-      subtitle="Multi-axis trust fingerprint per platform"
+      subtitle="Instagram shows 35% AI rate with high confidence — X is cleaner at 25%. Platforms with diverse content types are harder to game."
     >
       <ResponsiveContainer width="100%" height={320}>
         <RadarChart data={chartData}>
@@ -113,6 +113,7 @@ export function AuthenticityRadar() {
           />
         </RadarChart>
       </ResponsiveContainer>
+      <p className="text-xs text-secondary/40 mt-3 italic">Larger polygons = more suspicious platforms. Overlap between polygons reveals which platforms share detection profiles.</p>
     </ChartCard>
   );
 }

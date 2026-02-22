@@ -1,0 +1,78 @@
+{
+  "generated_at": "2026-02-22T11:54:25.079Z",
+  "pipeline_version": "cross-model-v1",
+  "models_tested": [
+    "gemini",
+    "chatgpt",
+    "claude"
+  ],
+  "total_samples": 54,
+  "ai_samples": 34,
+  "human_samples": 20,
+  "per_model": [
+    {
+      "model": "gemini",
+      "n": 10,
+      "detection_rate": 100,
+      "avg_pangram_score": 1,
+      "detected_as_ai": 10,
+      "detected_as_human": 0
+    },
+    {
+      "model": "chatgpt",
+      "n": 12,
+      "detection_rate": 100,
+      "avg_pangram_score": 1,
+      "detected_as_ai": 12,
+      "detected_as_human": 0
+    },
+    {
+      "model": "claude",
+      "n": 12,
+      "detection_rate": 83.3,
+      "avg_pangram_score": 0.8333,
+      "detected_as_ai": 10,
+      "detected_as_human": 2
+    }
+  ],
+  "human_controls": {
+    "total": 20,
+    "correctly_identified": 2,
+    "false_positives": 18,
+    "false_positive_rate": 90
+  },
+  "overall_metrics": {
+    "accuracy": 63,
+    "precision": 64,
+    "recall": 94.1,
+    "f1_score": 76.2,
+    "false_positive_rate": 90,
+    "specificity": 10
+  },
+  "confusion_matrix": {
+    "tp": 32,
+    "fp": 18,
+    "fn": 2,
+    "tn": 2
+  },
+  "per_platform": [
+    {
+      "platform": "facebook",
+      "n": 12,
+      "detection_rate": 100,
+      "avg_score": 1
+    },
+    {
+      "platform": "linkedin",
+      "n": 12,
+      "detection_rate": 100,
+      "avg_score": 1
+    },
+    {
+      "platform": "x",
+      "n": 10,
+      "detection_rate": 80,
+      "avg_score": 0.8
+    }
+  ]
+}

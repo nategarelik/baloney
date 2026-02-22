@@ -85,7 +85,7 @@ export function ViralTrajectory() {
     return (
       <ChartCard
         title="Viral Trajectory"
-        subtitle="How fast content spreads — hours from first sighting vs reach"
+        subtitle="Same AI content appears across platforms within hours. Larger bubbles = higher compound AI score from crowd-sourced verification."
       >
         <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
       </ChartCard>
@@ -98,7 +98,7 @@ export function ViralTrajectory() {
     return (
       <ChartCard
         title="Viral Trajectory"
-        subtitle="How fast content spreads — hours from first sighting vs reach"
+        subtitle="Same AI content appears across platforms within hours. Larger bubbles = higher compound AI score from crowd-sourced verification."
       >
         <p className="py-16 text-center text-sm text-secondary/40">
           No provenance data to plot yet.
@@ -135,7 +135,7 @@ export function ViralTrajectory() {
   return (
     <ChartCard
       title="Viral Trajectory"
-      subtitle="How fast content spreads — hours from first sighting vs reach"
+      subtitle="Same AI content appears across platforms within hours. Larger bubbles = higher compound AI score from crowd-sourced verification."
     >
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -187,6 +187,7 @@ export function ViralTrajectory() {
           />
         </ScatterChart>
       </ResponsiveContainer>
+      <p className="text-xs text-secondary/40 mt-3 italic">Each dot is a unique piece of content tracked by SHA-256 hash across platforms. Fast spread + high sightings = likely coordinated AI content.</p>
     </ChartCard>
   );
 }

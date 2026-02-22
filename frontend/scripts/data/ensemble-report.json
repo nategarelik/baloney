@@ -1,0 +1,1023 @@
+{
+  "generated_at": "2026-02-22T12:38:11.597Z",
+  "pipeline_version": "ensemble-v1",
+  "total_samples": 259,
+  "cross_model_samples": 54,
+  "curated_samples": 205,
+  "comparison": {
+    "pangram_only": {
+      "accuracy": 63,
+      "precision": 64,
+      "recall": 94.1,
+      "f1": 76.2,
+      "fpr": 90,
+      "specificity": 10
+    },
+    "ensemble": {
+      "accuracy": 49,
+      "precision": 76.9,
+      "recall": 7.2,
+      "f1": 13.2,
+      "fpr": 2.5,
+      "specificity": 97.5
+    },
+    "delta": {
+      "accuracy": -14,
+      "precision": 12.9,
+      "recall": -86.9,
+      "f1": -63,
+      "fpr": -87.5,
+      "specificity": 87.5
+    }
+  },
+  "length_analysis": {
+    "pangram": [
+      {
+        "bucket": "0-200",
+        "n": 9,
+        "accuracy": 0,
+        "fpr": 0,
+        "fnr": 0,
+        "f1": 0
+      },
+      {
+        "bucket": "200-400",
+        "n": 5,
+        "accuracy": 0.5,
+        "fpr": 0,
+        "fnr": 0.5,
+        "f1": 0.6667
+      },
+      {
+        "bucket": "400-800",
+        "n": 78,
+        "accuracy": 0.561,
+        "fpr": 0.9,
+        "fnr": 0,
+        "f1": 0.7
+      },
+      {
+        "bucket": "800+",
+        "n": 167,
+        "accuracy": 1,
+        "fpr": 0,
+        "fnr": 0,
+        "f1": 1
+      }
+    ],
+    "ensemble": [
+      {
+        "bucket": "0-200",
+        "n": 9,
+        "accuracy": 1,
+        "fpr": 0,
+        "fnr": 0,
+        "f1": 1
+      },
+      {
+        "bucket": "200-400",
+        "n": 5,
+        "accuracy": 0.2,
+        "fpr": 0,
+        "fnr": 1,
+        "f1": 0
+      },
+      {
+        "bucket": "400-800",
+        "n": 78,
+        "accuracy": 0.4615,
+        "fpr": 0.0811,
+        "fnr": 0.9512,
+        "f1": 0.087
+      },
+      {
+        "bucket": "800+",
+        "n": 167,
+        "accuracy": 0.485,
+        "fpr": 0,
+        "fnr": 0.9556,
+        "f1": 0.0851
+      }
+    ]
+  },
+  "platform_profiles": [
+    {
+      "platform": "mixed",
+      "n": 225,
+      "pangram_accuracy": 0.1,
+      "pangram_fpr": 0.9,
+      "pangram_f1": 0,
+      "ensemble_accuracy": 0.5556,
+      "ensemble_fpr": 0.025,
+      "ensemble_f1": 0.1379
+    },
+    {
+      "platform": "facebook",
+      "n": 12,
+      "pangram_accuracy": 1,
+      "pangram_fpr": 0,
+      "pangram_f1": 1,
+      "ensemble_accuracy": 0.0833,
+      "ensemble_fpr": 0,
+      "ensemble_f1": 0.1538
+    },
+    {
+      "platform": "linkedin",
+      "n": 12,
+      "pangram_accuracy": 1,
+      "pangram_fpr": 0,
+      "pangram_f1": 1,
+      "ensemble_accuracy": 0.0833,
+      "ensemble_fpr": 0,
+      "ensemble_f1": 0.1538
+    },
+    {
+      "platform": "x",
+      "n": 10,
+      "pangram_accuracy": 0.8,
+      "pangram_fpr": 0,
+      "pangram_f1": 0.8889,
+      "ensemble_accuracy": 0,
+      "ensemble_fpr": 0,
+      "ensemble_f1": 0
+    }
+  ],
+  "model_difficulty": [
+    {
+      "model": "claude",
+      "n": 28,
+      "pangram_detection_rate": 0.3571,
+      "ensemble_detection_rate": 0,
+      "score_distribution": {
+        "min": 0.0956,
+        "q1": 0.114725,
+        "median": 0.1449,
+        "q3": 0.413,
+        "max": 0.4474
+      },
+      "evasion_count": 18
+    },
+    {
+      "model": "human",
+      "n": 120,
+      "pangram_detection_rate": 0,
+      "ensemble_detection_rate": 0,
+      "score_distribution": {
+        "min": 0,
+        "q1": 0,
+        "median": 0,
+        "q3": 0,
+        "max": 0
+      },
+      "evasion_count": 0
+    },
+    {
+      "model": "llama",
+      "n": 5,
+      "pangram_detection_rate": 0,
+      "ensemble_detection_rate": 0,
+      "score_distribution": {
+        "min": 0.0932,
+        "q1": 0.0973,
+        "median": 0.0984,
+        "q3": 0.0998,
+        "max": 0.1181
+      },
+      "evasion_count": 5
+    },
+    {
+      "model": "mistral",
+      "n": 5,
+      "pangram_detection_rate": 0,
+      "ensemble_detection_rate": 0,
+      "score_distribution": {
+        "min": 0.1373,
+        "q1": 0.1451,
+        "median": 0.1502,
+        "q3": 0.1694,
+        "max": 0.2115
+      },
+      "evasion_count": 5
+    },
+    {
+      "model": "chatgpt",
+      "n": 17,
+      "pangram_detection_rate": 0.7059,
+      "ensemble_detection_rate": 0.0588,
+      "score_distribution": {
+        "min": 0.1667,
+        "q1": 0.4094,
+        "median": 0.4195,
+        "q3": 0.4254,
+        "max": 0.7288
+      },
+      "evasion_count": 4
+    },
+    {
+      "model": "gemini",
+      "n": 20,
+      "pangram_detection_rate": 0.5,
+      "ensemble_detection_rate": 0.1,
+      "score_distribution": {
+        "min": 0.0851,
+        "q1": 0.13082500000000002,
+        "median": 0.2818,
+        "q3": 0.43195,
+        "max": 0.6097
+      },
+      "evasion_count": 10
+    },
+    {
+      "model": "mixed",
+      "n": 64,
+      "pangram_detection_rate": 0,
+      "ensemble_detection_rate": 0.1094,
+      "score_distribution": {
+        "min": 0.0763,
+        "q1": 0.108425,
+        "median": 0.1592,
+        "q3": 0.32442499999999996,
+        "max": 0.763
+      },
+      "evasion_count": 57
+    }
+  ],
+  "ensemble_value": {
+    "pangram_cm": {
+      "tp": 32,
+      "fp": 18,
+      "fn": 2,
+      "tn": 2
+    },
+    "ensemble_cm": {
+      "tp": 10,
+      "fp": 3,
+      "fn": 129,
+      "tn": 117
+    },
+    "rescued_samples": [
+      "human-ctrl-1",
+      "human-ctrl-2",
+      "human-ctrl-3",
+      "human-ctrl-5",
+      "human-ctrl-6",
+      "human-ctrl-7",
+      "human-ctrl-8",
+      "human-ctrl-9",
+      "human-ctrl-10",
+      "human-ctrl-11",
+      "human-ctrl-12",
+      "human-ctrl-13",
+      "human-ctrl-15",
+      "human-ctrl-18",
+      "human-ctrl-19",
+      "human-ctrl-20",
+      "ai-chatgpt-essay-1",
+      "ai-generic-listicle-1",
+      "ai-email-1",
+      "ai-news-summary-1",
+      "human-reddit-1",
+      "human-reddit-2",
+      "human-twitter-1",
+      "human-news-1",
+      "human-journal-1",
+      "human-review-1",
+      "human-essay-1",
+      "human-blog-tech-1",
+      "human-academic-1",
+      "human-creative-1",
+      "human-email-casual-1",
+      "human-opinion-1",
+      "human-reddit-3",
+      "human-reddit-4",
+      "human-reddit-5",
+      "human-reddit-6",
+      "human-reddit-7",
+      "human-twitter-2",
+      "human-twitter-3",
+      "human-twitter-4",
+      "human-twitter-5",
+      "human-twitter-6",
+      "human-news-2",
+      "human-news-3",
+      "human-news-4",
+      "human-news-5",
+      "human-news-6",
+      "human-academic-2",
+      "human-academic-3",
+      "human-academic-4",
+      "human-academic-5",
+      "human-academic-6",
+      "human-blog-1",
+      "human-blog-2",
+      "human-blog-3",
+      "human-blog-4",
+      "human-blog-5",
+      "human-review-2",
+      "human-review-3",
+      "human-review-4",
+      "human-review-5",
+      "human-review-6",
+      "human-email-1",
+      "human-email-2",
+      "human-email-3",
+      "human-email-4",
+      "human-email-5",
+      "human-creative-2",
+      "human-creative-3",
+      "human-creative-4",
+      "human-creative-5",
+      "human-creative-6",
+      "human-esl-1",
+      "human-esl-2",
+      "human-esl-3",
+      "human-esl-4",
+      "human-esl-5",
+      "human-reddit-8",
+      "human-reddit-9",
+      "human-reddit-10",
+      "human-twitter-7",
+      "human-twitter-8",
+      "human-news-7",
+      "human-news-8",
+      "human-blog-6",
+      "human-blog-7",
+      "human-review-7",
+      "human-review-8",
+      "human-creative-7",
+      "human-creative-8",
+      "human-esl-6",
+      "human-esl-7",
+      "human-reddit-11",
+      "human-twitter-9",
+      "human-news-9",
+      "human-academic-7",
+      "human-blog-8",
+      "human-email-6",
+      "human-creative-9",
+      "human-review-9",
+      "human-blog-9",
+      "human-twitter-10",
+      "human-email-7",
+      "human-academic-8",
+      "edge-short-2",
+      "edge-formal-human-1",
+      "edge-foreign-style-1",
+      "edge-short-3",
+      "edge-short-4",
+      "edge-short-5",
+      "edge-short-6",
+      "edge-short-7",
+      "edge-formal-human-2",
+      "edge-formal-human-3",
+      "edge-formal-human-4",
+      "edge-formal-human-5",
+      "edge-formal-human-6",
+      "edge-mixed-4",
+      "edge-short-9",
+      "edge-short-10",
+      "edge-short-11",
+      "edge-formal-human-7",
+      "edge-formal-human-8"
+    ],
+    "lost_samples": [
+      "13e58ad9-dd99-44d6-9368-9c5df9e0c64a",
+      "e233ee61-d138-43e4-b9be-2e195fee0d26",
+      "420727b0-2de4-4a40-9ac5-4e4484fe0c2a",
+      "f1258a91-6c76-48f0-a370-862c64835c82",
+      "73dde99a-4db0-4aca-975a-4a891458fa02",
+      "555bd349-fd07-47b4-a0a3-e289d54d9f1b",
+      "d47c7bb5-b0b6-4551-8222-5fda4a8b802a",
+      "ba3a3dda-e7f3-432d-93f8-b10881e330a1",
+      "c6f9653c-5628-46fb-a8aa-105d0dfb40d7",
+      "f9f1a6d1-4e8c-4fe5-a508-0647170c9f4d",
+      "dd7282fb-91ab-4339-b5d4-5fddbd5e2db2",
+      "397218fd-0089-41ed-a8e0-1a3fc6fcf7c1",
+      "89cb4ab3-0205-46a0-9068-a9316a40a361",
+      "be381a62-68b2-4214-88bd-e54587a6e0fb",
+      "efa0c437-fd29-4cd7-83da-71becc053048",
+      "0fc63a5d-a2e9-487a-9450-0d3607229715",
+      "a7d60658-ba95-403c-a99b-fb15fceb0bd7",
+      "d8dd30ac-22d2-495e-a5f3-73efea1312b6",
+      "2dc8290a-177a-4904-b3f1-8137d1f31bd6",
+      "f2ef6ad9-f2cc-42c1-921d-9572e2106374",
+      "9cbbd240-c57e-4e61-b92a-426d79d7b3b9",
+      "7e263587-c970-4dde-8248-b7a547ea4ac0",
+      "2fc6d8b6-e6b7-4c23-b8a0-86f862d01b38",
+      "8fb8d107-7673-4ba9-8cb2-9e49114ddd83",
+      "fed4ed8a-e068-4293-9b0a-4267e08530cc",
+      "6f915f92-91f2-49fa-8e7f-d4e11712460e",
+      "3c4f417b-4637-4a40-813f-95cda3db91f8",
+      "51f10c69-dbf4-4e5b-8d76-00e2becbfe52",
+      "7df93ee0-1869-465d-b7e5-c3bbe7986532",
+      "33bd3d78-ab65-4371-bb24-99bf9004ea0c"
+    ],
+    "optimal_weights": {
+      "pangram": 0.55,
+      "roberta": 0.1,
+      "chatgpt_det": 0.25,
+      "embeddings": 0.05,
+      "statistical": 0.05
+    },
+    "optimal_f1": 0.4954
+  },
+  "feature_importance": [
+    {
+      "feature": "word_len_signal",
+      "standalone_auc": 0.7837,
+      "cohens_d": 0.9585,
+      "per_model_auc": {
+        "gemini": 0.7183,
+        "chatgpt": 0.749,
+        "claude": 0.7875,
+        "mixed": 0.8049,
+        "llama": 0.7075,
+        "mistral": 0.9467
+      }
+    },
+    {
+      "feature": "readability",
+      "standalone_auc": 0.7276,
+      "cohens_d": 0.7719,
+      "per_model_auc": {
+        "gemini": 0.6669,
+        "chatgpt": 0.6625,
+        "claude": 0.7247,
+        "mixed": 0.76,
+        "llama": 0.6367,
+        "mistral": 0.8833
+      }
+    },
+    {
+      "feature": "perplexity_norm",
+      "standalone_auc": 0.2256,
+      "cohens_d": -0.6648,
+      "per_model_auc": {
+        "gemini": 0.1908,
+        "chatgpt": 0.099,
+        "claude": 0.2671,
+        "mixed": 0.2417,
+        "llama": 0.3442,
+        "mistral": 0.2375
+      }
+    },
+    {
+      "feature": "burstiness",
+      "standalone_auc": 0.3018,
+      "cohens_d": -0.6011,
+      "per_model_auc": {
+        "gemini": 0.2544,
+        "chatgpt": 0.1272,
+        "claude": 0.374,
+        "mixed": 0.3235,
+        "llama": 0.4158,
+        "mistral": 0.2883
+      }
+    },
+    {
+      "feature": "sent_len_signal",
+      "standalone_auc": 0.6357,
+      "cohens_d": 0.5104,
+      "per_model_auc": {
+        "gemini": 0.5313,
+        "chatgpt": 0.5978,
+        "claude": 0.6101,
+        "mixed": 0.6785,
+        "llama": 0.4692,
+        "mistral": 0.945
+      }
+    },
+    {
+      "feature": "ttr",
+      "standalone_auc": 0.6122,
+      "cohens_d": 0.3737,
+      "per_model_auc": {
+        "gemini": 0.6483,
+        "chatgpt": 0.8017,
+        "claude": 0.5841,
+        "mixed": 0.609,
+        "llama": 0.4383,
+        "mistral": 0.195
+      }
+    },
+    {
+      "feature": "repetition",
+      "standalone_auc": 0.3891,
+      "cohens_d": -0.3737,
+      "per_model_auc": {
+        "gemini": 0.3542,
+        "chatgpt": 0.2034,
+        "claude": 0.4162,
+        "mixed": 0.3911,
+        "llama": 0.5675,
+        "mistral": 0.805
+      }
+    },
+    {
+      "feature": "entropy_signal",
+      "standalone_auc": 0.4033,
+      "cohens_d": -0.3103,
+      "per_model_auc": {
+        "gemini": 0.3983,
+        "chatgpt": 0.3784,
+        "claude": 0.4018,
+        "mixed": 0.3878,
+        "llama": 0.5433,
+        "mistral": 0.575
+      }
+    },
+    {
+      "feature": "comma_density_signal",
+      "standalone_auc": 0.5837,
+      "cohens_d": 0.3005,
+      "per_model_auc": {
+        "gemini": 0.5117,
+        "chatgpt": 0.6865,
+        "claude": 0.5027,
+        "mixed": 0.5982,
+        "llama": 0.4208,
+        "mistral": 0.9517
+      }
+    },
+    {
+      "feature": "transition_signal",
+      "standalone_auc": 0.5558,
+      "cohens_d": 0.2436,
+      "per_model_auc": {
+        "gemini": 0.54,
+        "chatgpt": 0.5017,
+        "claude": 0.6543,
+        "mixed": 0.543,
+        "llama": 0.4417,
+        "mistral": 0.5308
+      }
+    },
+    {
+      "feature": "hedging_signal",
+      "standalone_auc": 0.5174,
+      "cohens_d": 0.217,
+      "per_model_auc": {
+        "gemini": 0.4958,
+        "chatgpt": 0.5252,
+        "claude": 0.5496,
+        "mixed": 0.4958,
+        "llama": 0.5958,
+        "mistral": 0.5958
+      }
+    },
+    {
+      "feature": "expressive_signal",
+      "standalone_auc": 0.4686,
+      "cohens_d": 0.0437,
+      "per_model_auc": {
+        "gemini": 0.5008,
+        "chatgpt": 0.3429,
+        "claude": 0.3683,
+        "mixed": 0.5247,
+        "llama": 0.35,
+        "mistral": 0.7275
+      }
+    }
+  ],
+  "claude_evasion": {
+    "evaded_samples": [
+      {
+        "id": "0f84a277-bb15-418a-a182-e639c86915b0",
+        "text_preview": "we're literally teaching kids the same way we did in 1924. sit in rows. memorize facts. take a test.",
+        "text_length": 313,
+        "pangram_score": 0,
+        "ensemble_score": 0.1515,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.3343,
+          "ttr": 0.898,
+          "perplexity_norm": 0.4363,
+          "repetition": 0.102,
+          "readability": 0.8157,
+          "sent_len_signal": 0,
+          "word_len_signal": 0.4667,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 1,
+          "entropy_signal": 0
+        }
+      },
+      {
+        "id": "b6a41527-2e64-4fce-bb06-5999427e1a89",
+        "text_preview": "The office is just expensive commuting to sit in a meeting room while everyone's on Slack anyway. We",
+        "text_length": 385,
+        "pangram_score": 0,
+        "ensemble_score": 0.1003,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.1956,
+          "ttr": 0.7826,
+          "perplexity_norm": 0.413,
+          "repetition": 0.2174,
+          "readability": 0.7652,
+          "sent_len_signal": 0.1,
+          "word_len_signal": 0.2,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 1,
+          "entropy_signal": 0
+        }
+      },
+      {
+        "id": "ai-claude-analysis-1",
+        "text_preview": "There are several important considerations when evaluating the effectiveness of remote work policies",
+        "text_length": 982,
+        "pangram_score": null,
+        "ensemble_score": 0.4474,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.4925,
+          "ttr": 0.7556,
+          "perplexity_norm": 0.7369,
+          "repetition": 0.2444,
+          "readability": 1,
+          "sent_len_signal": 0.8333,
+          "word_len_signal": 0.7667,
+          "transition_signal": 0.3704,
+          "hedging_signal": 0.5,
+          "comma_density_signal": 0,
+          "expressive_signal": 1,
+          "entropy_signal": 0.0135
+        }
+      },
+      {
+        "id": "claude-essay-1",
+        "text_preview": "The relationship between social media platforms and democratic governance is more nuanced than eithe",
+        "text_length": 1313,
+        "pangram_score": null,
+        "ensemble_score": 0.13,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.7053,
+          "ttr": 0.7151,
+          "perplexity_norm": 0.9902,
+          "repetition": 0.2849,
+          "readability": 1,
+          "sent_len_signal": 1,
+          "word_len_signal": 0.7667,
+          "transition_signal": 0.1397,
+          "hedging_signal": 0,
+          "comma_density_signal": 0.0952,
+          "expressive_signal": 0.162,
+          "entropy_signal": 0.0075
+        }
+      },
+      {
+        "id": "claude-essay-2",
+        "text_preview": "I think it's worth being honest about the complicated relationship between expertise and public trus",
+        "text_length": 1381,
+        "pangram_score": null,
+        "ensemble_score": 0.1447,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.7844,
+          "ttr": 0.699,
+          "perplexity_norm": 1,
+          "repetition": 0.301,
+          "readability": 1,
+          "sent_len_signal": 0.64,
+          "word_len_signal": 0.7,
+          "transition_signal": 0.1276,
+          "hedging_signal": 0.25,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.7449,
+          "entropy_signal": 0.0073
+        }
+      },
+      {
+        "id": "claude-essay-3",
+        "text_preview": "There's a growing philosophical argument that attention is the most important ethical resource of th",
+        "text_length": 1330,
+        "pangram_score": null,
+        "ensemble_score": 0.0977,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.67,
+          "perplexity_norm": 1,
+          "repetition": 0.33,
+          "readability": 0.9514,
+          "sent_len_signal": 0.5667,
+          "word_len_signal": 0.5333,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.2611,
+          "entropy_signal": 0.0039
+        }
+      },
+      {
+        "id": "claude-analysis-1",
+        "text_preview": "Looking at the housing market data for the past eighteen months reveals some interesting and somewha",
+        "text_length": 1385,
+        "pangram_score": null,
+        "ensemble_score": 0.111,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.8608,
+          "ttr": 0.7387,
+          "perplexity_norm": 1,
+          "repetition": 0.2613,
+          "readability": 0.9674,
+          "sent_len_signal": 0.3533,
+          "word_len_signal": 0.6667,
+          "transition_signal": 0.1256,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.7487,
+          "entropy_signal": 0.0098
+        }
+      },
+      {
+        "id": "claude-analysis-2",
+        "text_preview": "The streaming industry's evolution over the past three years tells a story about the limits of growt",
+        "text_length": 1381,
+        "pangram_score": null,
+        "ensemble_score": 0.1186,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.5356,
+          "ttr": 0.7259,
+          "perplexity_norm": 0.8097,
+          "repetition": 0.2741,
+          "readability": 1,
+          "sent_len_signal": 0.6467,
+          "word_len_signal": 0.6667,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.4924,
+          "entropy_signal": 0.0067
+        }
+      },
+      {
+        "id": "claude-analysis-3",
+        "text_preview": "The available data on remote work productivity is more ambiguous than advocates on either side tend ",
+        "text_length": 1456,
+        "pangram_score": null,
+        "ensemble_score": 0.1083,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.7056,
+          "perplexity_norm": 1,
+          "repetition": 0.2944,
+          "readability": 1,
+          "sent_len_signal": 1,
+          "word_len_signal": 0.6,
+          "transition_signal": 0,
+          "hedging_signal": 0.25,
+          "comma_density_signal": 0.0417,
+          "expressive_signal": 0.5327,
+          "entropy_signal": 0.0102
+        }
+      },
+      {
+        "id": "claude-email-1",
+        "text_preview": "Subject: Q2 Platform Migration — Status Update and Timeline Adjustment\n\nHi team,\n\nI wanted to provid",
+        "text_length": 1253,
+        "pangram_score": null,
+        "ensemble_score": 0.1273,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.946,
+          "ttr": 0.7263,
+          "perplexity_norm": 1,
+          "repetition": 0.2737,
+          "readability": 0.9563,
+          "sent_len_signal": 0.6,
+          "word_len_signal": 0.5333,
+          "transition_signal": 0.2632,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.7368,
+          "entropy_signal": 0.0098
+        }
+      },
+      {
+        "id": "claude-email-2",
+        "text_preview": "Subject: Re: Innovation Workshop — March 8\n\nHi Jennifer,\n\nThank you for the invitation to participat",
+        "text_length": 1091,
+        "pangram_score": null,
+        "ensemble_score": 0.427,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.7111,
+          "perplexity_norm": 1,
+          "repetition": 0.2889,
+          "readability": 0.9196,
+          "sent_len_signal": 0.8333,
+          "word_len_signal": 0.3333,
+          "transition_signal": 0.2778,
+          "hedging_signal": 0,
+          "comma_density_signal": 0.0417,
+          "expressive_signal": 0.1667,
+          "entropy_signal": 0.006
+        }
+      },
+      {
+        "id": "claude-email-3",
+        "text_preview": "Subject: Performance Review Discussion — Follow-up Notes\n\nHi David,\n\nThank you for the thoughtful co",
+        "text_length": 1234,
+        "pangram_score": null,
+        "ensemble_score": 0.1142,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.7316,
+          "perplexity_norm": 1,
+          "repetition": 0.2684,
+          "readability": 0.965,
+          "sent_len_signal": 0.74,
+          "word_len_signal": 0.5,
+          "transition_signal": 0.1316,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.4737,
+          "entropy_signal": 0.007
+        }
+      },
+      {
+        "id": "claude-essay-4",
+        "text_preview": "The relationship between choice and wellbeing turns out to be considerably more complicated than the",
+        "text_length": 1322,
+        "pangram_score": null,
+        "ensemble_score": 0.1149,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.7258,
+          "perplexity_norm": 1,
+          "repetition": 0.2742,
+          "readability": 1,
+          "sent_len_signal": 1,
+          "word_len_signal": 0.7,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.4624,
+          "entropy_signal": 0.0057
+        }
+      },
+      {
+        "id": "claude-analysis-4",
+        "text_preview": "An interesting pattern emerges when you look at engagement metrics across social media platforms ove",
+        "text_length": 1306,
+        "pangram_score": null,
+        "ensemble_score": 0.1368,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.7385,
+          "perplexity_norm": 1,
+          "repetition": 0.2615,
+          "readability": 1,
+          "sent_len_signal": 1,
+          "word_len_signal": 0.5667,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.4872,
+          "entropy_signal": 0
+        }
+      },
+      {
+        "id": "claude-email-4",
+        "text_preview": "Subject: Vendor Evaluation Summary — Analytics Platform RFP\n\nHi team,\n\nI've completed the initial ev",
+        "text_length": 1373,
+        "pangram_score": null,
+        "ensemble_score": 0.1072,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.665,
+          "perplexity_norm": 1,
+          "repetition": 0.335,
+          "readability": 0.9534,
+          "sent_len_signal": 0.58,
+          "word_len_signal": 0.5333,
+          "transition_signal": 0.1214,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.7573,
+          "entropy_signal": 0.0064
+        }
+      },
+      {
+        "id": "claude-essay-5",
+        "text_preview": "There's a growing body of research suggesting that boredom, far from being a state to be avoided, ma",
+        "text_length": 1429,
+        "pangram_score": null,
+        "ensemble_score": 0.0956,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 1,
+          "ttr": 0.6991,
+          "perplexity_norm": 1,
+          "repetition": 0.3009,
+          "readability": 0.9817,
+          "sent_len_signal": 0.7733,
+          "word_len_signal": 0.5333,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0.0667,
+          "expressive_signal": 0.0741,
+          "entropy_signal": 0.0077
+        }
+      },
+      {
+        "id": "claude-analysis-5",
+        "text_preview": "The restaurant industry's recovery from pandemic-era disruptions has been uneven in ways that reveal",
+        "text_length": 1454,
+        "pangram_score": null,
+        "ensemble_score": 0.1451,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.3436,
+          "ttr": 0.7638,
+          "perplexity_norm": 0.5798,
+          "repetition": 0.2362,
+          "readability": 1,
+          "sent_len_signal": 0.9933,
+          "word_len_signal": 0.7667,
+          "transition_signal": 0,
+          "hedging_signal": 0,
+          "comma_density_signal": 0.0833,
+          "expressive_signal": 0.2462,
+          "entropy_signal": 0.0026
+        }
+      },
+      {
+        "id": "claude-analysis-6",
+        "text_preview": "The podcast industry's economics tell a story about the limits of advertising-supported media in a f",
+        "text_length": 1086,
+        "pangram_score": null,
+        "ensemble_score": 0.1177,
+        "ensemble_recovered": false,
+        "features": {
+          "burstiness": 0.5539,
+          "ttr": 0.7881,
+          "perplexity_norm": 0.7658,
+          "repetition": 0.2119,
+          "readability": 1,
+          "sent_len_signal": 0.7733,
+          "word_len_signal": 0.7333,
+          "transition_signal": 0.1656,
+          "hedging_signal": 0,
+          "comma_density_signal": 0,
+          "expressive_signal": 0.3377,
+          "entropy_signal": 0.0055
+        }
+      }
+    ],
+    "total_claude_samples": 28,
+    "pangram_evasion_rate": 0.6429,
+    "ensemble_recovery_rate": 0
+  },
+  "api_call_summary": {
+    "total_calls": 1036,
+    "successful_calls": 1036,
+    "failed_calls": 0,
+    "avg_latency_ms": 749.2104247104247,
+    "per_method": {
+      "roberta": {
+        "calls": 259,
+        "successes": 259,
+        "avg_latency": 160.12741312741312
+      },
+      "chatgpt_det": {
+        "calls": 259,
+        "successes": 259,
+        "avg_latency": 146.87644787644788
+      },
+      "embeddings": {
+        "calls": 259,
+        "successes": 259,
+        "avg_latency": 2689.837837837838
+      },
+      "statistical": {
+        "calls": 259,
+        "successes": 259,
+        "avg_latency": 0
+      }
+    }
+  },
+  "honest_caveats": [
+    "Pangram FPR is 90% at 0.5 threshold — likely needs recalibration",
+    "2 Claude X/Twitter posts evade all detection (Pangram + ensemble)",
+    "Sample sizes are small (54-236) — confidence intervals are wide",
+    "HuggingFace models are research-grade, not production-calibrated",
+    "Ensemble weights are from engineering intuition, not ML optimization",
+    "Dataset samples lack Pangram scores — statistical-only used as single-method baseline for comparison B",
+    "No held-out test set — all metrics are apparent (training) performance",
+    "Text length distribution is not uniform across models/platforms"
+  ]
+}

@@ -1,0 +1,2568 @@
+[
+  {
+    "id": "e4cb354d-d1d8-4e9c-9b41-9e8853492580",
+    "text_preview": "Unpopular opinion: Every \"super supplement\" ad is selling you a fantasy. You want real energy? Bette",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Unpopular opinion: Every \"super supplement\" ad is selling you a fantasy. You want real energy? Better mood? Deeper sleep? Stop buying pills. Go outside. Walk. Feel the sun. Breathe real air. Nature is the ultimate pharmacy. It's free, it works, and it's infinitely better than anything in a capsule. Your body knows.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9998690485954285,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 316,
+        "word_count": 52,
+        "token_length": 75
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9998690485954285,
+    "detected_at": "2026-02-22T09:20:04.500Z"
+  },
+  {
+    "id": "da682dfe-d145-42c3-9ee9-1ec0cbb99734",
+    "text_preview": "Let's be real: your \"online life\" is a performance. Everyone's a carefully curated actor, starring i",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Let's be real: your \"online life\" is a performance. Everyone's a carefully curated actor, starring in their own highlight reel. The messy parts? Edited out. The bad days? Never posted. We're all just showing the glossy trailer, not the full, complicated movie. Stop comparing your behind-the-scenes reality to someone else's perfectly staged finale. It's all an act. And we're all playing along.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 395,
+        "word_count": 62,
+        "token_length": 89
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:06.032Z"
+  },
+  {
+    "id": "c79cedb3-9ebc-4693-9a85-913624f20dd7",
+    "text_preview": "Was just thinking about how our relationship with money is often... well, kind of messed up. 😬 Grow",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Was just thinking about how our relationship with money is often... well, kind of messed up. 😬 Growing up, it felt like money was either a source of quiet stress or something you never talked about openly. We learn so much in life, but actual financial literacy and a healthy money mindset? Crickets!\n\nIt's like we're either constantly chasing it, fearing it, or feeling guilty about it. We see everyone else's highlight reels and compare our bank accounts, which just spirals into more anxiety. It makes me wonder if our societal conditioning around money sets us up to struggle rather than thrive.\n\nWhat do you think is the *main* reason so many people have such a broken relationship with their finances?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 707,
+        "word_count": 121,
+        "token_length": 148
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:07.569Z"
+  },
+  {
+    "id": "adf5912e-abcd-44cd-8909-38f51cb675a9",
+    "text_preview": "I've observed a pervasive narrative in the startup ecosystem: the glorification of \"hustle culture\" ",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I've observed a pervasive narrative in the startup ecosystem: the glorification of \"hustle culture\" to a point where burnout is mistakenly celebrated as passion. We often equate endless hours and constant grind with dedication, suggesting that true commitment means sacrificing everything.\n\nBut is it truly passion when it leads to exhaustion, diminishing returns, and ultimately, a compromised well-being? My own experience has shown me that sustainable passion isn't about working more, but about working smarter, with intent, and with clear boundaries. It's about finding that delicate balance where creativity flourishes, not withers under relentless pressure.\n\nI've learned that true leadership means cultivating an environment where energy is renewed, not depleted. Prioritizing strategic rest and mental clarity isn't a weakness; it's a profound strength that drives long-term innovation and impact. Let's challenge the notion that self-sacrifice is the only path to success.\n\nWhat are your thoughts on fostering a healthier, more sustainable approach to building groundbreaking ventures?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 1095,
+        "word_count": 156,
+        "token_length": 206
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:09.412Z"
+  },
+  {
+    "id": "0b003b19-e637-4a49-bc35-2f49bafb0eaf",
+    "text_preview": "Let's be real: your meticulously sorted recycling bin isn't saving the planet. It's a performative d",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Let's be real: your meticulously sorted recycling bin isn't saving the planet. It's a performative distraction. We're told to reduce, reuse, recycle while a handful of corporations flood the world with single-use plastics and pollution, then blame *us*.\n\nStop buying into the guilt trip. The problem isn't your individual effort. It's their massive, unchecked footprint. Demand real change where it actually matters: from the top down. Until then, we're just picking up scraps from a table they keep piling higher.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9999232292175293,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 514,
+        "word_count": 80,
+        "token_length": 109
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9999232292175293,
+    "detected_at": "2026-02-22T09:20:10.829Z"
+  },
+  {
+    "id": "2a6b6a32-bfb7-4017-9a62-78c5282c889a",
+    "text_preview": "Seriously, just spent an hour helping my kid with a project and it hit me how little school has actu",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Seriously, just spent an hour helping my kid with a project and it hit me how little school has actually changed since *I* was a kid, let alone since our grandparents were. We're talking classrooms that look almost identical, same bell schedules, same teaching methods for subjects that now have vastly different real-world applications.\n\nThe world outside school has completely transformed in the last century with tech, new jobs, new ways of learning... but inside those walls? It's like a time warp. It makes you wonder how we expect kids to be ready for *their* future when they're learning with a system built for the past. Anyone else feel this frustration?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9989818334579468,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 663,
+        "word_count": 111,
+        "token_length": 133
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9989818334579468,
+    "detected_at": "2026-02-22T09:20:12.380Z"
+  },
+  {
+    "id": "77f3fb4e-94c2-40db-86c3-dad5b72e699e",
+    "text_preview": "Watching politicians talk about tech is pure cringe. They're literally legislating a future they don",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Watching politicians talk about tech is pure cringe. They're literally legislating a future they don't understand, asking questions that belong in 2005. We're trusting people who think 'the internet is a series of tubes' with our digital rights and innovation. The disconnect isn't just a gap, it's a Grand Canyon. Our tech future is being decided by people who barely know how to screenshot. It's not just embarrassing, it's a massive threat to progress.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 455,
+        "word_count": 74,
+        "token_length": 99
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:13.917Z"
+  },
+  {
+    "id": "93a2f0ed-0871-4d1d-99ad-77917e754e53",
+    "text_preview": "Hot take: The modern school system is practically indistinguishable from the one built 100 years ago",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Hot take: The modern school system is practically indistinguishable from the one built 100 years ago. Same bells, same rows, same rote memorization. We're training kids for the industrial revolution, not the AI age. It's an archaic model designed to create factory workers, not innovators. No wonder so many bright minds feel crushed. It's not the kids failing the system; the system is failing them. Wake up.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9944953918457031,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 409,
+        "word_count": 67,
+        "token_length": 89
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9944953918457031,
+    "detected_at": "2026-02-22T09:20:15.943Z"
+  },
+  {
+    "id": "a1b63d91-5ad9-4035-addd-812fb682bbe3",
+    "text_preview": "Just got back from my solo trip and WOW. Seriously, all those years in school taught me a lot, sure,",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just got back from my solo trip and WOW. Seriously, all those years in school taught me a lot, sure, but nothing — absolutely nothing — compared to navigating a new city alone, figuring out public transport in a foreign language, or just trusting my gut. The life lessons you pick up when it's just you against the world are priceless. It'",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996479749679565,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 339,
+        "word_count": 62,
+        "token_length": 76
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996479749679565,
+    "detected_at": "2026-02-22T09:20:17.296Z"
+  },
+  {
+    "id": "ddabe5a3-3745-4d1c-83d4-9a66d628e24b",
+    "text_preview": "Alright, new food trend hot take: It's all just grandma's cooking, rebranded. 'Gut health' fermented",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Alright, new food trend hot take: It's all just grandma's cooking, rebranded. 'Gut health' fermented foods? Sauerkraut. 'Artisanal' sourdough? Bread. 'Sustainable' nose-to-tail? Waste not, want not stew. Y'all paying premium for things our grandparents considered basic necessities. Stop acting like you invented a rotisserie chicken.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9733200073242188,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 334,
+        "word_count": 45,
+        "token_length": 87
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9733200073242188,
+    "detected_at": "2026-02-22T09:20:18.693Z"
+  },
+  {
+    "id": "6251be07-c16c-47e8-a4cb-036f57f02fef",
+    "text_preview": "Everyone's chasing \"new perspectives\" online. Miss me with that. The real mind-blower? Books.\n\nNot j",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Everyone's chasing \"new perspectives\" online. Miss me with that. The real mind-blower? Books.\n\nNot just \"information,\" but literally *rewiring* how you process everything. My brain pre-books was stuck on one track. Now it's a multi-lane, high-speed intellectual highway.\n\nSuddenly, every \"given\" is questionable. Every problem has ten angles. It's not just reading; it's a total cognitive upgrade. You won't just learn more; you'll *think* differently.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996864199638367,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 452,
+        "word_count": 65,
+        "token_length": 104
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996864199638367,
+    "detected_at": "2026-02-22T09:20:20.218Z"
+  },
+  {
+    "id": "8e71f1d4-767b-47fb-848f-0eb6b114e9ef",
+    "text_preview": "Just spent 20 minutes meticulously sorting my recycling, rinsing out every container, making sure it",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just spent 20 minutes meticulously sorting my recycling, rinsing out every container, making sure it all goes into the right bin. And honestly, while I feel good doing my part, a huge part of me just sighs. Are we really making a dent when massive corporations are still producing so much waste and pollution with impunity? It feels like we're just putting a band-aid on a gushing wound while they drill for more oil. What do you all think? Does your individual effort feel significant, or do you feel like the burden needs to shift way more to the big players?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 561,
+        "word_count": 101,
+        "token_length": 123
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:22.003Z"
+  },
+  {
+    "id": "d2c12f80-00c5-42f6-98fb-17012a7251b4",
+    "text_preview": "People still talking about \"AI's potential\" are missing the point. It's not potential anymore; it's ",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "People still talking about \"AI's potential\" are missing the point. It's not potential anymore; it's current. Your entire industry is being rewritten right now, whether you're paying attention or not. The future of work? It's happening. Your competitive edge? Diminishing by the minute if you're not integrating. This isn't a wave to surf. It's the ocean shifting. And if you're not swimming, you're sinking.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 407,
+        "word_count": 64,
+        "token_length": 91
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:23.748Z"
+  },
+  {
+    "id": "8d94ed3e-4c37-4d62-b05f-78693c3340ec",
+    "text_preview": "Okay, confession time! For the longest time, I felt like I *needed* some expensive supplement or fan",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Okay, confession time! For the longest time, I felt like I *needed* some expensive supplement or fancy vitamin to really kickstart my day or boost my mood. I'd try them, hoping for that magic bullet, and honestly, sometimes felt a little something, sometimes nothing.\n\nBut lately, I've just been making an effort to take a 20-30 minute walk outside every single day. No agenda, just moving and breathing. And seriously? It's been a total game-changer. My head feels clearer, my energy is more consistent, and my mood is genuinely better than any pill ever made me feel. It’s wild what a bit of fresh air and sunshine can do.\n\nAnyone else find that nature is the ultimate 'supplement'? What's your go-to outdoor activity?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 720,
+        "word_count": 123,
+        "token_length": 164
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:25.228Z"
+  },
+  {
+    "id": "d71ea4b1-14a8-4605-80fc-c87ff6f1dc43",
+    "text_preview": "The pace of change driven by AI is truly astounding. We're not just seeing incremental improvements;",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The pace of change driven by AI is truly astounding. We're not just seeing incremental improvements; entire paradigms are shifting before our eyes, redefining efficiency, innovation, and even the very nature of work. It’s a moment that demands both vision and adaptability from leaders across every sector.\n\nI've had the privilege of seeing this firsthand, working with teams who are not just adopting AI, but actively shaping its ethical and practical application within complex enterprise environments. It's a journey of continuous learning, challenging assumptions, and embracing new possibilities that were unthinkable just a few years ago.\n\nFor those ready to lean into this transformation, the opportunities are boundless. How are you preparing your organization for the AI-powered future?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 795,
+        "word_count": 118,
+        "token_length": 147
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:27.024Z"
+  },
+  {
+    "id": "a03d8693-a2a7-4747-8388-831ffa6a17f0",
+    "text_preview": "We often define learning by classrooms, textbooks, and formal curriculums. While invaluable, some of",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "We often define learning by classrooms, textbooks, and formal curriculums. While invaluable, some of the most profound lessons come from the unexpected universities of life – especially when you embark on a journey entirely on your own.\n\nMy experiences traveling solo around the globe have been far more transformative than any lecture hall. Facing unfamiliar cultures, navigating logistical challenges with no backup, and making split-second decisions taught me resilience, adaptability, and an unparalleled level of self-reliance. These aren't just soft skills; they're critical competencies for thriving in today's dynamic business environment.\n\nI truly believe the",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9992241859436035,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 668,
+        "word_count": 95,
+        "token_length": 125
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9992241859436035,
+    "detected_at": "2026-02-22T09:20:28.421Z"
+  },
+  {
+    "id": "3be4815b-4423-4e44-86e6-cb24d8825a70",
+    "text_preview": "Here's the harsh truth about money: Most of you have a broken relationship with it. Why? Because you",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Here's the harsh truth about money: Most of you have a broken relationship with it. Why? Because you're playing a game society designed for you to lose. You're taught to spend, not invest. To chase status, not true wealth. Your self-worth is tied to your credit score or the latest gadget. Financial literacy is a joke in schools. We fear money, yet crave it. We chase instant gratification over long-term freedom. It's not just about",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996858835220337,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 434,
+        "word_count": 75,
+        "token_length": 98
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996858835220337,
+    "detected_at": "2026-02-22T09:20:30.097Z"
+  },
+  {
+    "id": "f6ff4e09-929a-4a7b-808f-aa971d7a425a",
+    "text_preview": "Looking back on my career journey, I've been fortunate to receive a lot of guidance. Mentors, books,",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Looking back on my career journey, I've been fortunate to receive a lot of guidance. Mentors, books, articles – the advice was endless. For a long time, I tried to synthesize it all, to find the 'right' path.\n\nBut the most impactful piece of wisdom I ever got was deceptively simple: stop following career advice. Not in a dismissive way, but to truly internalize that *my* path needed to be *mine*. It was about listening to my own intuition, identifying my unique strengths and passions, and having the courage to forge a way that didn't fit any pre-existing blueprint.\n\nThis shift wasn't easy, but it was liberating. It allowed me to build a career that genuinely resonates with my values and has, in turn, led to some of my most fulfilling achievements. It unlocked a level of purpose and impact I hadn't imagined when I was busy trying to fit into someone else's mold.\n\nWhat's the one piece of advice that truly changed your trajectory?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 941,
+        "word_count": 165,
+        "token_length": 209
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:31.785Z"
+  },
+  {
+    "id": "1816d931-e928-4731-b70d-b51befeb1adc",
+    "text_preview": "You know, for years I felt totally lost trying to figure out my career path. Read all the books, wen",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "You know, for years I felt totally lost trying to figure out my career path. Read all the books, went to all the seminars, got so much conflicting advice from everyone. \"Follow your passion!\" \"Be practical!\" \"Network constantly!\" My head was spinning.\n\nThen, someone smart told me the best career advice they ever got was to stop listening to career advice. And honestly? It was revolutionary. It made me realize I needed to trust my own gut and create my own path, instead of trying to fit into someone else's mold.\n\nEver felt like that? What's the most counter-intuitive advice that actually worked for you?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 609,
+        "word_count": 105,
+        "token_length": 131
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:33.272Z"
+  },
+  {
+    "id": "ee8de982-b2fe-4a70-93b1-d5015a33d69a",
+    "text_preview": "Has anyone else noticed how much reading actually shifts your whole perspective? I've always liked b",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Has anyone else noticed how much reading actually shifts your whole perspective? I've always liked books, but lately I've really upped my game, trying to get through at least one a week. And honestly, it's wild how much it changes your actual *thinking*.\n\nIt's not just about learning new facts; it's like my brain has new pathways. Things I used to get stressed about now seem manageable, or I see different angles I never considered before. Even small daily interactions feel different because I have so many more mental frameworks to draw from. It's been a game changer for my mindset.\n\nHave you experienced this kind of mental shift just from reading more?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 660,
+        "word_count": 113,
+        "token_length": 136
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:34.704Z"
+  },
+  {
+    "id": "75e5e20b-30c4-4bb6-858c-ba8f3abf405a",
+    "text_preview": "Remember when I first dipped my toes into the startup world? There was this pervasive vibe that if y",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Remember when I first dipped my toes into the startup world? There was this pervasive vibe that if you weren't pulling all-nighters, living off coffee, and constantly 'on,' you weren't truly dedicated. It felt like sacrificing your well-being was just part of the job description, repackaged as 'passion' or 'grind.'\n\nI even started to question my own commitment if I wanted to have a weekend or, you know, sleep! It's such a wild thing to normalize, basically glorifying burnout. Am I the only one who thinks this whole 'hustle till you drop' mentality is seriously unsustainable and unhealthy?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 595,
+        "word_count": 98,
+        "token_length": 135
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:36.231Z"
+  },
+  {
+    "id": "d38395d5-5cda-4eeb-9217-60bf19af2bae",
+    "text_preview": "Unpopular opinion: Your morning routine 'productivity hacks' are probably stressing you out more tha",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Unpopular opinion: Your morning routine 'productivity hacks' are probably stressing you out more than helping. Stop forcing yourself to wake at 5 AM for a 10-step guru ritual. That's not discipline, that's burnout fuel.\n\nThe real hack? Choose ONE meaningful thing. Just one. Do it. Then put your phone down and start your actual work. Simplification is the ultimate cheat code. Stop making mornings an Olympic event.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 416,
+        "word_count": 67,
+        "token_length": 95
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:37.657Z"
+  },
+  {
+    "id": "067b55fe-70c2-4708-a711-f9cccfcd01b0",
+    "text_preview": "Okay, I need to vent for a sec! Is anyone else feeling like every \"new\" food trend that pops up is j",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Okay, I need to vent for a sec! Is anyone else feeling like every \"new\" food trend that pops up is just... something our grandmas were already making? I swear, I saw a recipe for \"gourmet toast\" the other day and I was like, wait, didn't Grandma just call that \"breakfast\"? Or all these fancy slow-cooked meats and bean dishes – my Nana was doing that out of necessity (and pure love!) long before it was trendy. It's like the culinary world is just rediscovering vintage cookbooks. 😂 What's a \"new\" food trend you've seen that your grandma totally nailed decades ago?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 568,
+        "word_count": 102,
+        "token_length": 143
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:39.233Z"
+  },
+  {
+    "id": "e68b8906-10e6-45c0-9759-c141a551a85c",
+    "text_preview": "Let's be brutally honest about startup culture. It glorifies burnout and calls it \"passion.\" Working",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Let's be brutally honest about startup culture. It glorifies burnout and calls it \"passion.\" Working yourself to the bone isn't a badge of honor, it's often a sign of poor planning, understaffing, or exploitative leadership. That 80-hour work week isn't passion; it's a fast-track to exhaustion, resentment, and a broken spirit. We need to stop romanticizing the grind. Your mental health and well-being are not metrics to sacrifice for someone else's equity. Demand a culture that values actual innovation over performative exhaustion.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 536,
+        "word_count": 82,
+        "token_length": 115
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:40.764Z"
+  },
+  {
+    "id": "2b9fe5e5-8d53-40a7-9df4-93231831fbac",
+    "text_preview": "We're all doing our part, conscientiously sorting our recyclables, and that's commendable. I've ofte",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "We're all doing our part, conscientiously sorting our recyclables, and that's commendable. I've often reflected on the power of individual action, having seen its impact in various initiatives throughout my career.\n\nHowever, it's becoming increasingly clear that while personal responsibility is important, it's merely a drop in the ocean without fundamental, systemic shifts. The real needle-movers are bold corporate strategies and policy changes that prioritize sustainability at scale.\n\nLet's challenge ourselves to look beyond the bin. What steps can *our* organizations take to truly embed circularity and reduce waste from the source? That's where the transformational impact lies.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 688,
+        "word_count": 98,
+        "token_length": 130
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:42.261Z"
+  },
+  {
+    "id": "038a5401-01c5-4e5f-9763-f9bb6ec20b2b",
+    "text_preview": "Okay, so I just had my first full week back in the office and honestly, it feels... weird. Like a st",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Okay, so I just had my first full week back in the office and honestly, it feels... weird. Like a step backward in time? I got so used to my morning routine without the commute, popping laundry in during a break, actually making it to the gym. Now it's the old grind again, fighting traffic, packing lunches. My productivity was through the roof at home, and I felt so much more balanced. Anyone else feeling this struggle? What's been the biggest adjustment for you?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 467,
+        "word_count": 84,
+        "token_length": 103
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:43.661Z"
+  },
+  {
+    "id": "0c8a37ac-8e26-41ce-b3fa-055f683e3934",
+    "text_preview": "Honestly, if you want a real education, skip the lecture halls. Book a solo trip. No classroom, no p",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Honestly, if you want a real education, skip the lecture halls. Book a solo trip. No classroom, no professor, no textbook teaches you half as much as getting lost in a foreign city and figuring it out yourself. That's where resilience is forged. That's where problem-solving becomes instinct. You learn more about the world, and yourself, navigating a bus system in a language you don't speak than you ever will from a syllabus. It's the ultimate, unfiltered masterclass in life.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 479,
+        "word_count": 80,
+        "token_length": 105
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:45.126Z"
+  },
+  {
+    "id": "63154b87-6e11-4891-b136-a9f10877bd58",
+    "text_preview": "The pace of innovation is breathtaking. We've gone from horse-drawn carriages to self-driving cars, ",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The pace of innovation is breathtaking. We've gone from horse-drawn carriages to self-driving cars, from telegrams to instant global communication, all in a blink of an eye. Yet, when I walk into many of our educational institutions, the architecture and even the methodology feel eerily familiar to a century ago.\n\nThis isn't just an observation; it's a foundational challenge impacting the talent pipeline. We're sending young minds into a future demanding unparalleled agility, critical thinking, and rapid adaptation, often equipped with tools and frameworks designed for an industrial age. The disconnect is becoming increasingly palpable, and frankly, it shows.\n\nI'm incredibly fortunate to collaborate with teams who consistently push boundaries and redefine what's possible, a testament to their inherent drive despite these systemic lags. Imagine the collective potential we could unlock if our foundational learning experiences evolved with the same speed and foresight as the industries they're meant to serve. It's time to spark a serious conversation about revolutionizing the very bedrock of our future workforce.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 1127,
+        "word_count": 166,
+        "token_length": 214
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:46.560Z"
+  },
+  {
+    "id": "5988ef98-2849-4295-9aa1-9e5bead93f5f",
+    "text_preview": "Unpopular opinion: If a long silence with a friend feels awkward, they're not really your friend. Tr",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Unpopular opinion: If a long silence with a friend feels awkward, they're not really your friend. True friendships aren't built on constant chatter or forced check-ins. They're built on understanding. The kind where you can go months without speaking, then pick up the phone and it's like yesterday. No apologies for the quiet. No weirdness. Just pure, effortless connection. That's the gold standard.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 401,
+        "word_count": 63,
+        "token_length": 87
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:48.122Z"
+  },
+  {
+    "id": "82baf54e-ab8e-4e57-9e7a-7d37ab561eb7",
+    "text_preview": "Was just thinking today about how quickly things are evolving! 🤯 It feels like just yesterday we we",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Was just thinking today about how quickly things are evolving! 🤯 It feels like just yesterday we were marveling at smartphones, and now AI is popping up everywhere. I used it to help brainstorm ideas for a project this morning, and it honestly blew me away how much time it saved. I'm not gonna lie, it's a little bit exciting and a little bit... daunting? Wild to think about what's coming next. What's one way you've seen AI show up in your daily life recently?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9987816214561462,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 463,
+        "word_count": 85,
+        "token_length": 105
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9987816214561462,
+    "detected_at": "2026-02-22T09:20:49.524Z"
+  },
+  {
+    "id": "96ef9fe7-a9a3-46c8-b1bb-e72c9cba929a",
+    "text_preview": "Just had the best coffee catch-up with Mark today! We hadn't seen each other in nearly a year, and h",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just had the best coffee catch-up with Mark today! We hadn't seen each other in nearly a year, and honestly, we barely text. But within five minutes of sitting down, it was like no time had passed at all. We just picked up exactly where we left off, laughing about old memories and diving into what's new without a single awkward moment or a need to fill any silence.\n\nIt really makes you appreciate those true friendships where you can go ages without talking, but when you finally reconnect, it's just *easy*. No pressure, just pure comfort. Don't you just love those kinds of connections? Do you have a friend like that in your life?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9984022974967957,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 636,
+        "word_count": 115,
+        "token_length": 139
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9984022974967957,
+    "detected_at": "2026-02-22T09:20:50.930Z"
+  },
+  {
+    "id": "0f736d63-c4b8-451c-b16e-6633ac5838ef",
+    "text_preview": "My mornings used to be such a scramble, hitting snooze five times and feeling rushed from the moment",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My mornings used to be such a scramble, hitting snooze five times and feeling rushed from the moment I opened my eyes. But I've been trying a couple of simple things lately that have seriously made a difference in how I start my day!\n\nFirst, I stopped looking at my phone for the first 30 minutes. Just a big glass of water and some light stretching. Second, I prep my coffee and even pick out my outfit the night before. It sounds so basic, but those few extra minutes of calm have made me feel so much more in control and genuinely productive before I even sit down to work. My brain feels clearer!\n\nHas anyone else found a specific morning routine hack that's completely changed their day? I'd love to hear them!",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 715,
+        "word_count": 133,
+        "token_length": 157
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:52.337Z"
+  },
+  {
+    "id": "a00226bd-6f1a-478c-a536-91f0136a2056",
+    "text_preview": "Every morning offers a blank canvas for the day ahead, and for a long time, I found myself letting e",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "linkedin",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Every morning offers a blank canvas for the day ahead, and for a long time, I found myself letting external forces paint the first strokes. I realized that true productivity isn't just about working harder, but working smarter from the very first minute.\n\nMy game-changer wasn't some elaborate system, but two consistent, simple habits: 15 minutes dedicated to outlining my top 3 non-negotiable priorities for the day, followed by a quick 10-minute learning session—a short article or podcast. This combination anchors me before the flurry of emails begins.\n\nThis disciplined start has been instrumental in not just managing a full schedule, but in consistently pushing the needle forward on complex initiatives and guiding my teams through ambitious projects. It truly sets a proactive, rather than reactive, tone for success.\n\nWhat small tweaks have had the biggest impact on your morning productivity?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 904,
+        "word_count": 141,
+        "token_length": 177
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:53.913Z"
+  },
+  {
+    "id": "406638a5-b893-4bb8-a383-b89e095070a9",
+    "text_preview": "The single best career advice I ever received? Stop following career advice. All of it. Seriously. P",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The single best career advice I ever received? Stop following career advice. All of it. Seriously. People are just projecting their own path, their outdated rules, their fears onto you. What worked for them in 1998 isn't your blueprint. Trust your intuition. Forge your *own* path. That's the real cheat code. Stop looking for someone else's map when you're capable of drawing your own.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9987050294876099,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 386,
+        "word_count": 64,
+        "token_length": 89
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9987050294876099,
+    "detected_at": "2026-02-22T09:20:55.329Z"
+  },
+  {
+    "id": "8085ed96-6989-4173-872c-22bc1b6401bb",
+    "text_preview": "Remember proving we could be productive, effective, and even *thriving* working from home? Now we're",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "x",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Remember proving we could be productive, effective, and even *thriving* working from home? Now we're back to square one. Commuting two hours to sit in a cube doing the exact same work. This isn't \"collaboration\" or \"culture building.\" It's an outdated power play, a forced rewind to a less efficient, less human way of working. Companies demanding RTO are actively choosing performative presence over actual output. What a waste.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9997696876525879,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 429,
+        "word_count": 69,
+        "token_length": 97
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9997696876525879,
+    "detected_at": "2026-02-22T09:20:56.863Z"
+  },
+  {
+    "id": "cb2bdeb7-012d-41ca-8cd6-54d9e4d0910f",
+    "text_preview": "Okay, serious question for everyone: Does anyone else feel like politicians are living in a complete",
+    "label": "ai",
+    "model": "gemini",
+    "platform": "facebook",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Okay, serious question for everyone: Does anyone else feel like politicians are living in a completely different century when it comes to technology? I swear every time I hear one of them talk about the internet or social media, it's like they're describing dial-up from 1998.\n\nI saw a clip today of a politician trying to explain something about \"the cyber\" and I just about fell out of my chair laughing. It’s almost endearing in its cluelessness, but also terrifying when these are the people making decisions that impact our entire digital lives! Makes you wonder who's advising them.\n\nWhat’s the most out-of-touch tech comment you’ve heard from a public figure? I need a good laugh (or cry).",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 696,
+        "word_count": 118,
+        "token_length": 150
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:20:58.310Z"
+  },
+  {
+    "id": "human-ctrl-1",
+    "text_preview": "So I tried making sourdough for like the fifth time and honestly? This one actually turned out decen",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "So I tried making sourdough for like the fifth time and honestly? This one actually turned out decent. Not great, mind you — the crumb is still way too dense and I think I overproofed it a bit. But the crust!! Oh man the crust was actually crispy for once. My wife said it tasted \"like real bread\" which I'm choosing to take as a compliment lol. The trick was using the dutch oven that's been collecting dust in our cabinet since our wedding. Who knew that thing was actually useful? Anyway if anyone has tips for getting a more open crumb I'm all ears. I've been following the King Arthur recipe but I feel like I'm missing something fundamental.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9991124868392944,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 647,
+        "word_count": 120,
+        "token_length": 147
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9991124868392944,
+    "detected_at": "2026-02-22T09:20:59.773Z"
+  },
+  {
+    "id": "human-ctrl-2",
+    "text_preview": "OK so I just spent 4 hours debugging what turned out to be a missing semicolon. FOUR HOURS. The erro",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "OK so I just spent 4 hours debugging what turned out to be a missing semicolon. FOUR HOURS. The error message was completely unhelpful — something about an unexpected token on line 847 when the actual problem was on line 12. I hate JavaScript sometimes, I really do. The worst part is I was pair programming with my colleague and neither of us caught it. We went down this whole rabbit hole thinking it was a webpack config issue. Rebuilt the entire build pipeline. Cleared every cache known to mankind. And then... semicolon. I need a drink. Actually I need a new career. Does anyone know if goat farming is profitable?",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996641874313354,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 620,
+        "word_count": 111,
+        "token_length": 143
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996641874313354,
+    "detected_at": "2026-02-22T09:21:01.506Z"
+  },
+  {
+    "id": "human-ctrl-3",
+    "text_preview": "Hot take: the best coffee shops are the ones that look slightly sketchy from the outside. Every time",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Hot take: the best coffee shops are the ones that look slightly sketchy from the outside. Every time I see a place with mismatched furniture, weird art on the walls, and a barista with more tattoos than me, I know the espresso is gonna be fire. Meanwhile the places with the perfectly curated Instagram aesthetic always charge $8 for a latte that tastes like hot water. Fight me on this. I've been to enough bougie places to know the correlation is real.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9969898462295532,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 454,
+        "word_count": 82,
+        "token_length": 100
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9969898462295532,
+    "detected_at": "2026-02-22T09:21:03.174Z"
+  },
+  {
+    "id": "human-ctrl-4",
+    "text_preview": "The fire started around 3 a.m. Tuesday, according to neighbors who were jolted awake by the sound of",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The fire started around 3 a.m. Tuesday, according to neighbors who were jolted awake by the sound of breaking glass and the acrid smell of smoke. By the time firefighters arrived — just seven minutes after the first 911 call — flames had already consumed the ground floor of the century-old Victorian. \"I grabbed my kids and just ran,\" said Maria Torres, 34, who lived in the apartment above with her two daughters, ages 6 and 9. She stood across the street in bare feet, wrapped in a blanket a neighbor had given her, watching as firefighters wrestled a hose line through what had been her front door. The girls clung to her legs, their faces streaked with tears and soot.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9951950907707214,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 673,
+        "word_count": 121,
+        "token_length": 154
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9951950907707214,
+    "detected_at": "2026-02-22T09:21:04.679Z"
+  },
+  {
+    "id": "human-ctrl-5",
+    "text_preview": "Weird day. Woke up late because my alarm didn't go off (or maybe I turned it off in my sleep, who kn",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Weird day. Woke up late because my alarm didn't go off (or maybe I turned it off in my sleep, who knows). Rushed to get ready, spilled coffee on my shirt — the good white one of course — and had to change. Made it to the bus stop just as the bus was pulling away. So I walked. 45 minutes in the rain. By the time I got to work I looked like a drowned rat and my boss just looked at me and said \"rough morning?\" Understatement of the century, Dave. But then! THEN! After all that, Sarah from accounting told me the presentation I've been dreading got pushed to next week. I could have cried with relief. Ended up having a pretty good day after that actually.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 657,
+        "word_count": 130,
+        "token_length": 159
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:07.366Z"
+  },
+  {
+    "id": "human-ctrl-6",
+    "text_preview": "Look, I'm not going to pretend this vacuum is going to change your life or whatever. It's a vacuum. ",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Look, I'm not going to pretend this vacuum is going to change your life or whatever. It's a vacuum. It sucks stuff up, which is... kind of the whole job description. But I will say this: after owning three different \"smart\" robot vacuums that mostly just got stuck under my couch and scared my cat, going back to a regular upright vacuum feels almost revolutionary. This thing actually picks up dog hair from my carpet. Like, ALL the dog hair. And I have a Golden Retriever, so that's saying something. The cord is annoyingly short though, and the attachment for upholstery is basically useless — it fell off every time I tried to use it. 4 stars because nothing in life is perfect.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 682,
+        "word_count": 123,
+        "token_length": 154
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:08.801Z"
+  },
+  {
+    "id": "human-ctrl-7",
+    "text_preview": "My grandmother's kitchen smelled like cinnamon and regret. She baked constantly — not because she pa",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My grandmother's kitchen smelled like cinnamon and regret. She baked constantly — not because she particularly loved baking, but because she grew up during the Depression and wasting food was, to her, a kind of sin. Overripe bananas became bread. Stale bread became bread pudding. Bread pudding that nobody ate became... well, she found a use for that too, though I never asked what. She died when I was fourteen. I remember sitting in her kitchen the day after the funeral, surrounded by casserole dishes from well-meaning neighbors, and all I could think was that none of it smelled right. None of it smelled like her. I took the cinnamon shaker from her spice rack and put it in my pocket.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.8916562795639038,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 692,
+        "word_count": 121,
+        "token_length": 152
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.8916562795639038,
+    "detected_at": "2026-02-22T09:21:10.340Z"
+  },
+  {
+    "id": "human-ctrl-8",
+    "text_preview": "So we migrated our entire backend from Express to Fastify last month and I want to be honest about h",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "So we migrated our entire backend from Express to Fastify last month and I want to be honest about how it went because most migration posts make everything sound smooth and ours was absolutely not. First off, middleware compatibility is a LIE. Or at least it's way more complicated than the docs suggest. We had about 40 custom Express middleware functions and roughly a third of them needed to be completely rewritten. The request/reply lifecycle in Fastify is different enough that some of our auth middleware broke in subtle ways — like, it worked in testing but silently failed to attach user context in production. That was a fun Wednesday night.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 651,
+        "word_count": 111,
+        "token_length": 127
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:11.840Z"
+  },
+  {
+    "id": "human-ctrl-9",
+    "text_preview": "The relationship between urban green spaces and mental health outcomes remains poorly understood, de",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The relationship between urban green spaces and mental health outcomes remains poorly understood, despite growing interest in nature-based interventions. While several cross-sectional studies have reported associations between proximity to parks and reduced psychological distress (Thompson et al., 2012; White et al., 2019), the causal mechanisms underlying these associations are far from clear. Our study attempted to address this gap through a longitudinal design tracking 1,847 participants over three years, but we encountered significant methodological challenges — particularly around self-selection bias, as individuals with better mental health may simply be more likely to choose residences near green spaces.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9810689687728882,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 720,
+        "word_count": 97,
+        "token_length": 127
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9810689687728882,
+    "detected_at": "2026-02-22T09:21:13.352Z"
+  },
+  {
+    "id": "human-ctrl-10",
+    "text_preview": "The last time I saw my father, he was standing in the doorway of his apartment wearing one brown sho",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The last time I saw my father, he was standing in the doorway of his apartment wearing one brown shoe and one black shoe. I didn't mention it. He wouldn't have wanted me to. He was always particular about appearances, which made the shoes more alarming than if he'd answered the door in his underwear — that might have been a choice, a deliberate casualness. The shoes were a mistake, and my father did not make mistakes. Not visible ones. \"You look thin,\" he said, which was his way of saying hello. \"You look good,\" I lied, which was my way of saying goodbye. Sometimes I think about those shoes.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9511871337890625,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 598,
+        "word_count": 110,
+        "token_length": 134
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9511871337890625,
+    "detected_at": "2026-02-22T09:21:14.771Z"
+  },
+  {
+    "id": "human-ctrl-11",
+    "text_preview": "Hey, so about Saturday — I'm totally in but I might be a little late. My sister's flight lands at 2 ",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Hey, so about Saturday — I'm totally in but I might be a little late. My sister's flight lands at 2 and I promised I'd pick her up from the airport because apparently Uber is \"too expensive\" even though she literally just spent $400 on a carry-on suitcase. Sisters, man. Anyway I should be there by 4ish? Maybe 4:30 depending on traffic. Can you save me a seat? Also do I need to bring anything? I can grab beer on the way. Let me know if there's a specific kind people want. Actually scratch that, I'll just get a variety pack from that craft brewery on 5th.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9811071157455444,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 559,
+        "word_count": 107,
+        "token_length": 142
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9811071157455444,
+    "detected_at": "2026-02-22T09:21:16.310Z"
+  },
+  {
+    "id": "human-ctrl-12",
+    "text_preview": "I've been teaching high school for twenty-two years, and I'm going to say something that might get m",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I've been teaching high school for twenty-two years, and I'm going to say something that might get me in trouble with my colleagues: homework is mostly pointless. Not all homework — I'm not a complete radical here. Practice problems in math serve a purpose. Reading assignments that prepare students for discussion can be valuable. But the worksheets? The busywork? The \"write a five-paragraph essay about your weekend\" assignments that nobody including me wants to read? We're wasting everyone's time. My students have seven other classes, most of them assigning homework too. They're exhausted, they're stressed, and they're learning to associate education with drudgery rather than curiosity.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9930006861686707,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 695,
+        "word_count": 106,
+        "token_length": 138
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9930006861686707,
+    "detected_at": "2026-02-22T09:21:17.691Z"
+  },
+  {
+    "id": "human-ctrl-13",
+    "text_preview": "Moved to Denver 3 months ago knowing literally nobody and I gotta say — making friends as a 30-somet",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Moved to Denver 3 months ago knowing literally nobody and I gotta say — making friends as a 30-something adult is genuinely one of the hardest things I've ever done. Everyone says \"join a rec league\" or \"go to meetups\" and yeah I've done both but there's this awkward phase where you've hung out with someone twice and you're not sure if they actually like you or are just being polite. Like do I text them to hang out again? Is that too much? I feel like a middle schooler asking someone to sit at my lunch table. The weirdest part is I have great friendships back home that developed so naturally I never noticed the process.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9535548090934753,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 627,
+        "word_count": 117,
+        "token_length": 142
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9535548090934753,
+    "detected_at": "2026-02-22T09:21:19.249Z"
+  },
+  {
+    "id": "human-ctrl-14",
+    "text_preview": "UPDATE to my post from last month about my landlord refusing to fix the heat. So after three weeks o",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "UPDATE to my post from last month about my landlord refusing to fix the heat. So after three weeks of space heaters and sleeping in a sleeping bag in my own apartment (in JANUARY), I finally got the city housing inspector involved. Inspector shows up, takes one look at the boiler, and his exact words were \"how long has this been like this?\" Turns out the thing hadn't been serviced in SIX YEARS and was actually a carbon monoxide risk. My landlord got slapped with violations and a deadline to fix it. He tried to blame me somehow?? Said I \"didn't report it properly\" even though I have 14 text messages in a row that he left on read.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9958910942077637,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 636,
+        "word_count": 119,
+        "token_length": 149
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9958910942077637,
+    "detected_at": "2026-02-22T09:21:20.597Z"
+  },
+  {
+    "id": "human-ctrl-15",
+    "text_preview": "Just witnessed the most unhinged thing at Trader Joe's. Woman in front of me had approximately 47 ba",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just witnessed the most unhinged thing at Trader Joe's. Woman in front of me had approximately 47 bags of the dark chocolate peanut butter cups in her cart. The cashier very politely asked if she was shopping for an event and she just looked him dead in the eyes and said \"no.\" Absolute legend. I respect the commitment. Meanwhile I'm there buying a single bag of frozen orange chicken like a peasant. The energy difference between us was palpable. She knew exactly what she wanted out of life and she was getting it, no questions asked. I aspire to that level of clarity.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.94816654920578,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 572,
+        "word_count": 103,
+        "token_length": 124
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.94816654920578,
+    "detected_at": "2026-02-22T09:21:22.144Z"
+  },
+  {
+    "id": "human-ctrl-16",
+    "text_preview": "My dog just did the most dramatic thing. She wanted to go outside, so she brought me her leash. Norm",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My dog just did the most dramatic thing. She wanted to go outside, so she brought me her leash. Normal enough. But when I didn't immediately get up from my desk, she sighed — actually SIGHED, like a disappointed parent — dropped the leash at my feet, walked to her bed, laid down facing the wall, and refused to look at me. I'm being guilt-tripped by a golden retriever and it's working. She held out for a full three minutes before peeking over her shoulder to see if I was coming. I was. Obviously. She won. She always wins. I don't make the rules in this house anymore.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 572,
+        "word_count": 108,
+        "token_length": 139
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:23.654Z"
+  },
+  {
+    "id": "human-ctrl-17",
+    "text_preview": "Here's the thing about running a small business that nobody tells you: the loneliness is brutal. Eve",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Here's the thing about running a small business that nobody tells you: the loneliness is brutal. Everyone sees the \"being your own boss\" part and thinks it's all freedom and flexibility. And yeah, I set my own schedule, which is great. But I also eat lunch alone every day. When something goes wrong at 2 AM, there's no coworker to commiserate with. When I land a big client, there's no office to high-five in. My wife is supportive but she doesn't fully get it. You can't really explain the specific anxiety of making payroll to someone who's never had to do it. Three years in and I still sometimes miss my cubicle.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 617,
+        "word_count": 112,
+        "token_length": 142
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:24.985Z"
+  },
+  {
+    "id": "human-ctrl-18",
+    "text_preview": "Went to my 20-year high school reunion last weekend and the whole experience was deeply surreal. The",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Went to my 20-year high school reunion last weekend and the whole experience was deeply surreal. The guy who used to copy my homework is now a surgeon. The girl I had a massive crush on didn't remember my name. The class clown is an accountant and seems genuinely happy about it. The prom queen is going through her third divorce. Nothing makes sense anymore. Also the gym hasn't changed at all — same weird basketball court, same smell, same water fountains. It's like walking into a time capsule while simultaneously being reminded that you are very much no longer 18. Would not recommend if you're already having an existential crisis.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9995612502098083,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 638,
+        "word_count": 111,
+        "token_length": 135
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9995612502098083,
+    "detected_at": "2026-02-22T09:21:26.551Z"
+  },
+  {
+    "id": "human-ctrl-19",
+    "text_preview": "I made the mistake of telling my 4-year-old that clouds are made of water and now she thinks she can",
+    "label": "human",
+    "pangram_score": 0,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 1,
+    "pangram_classification": "Human",
+    "pangram_headline": "Fully Human Written",
+    "pangram_prediction": "We believe that this document is fully human-written",
+    "pangram_num_ai_segments": 0,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 1,
+    "pangram_windows": [
+      {
+        "text": "I made the mistake of telling my 4-year-old that clouds are made of water and now she thinks she can drink them. Every time we go outside she points at clouds and asks me to \"get that one\" for her. I explained that they're very high up and I can't reach them. She suggested I use a ladder. I said they're higher than any ladder. She said \"use two ladders.\" Can't argue with that logic honestly. Yesterday she cried because a cloud \"ran away\" before I could catch it. Parenting is just a series of problems you never anticipated having to solve, and also you're exhausted.",
+        "label": "Human Written",
+        "ai_assistance_score": 0.274261474609375,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 571,
+        "word_count": 106,
+        "token_length": 133
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.274261474609375,
+    "detected_at": "2026-02-22T09:21:28.055Z"
+  },
+  {
+    "id": "human-ctrl-20",
+    "text_preview": "Three years ago I quit my corporate job to become a freelance photographer and everyone thought I wa",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Three years ago I quit my corporate job to become a freelance photographer and everyone thought I was insane. My parents literally held an intervention. My dad showed me a PowerPoint about financial security. A POWERPOINT. With charts. He'd clearly spent hours on it which is both touching and infuriating. Fast forward to now: I'm making about 60% of what I used to make, I have zero savings, my retirement plan is \"hopefully die before I'm old,\" BUT — and this is a big but — I wake up excited to work every single day. That has to count for something right? Right?? Someone please validate my life choices.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9426142573356628,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 609,
+        "word_count": 109,
+        "token_length": 139
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9426142573356628,
+    "detected_at": "2026-02-22T09:21:29.519Z"
+  },
+  {
+    "id": "human-ctrl-21",
+    "text_preview": "My neighbor has been learning to play the drums for approximately six months now and I can confirm t",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My neighbor has been learning to play the drums for approximately six months now and I can confirm that the progress has been... minimal. Every evening between 7 and 8 PM, I am treated to what sounds like someone throwing pots and pans down a staircase in 4/4 time. I've considered leaving a passive-aggressive note but honestly at this point I'm invested in their journey. Last week they attempted what I think was supposed to be \"In the Air Tonight\" by Phil Collins and I had to respect the audacity even as my walls vibrated. If you're reading this, Apartment 3B: please keep going. You're terrible but you're committed and that's beautiful.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 644,
+        "word_count": 112,
+        "token_length": 142
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:21:30.890Z"
+  },
+  {
+    "id": "human-ctrl-22",
+    "text_preview": "Someone asked me what it's like being a nurse and I said \"you know that dream where you show up to s",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Someone asked me what it's like being a nurse and I said \"you know that dream where you show up to school and realize you forgot to study for a test?\" and they said yes and I said \"it's like that but the test is a person and they might die.\" That's obviously dramatic but some days it genuinely feels like that. The thing they don't prepare you for in nursing school is the emotional weight. You can study pharmacology and anatomy until your eyes bleed but nothing prepares you for a patient squeezing your hand and asking you if they're going to be okay. You learn to compartmentalize or you burn out. There's no middle ground.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9947175979614258,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 628,
+        "word_count": 117,
+        "token_length": 135
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9947175979614258,
+    "detected_at": "2026-02-22T09:21:32.458Z"
+  },
+  {
+    "id": "human-ctrl-23",
+    "text_preview": "I just realized I've been putting off scheduling a dentist appointment for so long that my last visi",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I just realized I've been putting off scheduling a dentist appointment for so long that my last visit was pre-pandemic. That's not a flex, that's a cry for help. I know I need to go. My teeth know I need to go. But every time I pick up the phone, some deep primal part of my brain convinces me that whatever's happening in there is probably fine and ignorance is bliss. This is obviously irrational. I'm a functional adult who pays taxes and maintains a houseplant collection. But apparently the dentist is where my maturity draws the line. Scheduling it tomorrow. (I've said this every week for six months.)",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9995396137237549,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 608,
+        "word_count": 109,
+        "token_length": 136
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9995396137237549,
+    "detected_at": "2026-02-22T09:21:34.027Z"
+  },
+  {
+    "id": "human-ctrl-24",
+    "text_preview": "The thing about grief that nobody warns you about is how boring it gets. Everyone expects the crying",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The thing about grief that nobody warns you about is how boring it gets. Everyone expects the crying and the rage and the bargaining. Movies prepare you for that part. But nobody tells you about the Tuesday afternoons where you just sit on the couch and stare at nothing because your brain is too tired to feel anything. Or the weird guilt when you laugh at something three weeks after the funeral. Or how you'll be completely fine in the grocery store and then a specific brand of crackers will make you cry because your mom used to buy them. Grief isn't one big wave. It's a thousand little ones that catch you when you're not looking.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.999598503112793,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 637,
+        "word_count": 117,
+        "token_length": 133
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.999598503112793,
+    "detected_at": "2026-02-22T09:21:35.815Z"
+  },
+  {
+    "id": "human-ctrl-25",
+    "text_preview": "Started a vegetable garden this year because I thought it would be \"relaxing\" and \"therapeutic\" and ",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Started a vegetable garden this year because I thought it would be \"relaxing\" and \"therapeutic\" and a nice way to \"connect with nature.\" I am here to report that it is none of those things. It is a war. A war against squirrels, aphids, an inexplicably aggressive rabbit, my own incompetence, and whatever fungus keeps appearing on my tomato plants. My neighbor whose garden looks like a Martha Stewart photoshoot tried to give me advice and I nearly threw a trowel at her. My harvest so far: two cherry tomatoes and an emotional breakdown. But I am not quitting because I refuse to let the squirrels win.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.997799813747406,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 604,
+        "word_count": 107,
+        "token_length": 137
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.997799813747406,
+    "detected_at": "2026-02-22T09:21:37.419Z"
+  },
+  {
+    "id": "human-ctrl-26",
+    "text_preview": "I think the hardest part of being an immigrant that people don't understand is the language gap with",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I think the hardest part of being an immigrant that people don't understand is the language gap with your own parents. My mom's English got her through grocery stores and PTA meetings but we've never had a real conversation about anything deep. And my Korean is stuck at whatever level I was when we moved here — roughly 8th grade. So there's this whole emotional landscape between us that we literally don't have the words for in either language. She can't tell me her hopes in English. I can't tell her my fears in Korean. We love each other across this linguistic no man's land and it's fine but sometimes it's really not.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9568278193473816,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 625,
+        "word_count": 113,
+        "token_length": 133
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9568278193473816,
+    "detected_at": "2026-02-22T09:21:38.753Z"
+  },
+  {
+    "id": "human-ctrl-27",
+    "text_preview": "Just got back from a work conference and I need to debrief on the sheer audacity of conference netwo",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just got back from a work conference and I need to debrief on the sheer audacity of conference networking. A man walked up to me, handed me a business card that said \"Disruption Consultant\" on it, and said — without a trace of irony — \"I help companies fail forward faster.\" FAIL FORWARD FASTER. I excused myself to the bathroom where I laughed for three solid minutes. What does that even MEAN. The conference was in Phoenix in July which should be illegal. My name badge melted slightly. The coffee was terrible. The keynote speaker used the word \"synergy\" eleven times. I counted. Not going back.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996126890182495,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 599,
+        "word_count": 106,
+        "token_length": 137
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996126890182495,
+    "detected_at": "2026-02-22T09:21:40.394Z"
+  },
+  {
+    "id": "human-ctrl-28",
+    "text_preview": "Dating in your 30s is an entirely different sport than dating in your 20s. In your 20s it's all butt",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Dating in your 30s is an entirely different sport than dating in your 20s. In your 20s it's all butterflies and spontaneity and staying up until 3 AM talking about your dreams. In your 30s it's more like... \"do you have a therapist? Great. Do you have health insurance? Even better. What's your relationship with your parents like? Interesting.\" I went on a date last week and we spent twenty minutes comparing our sleep schedules to see if we were compatible. And you know what? That's way more useful information than whatever we talked about on dates at 22. Romance isn't dead, it's just gotten practical.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.5778173208236694,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 608,
+        "word_count": 106,
+        "token_length": 146
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.5778173208236694,
+    "detected_at": "2026-02-22T09:21:41.927Z"
+  },
+  {
+    "id": "human-ctrl-29",
+    "text_preview": "My kid's school sent home a fundraiser packet that's basically a small novel. There are 47 items you",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My kid's school sent home a fundraiser packet that's basically a small novel. There are 47 items you can sell, ranging from frozen cookie dough (reasonable) to a $65 scented candle that looks like it was designed by someone who's never seen a candle. The top seller gets a limo ride to Pizza Hut which honestly sounds like a nightmare but my 8-year-old is OBSESSED with winning it. So now I'm the adult going door to door in my neighborhood selling overpriced wrapping paper because I can't tell my kid that the limo dream is not worth my dignity. Spoiler: it absolutely is not.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9993319511413574,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 578,
+        "word_count": 104,
+        "token_length": 137
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9993319511413574,
+    "detected_at": "2026-02-22T09:21:43.423Z"
+  },
+  {
+    "id": "human-ctrl-30",
+    "text_preview": "I just paid $6 for an iced coffee that was 80% ice and I'm going to make it everyone's problem. This",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I just paid $6 for an iced coffee that was 80% ice and I'm going to make it everyone's problem. This is highway robbery happening in broad daylight and we've all just accepted it because caffeine addiction is a powerful motivator. Remember when coffee was $1.50? I'm only 34 but I sound like my grandfather at the diner complaining about prices. Next I'll be telling the barista about walking to school uphill both ways. The worst part is I'll absolutely go back tomorrow and pay $6 again because the iced coffee is good and I have no self-control. This is my villain origin story.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.8473358154296875,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 581,
+        "word_count": 104,
+        "token_length": 135
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.8473358154296875,
+    "detected_at": "2026-02-22T09:21:44.864Z"
+  },
+  {
+    "id": "human-ctrl-31",
+    "text_preview": "Tried to explain TikTok to my 68-year-old father and it went about as well as you'd expect. \"So peop",
+    "label": "human",
+    "pangram_score": 0,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 1,
+    "pangram_classification": "Human",
+    "pangram_headline": "Fully Human Written",
+    "pangram_prediction": "We believe that this document is fully human-written",
+    "pangram_num_ai_segments": 0,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 1,
+    "pangram_windows": [
+      {
+        "text": "Tried to explain TikTok to my 68-year-old father and it went about as well as you'd expect. \"So people just... dance?\" Not exactly, Dad. \"And they film themselves eating?\" Sometimes. \"And this is a career?\" For some people, yes. He stared at me for a long time and then said \"I fought in a war for this\" which is his go-to response for anything he doesn't understand about modern technology. He also says this about self-checkout machines and QR code menus. He did not in fact fight in a war but the dramatic delivery really sells it every time.",
+        "label": "Human Written",
+        "ai_assistance_score": 0.03852081298828125,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 545,
+        "word_count": 99,
+        "token_length": 128
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.03852081298828125,
+    "detected_at": "2026-02-22T09:21:46.424Z"
+  },
+  {
+    "id": "human-ctrl-32",
+    "text_preview": "There's a specific kind of existential dread that comes from opening your laptop at 9 AM to 147 unre",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "There's a specific kind of existential dread that comes from opening your laptop at 9 AM to 147 unread emails. Not a single one is urgent but all of them need a response and each one requires just enough thought that you can't autopilot through them. By email 30 you're questioning every life choice that led you to a career that involves this much electronic correspondence. By email 60 you're fantasizing about becoming a lighthouse keeper. By email 100 you've accepted your fate and are merely surviving. The worst ones are the ones that say \"per my last email\" which is corporate for \"can you read.\"",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.8475672602653503,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 603,
+        "word_count": 106,
+        "token_length": 136
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.8475672602653503,
+    "detected_at": "2026-02-22T09:21:47.863Z"
+  },
+  {
+    "id": "human-ctrl-33",
+    "text_preview": "I accidentally became the \"plant person\" at work and I need to confess something: most of them are b",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I accidentally became the \"plant person\" at work and I need to confess something: most of them are barely alive. It started when I brought in one small succulent. Then someone said \"oh you like plants!\" and suddenly everyone was giving me their dying plants to \"fix.\" Karen from HR gave me a fern that was literally crispy. My boss brought in an orchid that I think had already passed on to the great greenhouse in the sky. But I can't admit defeat because now it's my whole personality at this office. So I just keep replacing the dead ones with new ones from Trader Joe's and hoping nobody notices.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.999626636505127,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 600,
+        "word_count": 110,
+        "token_length": 131
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.999626636505127,
+    "detected_at": "2026-02-22T09:21:49.417Z"
+  },
+  {
+    "id": "human-ctrl-34",
+    "text_preview": "Took my car to the mechanic yesterday and he did that thing where he sucks air through his teeth and",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Took my car to the mechanic yesterday and he did that thing where he sucks air through his teeth and says \"well...\" and I knew immediately that my wallet was about to take a beating. Turns out I need new brake pads, which I expected, but also the rotors are warped and something called a \"control arm bushing\" is going bad. I don't know what that is but it costs $400 so it better be important. The mechanic showed me the worn parts and explained everything in detail, which I appreciated even though I was nodding along understanding about 30% of it. Why don't they teach this stuff in school instead of calculus.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.703460693359375,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 614,
+        "word_count": 113,
+        "token_length": 140
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.703460693359375,
+    "detected_at": "2026-02-22T09:21:50.882Z"
+  },
+  {
+    "id": "human-ctrl-35",
+    "text_preview": "The power went out last night during a thunderstorm and for exactly 45 minutes my family experienced",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The power went out last night during a thunderstorm and for exactly 45 minutes my family experienced what life was like before electricity. We sat around with candles and actually talked to each other. My teenager put her phone down (it was dead). My husband told a story about his childhood that I'd never heard. The kids played cards. It was genuinely lovely. Then the power came back on and within 30 seconds everyone was back on their devices like nothing happened. I briefly considered flipping the breaker off permanently but I need wifi to work so here we are, right back where we started.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9554723501205444,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 596,
+        "word_count": 105,
+        "token_length": 122
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9554723501205444,
+    "detected_at": "2026-02-22T09:21:52.291Z"
+  },
+  {
+    "id": "human-ctrl-36",
+    "text_preview": "Anyone else absolutely terrible at estimating how long things take? I told my wife I'd be \"five minu",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Anyone else absolutely terrible at estimating how long things take? I told my wife I'd be \"five minutes\" at the hardware store and came back two hours later with a cart full of things we don't need and exactly zero of the things we do need. In my defense, hardware stores are designed to trap you. You go in for one specific screw and suddenly you're in the power tools aisle thinking \"I COULD build a deck.\" You cannot build a deck. You couldn't even hang a shelf last week. But in the hardware store, anything feels possible. It's like a casino but with lumber.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9763540029525757,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 563,
+        "word_count": 105,
+        "token_length": 125
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9763540029525757,
+    "detected_at": "2026-02-22T09:21:53.825Z"
+  },
+  {
+    "id": "human-ctrl-37",
+    "text_preview": "My coworker microwaves fish for lunch every day and I've been silently seething about it for months.",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My coworker microwaves fish for lunch every day and I've been silently seething about it for months. Today I finally said something and she looked at me like I was crazy and said \"it's salmon, it's healthy.\" THAT'S NOT THE POINT LINDA. The entire fourth floor smells like a fishing village by 12:15. I've started eating lunch in my car to escape it. Other people have complained too but management says it's a \"personal food choice\" and they can't restrict it. Meanwhile I'm over here with my sad turkey sandwich wondering how we've advanced as a civilization yet cannot solve the office microwave fish problem.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.5713971853256226,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 611,
+        "word_count": 105,
+        "token_length": 136
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.5713971853256226,
+    "detected_at": "2026-02-22T09:21:55.284Z"
+  },
+  {
+    "id": "human-ctrl-38",
+    "text_preview": "Got rear-ended in a parking lot today. Everyone's fine, cars are fine, but the other driver got out ",
+    "label": "human",
+    "pangram_score": 0,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 1,
+    "pangram_classification": "Human",
+    "pangram_headline": "Fully Human Written",
+    "pangram_prediction": "We believe that this document is fully human-written",
+    "pangram_num_ai_segments": 0,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 1,
+    "pangram_windows": [
+      {
+        "text": "Got rear-ended in a parking lot today. Everyone's fine, cars are fine, but the other driver got out and the first thing she said was \"I'm SO sorry, I was trying to skip a song on Spotify.\" At least she was honest. We exchanged insurance info while making small talk and it turns out she's a kindergarten teacher and I felt bad for even being mildly annoyed because those people are saints. Anyway my bumper has a little scuff that I'm going to tell everyone is from an \"incident\" without elaborating, because it sounds way cooler than \"a woman who was trying to play Taylor Swift hit me at 3 mph.\"",
+        "label": "Human Written",
+        "ai_assistance_score": 0.014135360717773438,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 597,
+        "word_count": 111,
+        "token_length": 135
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.014135360717773438,
+    "detected_at": "2026-02-22T09:21:56.792Z"
+  },
+  {
+    "id": "human-ctrl-39",
+    "text_preview": "I've been going to the same barber for 11 years and I just found out his name isn't actually Tony. I",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I've been going to the same barber for 11 years and I just found out his name isn't actually Tony. It's Thomas. THOMAS. Everyone calls him Tony — it's written on the shop window, his business cards say Tony's Cuts, other barbers call him Tony. But apparently his real name is Thomas and \"Tony\" just stuck from some misunderstanding in 2009 that he decided wasn't worth correcting. This man has been living under an assumed identity at his own barbershop for 15 years. I don't even know what's real anymore. He gave me a great haircut though. As always.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9974135160446167,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 552,
+        "word_count": 99,
+        "token_length": 137
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9974135160446167,
+    "detected_at": "2026-02-22T09:21:58.207Z"
+  },
+  {
+    "id": "human-ctrl-40",
+    "text_preview": "Just watched my 3-year-old negotiate with a cat and honestly she has better conflict resolution skil",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Just watched my 3-year-old negotiate with a cat and honestly she has better conflict resolution skills than most adults I know. The cat was sitting in her favorite chair. Instead of screaming or crying (her usual strategy), she walked up, offered the cat a piece of cheese, waited for the cat to jump down to eat it, then casually took the chair. Cold. Calculated. Effective. I fear I am raising either a future diplomat or a future supervillain and honestly either way I'm impressed. The cat has been giving her dirty looks ever since. This household has entered a new era of political complexity.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9982945322990417,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 598,
+        "word_count": 104,
+        "token_length": 125
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9982945322990417,
+    "detected_at": "2026-02-22T09:21:59.646Z"
+  },
+  {
+    "id": "human-ctrl-41",
+    "text_preview": "My upstairs neighbor apparently decided that 11 PM on a Tuesday was the perfect time to rearrange al",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My upstairs neighbor apparently decided that 11 PM on a Tuesday was the perfect time to rearrange all their furniture. For two hours I lay in bed listening to what sounded like an IKEA showroom being dragged across hardwood floors by a team of enthusiastic elephants. At one point something heavy fell and my ceiling light flickered. I considered going up there but then I heard muffled arguing followed by what I think was a power drill and decided it was best to stay in my lane. This morning I saw them in the hallway and they looked exhausted. \"Long night?\" I asked. \"You don't know the half of it,\" they said. I do though. I absolutely do.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9996170997619629,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 644,
+        "word_count": 118,
+        "token_length": 141
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9996170997619629,
+    "detected_at": "2026-02-22T09:22:01.370Z"
+  },
+  {
+    "id": "human-ctrl-42",
+    "text_preview": "The thing about being a middle child that nobody appreciates is the diplomatic skill set you develop",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The thing about being a middle child that nobody appreciates is the diplomatic skill set you develop. By age 7 I could read a room better than most therapists. My older sister got attention for being the first at everything. My younger brother got attention for being the baby. I got attention for successfully preventing World War III at the dinner table every night. \"Mom, she looked at me!\" \"He's breathing too loud!\" \"She touched my side of the seat!\" And there I am, 9 years old, negotiating a ceasefire over the armrest. Corporate America should be recruiting middle children for their conflict resolution departments.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9994171857833862,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 624,
+        "word_count": 105,
+        "token_length": 127
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9994171857833862,
+    "detected_at": "2026-02-22T09:22:02.800Z"
+  },
+  {
+    "id": "human-ctrl-43",
+    "text_preview": "Every few months I go through a phase where I'm convinced I'm going to become a morning person. I bu",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Every few months I go through a phase where I'm convinced I'm going to become a morning person. I buy a sunrise alarm clock. I set out my workout clothes the night before. I prep overnight oats. I go to bed at 9:30 PM feeling incredibly smug about my upcoming transformation. Then the alarm goes off at 5:30 AM and the version of me that exists at that hour wants nothing to do with any of this. Morning Me is a completely different person who hates Nighttime Me's plans and ambitions. This cycle has repeated roughly 47 times and the results have never once varied. I am not a morning person. I need to accept this.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.58245849609375,
+        "confidence": "Low",
+        "start_index": 0,
+        "end_index": 616,
+        "word_count": 116,
+        "token_length": 143
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.58245849609375,
+    "detected_at": "2026-02-22T09:22:04.258Z"
+  },
+  {
+    "id": "human-ctrl-44",
+    "text_preview": "Someone rear-ended my shopping cart at Costco and then apologized to ME like I was the one who'd don",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Someone rear-ended my shopping cart at Costco and then apologized to ME like I was the one who'd done something wrong. This is peak Costco culture. It's thunderdome in there every Saturday. You've got people double-parking their oversized carts in the olive oil aisle while they debate between regular and extra virgin like it's a life-altering decision. The sample stations create traffic jams that would make Los Angeles jealous. And don't even get me started on the parking lot — I once saw a woman wait 8 minutes for a parking spot when there was an empty one two rows over. We are not our best selves at Costco.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.786376953125,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 616,
+        "word_count": 109,
+        "token_length": 140
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.786376953125,
+    "detected_at": "2026-02-22T09:22:05.667Z"
+  },
+  {
+    "id": "human-ctrl-45",
+    "text_preview": "I just discovered that my 12-year-old has been running a Minecraft server that apparently has 200+ a",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "I just discovered that my 12-year-old has been running a Minecraft server that apparently has 200+ active users and he charges a monthly \"membership fee\" in Robux. He has a spreadsheet tracking his \"subscribers.\" He made a FAQ document. He has MODERATORS. This child cannot remember to brush his teeth before bed but he's running a small business with better organization than some companies I've worked for. I don't know whether to be proud or concerned. My wife says both. She's probably right. She's always right about the things that are simultaneously impressive and terrifying.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.968634307384491,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 583,
+        "word_count": 95,
+        "token_length": 128
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.968634307384491,
+    "detected_at": "2026-02-22T09:22:07.114Z"
+  },
+  {
+    "id": "human-ctrl-46",
+    "text_preview": "Today I spent twenty minutes looking for my glasses while wearing my glasses. This is not the first ",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "Today I spent twenty minutes looking for my glasses while wearing my glasses. This is not the first time this has happened but it might be the most embarrassing because I was also on a video call and at one point asked my coworker if they'd seen my glasses. They stared at me. I stared back. Then I reached up to scratch my nose and there they were. On my face. Where they'd been the entire time. My coworker is still laughing about it three hours later. I'm going to need to switch companies now. There's no coming back from this. I am forever the person who lost their glasses on their own face.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.6432113647460938,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 597,
+        "word_count": 114,
+        "token_length": 131
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.6432113647460938,
+    "detected_at": "2026-02-22T09:22:08.550Z"
+  },
+  {
+    "id": "human-ctrl-47",
+    "text_preview": "There should be a support group for people who are terrible at parallel parking. I've been driving f",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "There should be a support group for people who are terrible at parallel parking. I've been driving for 18 years and I still cannot do it without turning it into a 47-point turn while cars line up behind me. Last week I tried to parallel park in a spot that was roughly the size of a football field and STILL had to pull out and try again. Twice. A teenager on the sidewalk was watching and I could feel the judgment radiating from their entire body. My husband offered to do it for me and I said no because at some point in life you have to face your demons, even if your demons are a Honda Civic and a curb.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.6686528921127319,
+        "confidence": "Medium",
+        "start_index": 0,
+        "end_index": 608,
+        "word_count": 121,
+        "token_length": 138
+      }
+    ],
+    "pangram_avg_window_confidence": 0,
+    "pangram_max_window_ai_score": 0.6686528921127319,
+    "detected_at": "2026-02-22T09:22:09.947Z"
+  },
+  {
+    "id": "human-ctrl-48",
+    "text_preview": "The WiFi went out at work today and for 45 glorious minutes we all remembered what it was like to be",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "The WiFi went out at work today and for 45 glorious minutes we all remembered what it was like to be human. People walked to each other's desks instead of sending Slack messages. Someone found a deck of cards. The accounting department apparently has a puzzle they've been working on in secret. It was beautiful. Then IT fixed it and we all went back to our screens and pretended that brief moment of connection never happened. We are all just hamsters on a wheel and the wheel is powered by broadband internet. This is fine. Everything is fine. I'm going to go stare at spreadsheets now.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 0.9991248846054077,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 588,
+        "word_count": 106,
+        "token_length": 127
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.9991248846054077,
+    "detected_at": "2026-02-22T09:22:11.443Z"
+  },
+  {
+    "id": "human-ctrl-49",
+    "text_preview": "I accidentally said \"love you bye\" to a customer service representative today and I've been thinking",
+    "label": "human",
+    "pangram_score": 0,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 1,
+    "pangram_classification": "Human",
+    "pangram_headline": "Fully Human Written",
+    "pangram_prediction": "We believe that this document is fully human-written",
+    "pangram_num_ai_segments": 0,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 1,
+    "pangram_windows": [
+      {
+        "text": "I accidentally said \"love you bye\" to a customer service representative today and I've been thinking about it ever since. It just came out. Muscle memory from ending every phone call with my wife that way. The representative paused for a beat and then very professionally said \"thank you for calling Verizon, have a nice day\" and I respect them for not making it weird. But I KNOW they told their coworkers immediately. I'm going to need a new phone provider now. Or a new identity. Honestly the identity change might be easier at this point because have you tried calling Verizon? That's how we got into this mess.",
+        "label": "Human Written",
+        "ai_assistance_score": 0.006464322563260794,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 615,
+        "word_count": 109,
+        "token_length": 133
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 0.006464322563260794,
+    "detected_at": "2026-02-22T09:22:12.918Z"
+  },
+  {
+    "id": "human-ctrl-50",
+    "text_preview": "My apartment's fire alarm goes off every single time I cook anything more complicated than toast. No",
+    "label": "human",
+    "pangram_score": 1,
+    "pangram_fraction_ai_assisted": 0,
+    "pangram_fraction_human": 0,
+    "pangram_classification": "AI",
+    "pangram_headline": "Fully AI Generated",
+    "pangram_prediction": "We are confident that this document is fully AI-generated",
+    "pangram_num_ai_segments": 1,
+    "pangram_num_ai_assisted_segments": 0,
+    "pangram_num_human_segments": 0,
+    "pangram_windows": [
+      {
+        "text": "My apartment's fire alarm goes off every single time I cook anything more complicated than toast. Not when there's actual smoke — when there's STEAM. I boiled pasta last night and the alarm went off. PASTA. The most benign food preparation in human history triggered a full building alert. My neighbors have stopped even checking anymore. They just hear the alarm, think \"oh, apartment 4C is cooking again,\" and go back to their lives. I've tried fanning it, covering it, even cooking with every window open in January. Nothing works. I'm considering just eating cereal for every meal. The fire alarm has won. I accept defeat.",
+        "label": "AI-Generated",
+        "ai_assistance_score": 1,
+        "confidence": "High",
+        "start_index": 0,
+        "end_index": 626,
+        "word_count": 106,
+        "token_length": 136
+      }
+    ],
+    "pangram_avg_window_confidence": 1,
+    "pangram_max_window_ai_score": 1,
+    "detected_at": "2026-02-22T09:22:14.354Z"
+  }
+]
