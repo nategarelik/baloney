@@ -13,6 +13,7 @@ import { ScoreBreakdown } from "./ScoreBreakdown";
 import { AnimatedPercentage } from "./AnimatedPercentage";
 import { ImageDetectorPanel } from "./ImageDetectorPanel";
 import { VideoDetectorPanel } from "./VideoDetectorPanel";
+import { MethodBreakdown } from "./MethodBreakdown";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -233,6 +234,9 @@ function TextPanel({ externalResult }: { externalResult?: TextDetectionResult | 
             )}
           </div>
 
+          {result.method_scores && Object.keys(result.method_scores).length > 0 && (
+            <MethodBreakdown methodScores={result.method_scores} type="text" />
+          )}
           <SentenceHeatmap sentenceScores={result.sentence_scores} />
           <ScoreBreakdown featureVector={result.feature_vector} />
         </div>

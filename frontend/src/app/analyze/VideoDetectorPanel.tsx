@@ -5,6 +5,7 @@ import { detectVideo } from "@/lib/api";
 import { DEMO_USER_ID } from "@/lib/constants";
 import type { VideoDetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
+import { MethodBreakdown } from "./MethodBreakdown";
 
 const VERDICT_LABELS: Record<string, string> = {
   ai_generated: "AI Generated",
@@ -205,6 +206,11 @@ export function VideoDetectorPanel({ externalResult }: VideoDetectorPanelProps) 
             <span>Model: {result.model_used}</span>
           </div>
         </div>
+      )}
+
+      {/* Method breakdown */}
+      {result && !loading && result.method_scores && Object.keys(result.method_scores).length > 0 && (
+        <MethodBreakdown methodScores={result.method_scores} type="video" />
       )}
     </div>
   );
