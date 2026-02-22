@@ -14,10 +14,17 @@ import {
 } from "recharts";
 import { ChartCard } from "@/components/ChartCard";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
-import { getCommunityAnalytics } from "@/lib/api";
-import type { CommunityAnalytics } from "@/lib/types";
+import { getCommunityAnalytics, getAllScans } from "@/lib/api";
+import type { CommunityAnalytics, ScanRecord } from "@/lib/types";
 import { SlopIndexCard } from "../SlopIndexCard";
 import { InformationDietCard } from "../InformationDietCard";
+import { AuthenticityRadar } from "../AuthenticityRadar";
+import { SlopClock } from "../SlopClock";
+import { ConfidenceConviction } from "../ConfidenceConviction";
+import { ContaminationMap } from "../ContaminationMap";
+import { ContentFlowSankey } from "../ContentFlowSankey";
+import { ViralTrajectory } from "../ViralTrajectory";
+import { SentinelBoard } from "../SentinelBoard";
 
 const PLATFORM_LABELS: Record<string, string> = {
   x: "X",
@@ -39,13 +46,18 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 
 export default function CommunityDashboardPage() {
   const [analytics, setAnalytics] = useState<CommunityAnalytics | null>(null);
+  const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await getCommunityAnalytics();
+      const [res, scansRes] = await Promise.all([
+        getCommunityAnalytics(),
+        getAllScans(500),
+      ]);
       setAnalytics(res);
+      setScans(scansRes.scans);
       setFetchError(false);
     } catch (err) {
       console.error("Failed to fetch community data:", err);
@@ -248,6 +260,33 @@ export default function CommunityDashboardPage() {
               </ResponsiveContainer>
             )}
           </ChartCard>
+        </div>
+
+        {/* ── Authenticity Radar (full-width) ── */}
+        <div className="mt-6">
+          <AuthenticityRadar />
+        </div>
+
+        {/* ── Slop Clock (full-width) ── */}
+        <div className="mt-6">
+          <SlopClock />
+        </div>
+
+        {/* ── Confidence vs Conviction + Contamination Map ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <ConfidenceConviction scans={scans} />
+          <ContaminationMap />
+        </div>
+
+        {/* ── Content Flow (full-width) ── */}
+        <div className="mt-6">
+          <ContentFlowSankey />
+        </div>
+
+        {/* ── Viral Trajectory + Sentinel Board ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <ViralTrajectory />
+          <SentinelBoard />
         </div>
 
         {/* ── AI Slop Index + Information Diet Score ── */}
