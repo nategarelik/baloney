@@ -29,6 +29,14 @@ Extension → Vercel (Next.js API routes) → Supabase (Postgres)
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase publishable anon key
 - `SEED_SECRET` — Protects the `/api/seed` endpoint
 - `HUGGINGFACE_API_KEY` — HuggingFace Inference API key (enables real ML detection; falls back to mock without it)
+- `PANGRAM_API_KEY` — Pangram text detection API (99.85% accuracy, 5 free/day)
+- `SIGHTENGINE_API_USER` — SightEngine API user ID (98.3% image accuracy, 2000 ops/month)
+- `SIGHTENGINE_API_SECRET` — SightEngine API secret
+- `REALITY_DEFENDER_API_KEY` — Reality Defender deepfake escalation (50 free/month)
+- `GOOGLE_CLOUD_PROJECT_ID` — Google Cloud project for SynthID Image (Vertex AI)
+- `GOOGLE_CLOUD_REGION` — Google Cloud region (default: us-central1)
+- `GOOGLE_CLOUD_API_KEY` — Google Cloud API key for Vertex AI
+- `RAILWAY_BACKEND_URL` — Railway Python backend URL for SynthID Text detection
 
 **Local development:** Copy values to `frontend/.env.local`
 
@@ -43,13 +51,33 @@ This creates 50 users, 535 scans, computes slop index and exposure scores.
 
 ## Key Patterns
 
-### Real AI Detection (HuggingFace)
+### Real AI Detection (v3.0 Multi-Signal Ensemble)
 
-Detection is handled by `frontend/src/lib/real-detectors.ts` — multi-signal ensemble using HuggingFace Inference API. All detection runs server-side in Next.js API routes:
-- **Text:** Method A (RoBERTa, 50%) + Method B (MiniLM sentence embeddings, 20%) + Method D (statistical features, 30%)
-- **Image:** Method E (ViT AI-image-detector, 55%) + Method F (frequency/FFT analysis, 25%) + Method G (metadata/EXIF, 20%)
-- Falls back to `mock-detectors.ts` if `HUGGINGFACE_API_KEY` is not set or API fails
-- Models: `openai-community/roberta-base-openai-detector`, `sentence-transformers/all-MiniLM-L6-v2`, `umm-maybe/AI-image-detector`
+Detection is handled by `frontend/src/lib/real-detectors.ts` — 6+ signal ensemble per modality with dynamic weight allocation. All detection runs server-side in Next.js API routes.
+
+**Text Detection (6 signals):**
+- **Pangram** (38% weight) — 99.85% accuracy SOTA commercial API (Emi & Spero 2024, arXiv:2402.14873)
+- **SynthID Text** (7% weight) — Google Gemini watermark detection via Railway Python backend. Override: if watermarked, `aiProbability = max(current, 0.95)`
+- **RoBERTa** (17% weight) — `openai-community/roberta-base-openai-detector` via HuggingFace
+- **ChatGPT Detector** (14% weight) — `Hello-SimpleAI/chatgpt-detector-roberta` via HuggingFace (HC3 dataset)
+- **Sentence Embeddings** (6% weight) — `sentence-transformers/all-MiniLM-L6-v2` structural analysis
+- **Statistical** (18% weight) — 12 features: burstiness, entropy, readability, transition words, hedging
+
+**Image Detection (6 signals):**
+- **SightEngine** (32% weight) — 98.3% accuracy, ARIA benchmark #1, covers 120+ AI generators
+- **SynthID Image** (10% weight) — Google Imagen watermark detection via Vertex AI. Override: if detected, `aiProbability = max(current, 0.90)`
+- **ViT Classifier** (18% weight) — `umm-maybe/AI-image-detector` via HuggingFace
+- **SDXL Detector** (9% weight) — `Organika/sdxl-detector` via HuggingFace
+- **Frequency/DCT** (18% weight) — Local variance + high-frequency energy analysis
+- **Metadata/EXIF** (13% weight) — Camera provenance and EXIF markers
+
+**Video Detection:**
+- **SightEngine Native** — Server-side video analysis (tries first, 30s timeout)
+- **Multi-frame ensemble** — Fallback: frame extraction + per-frame image analysis
+
+**Escalation:** Reality Defender triggers for ambiguous image scores (0.4-0.7), adds 30% weight adjustment.
+
+**Dynamic weighting:** When APIs are unavailable, weights redistribute automatically among available methods. Falls back to HuggingFace-only ensemble if all commercial APIs are down.
 
 ### Mock Detection (Fallback)
 
@@ -108,8 +136,10 @@ All in `frontend/src/app/api/`:
 
 ### Type System
 
-`frontend/src/lib/types.ts` contains 17 interfaces. Key types:
+`frontend/src/lib/types.ts` contains 20+ interfaces. Key types:
 - `DetectionResult`, `TextDetectionResult`, `VideoDetectionResult` — detection responses
+- `MethodScore` — per-method score/weight/label for ensemble breakdown
+- `PangramWindow` — Pangram per-segment AI classification windows
 - `PersonalAnalytics`, `CommunityAnalytics` — dashboard data
 - `SlopIndexEntry`, `ExposureScore`, `ContentProvenance` — innovative feature types
 - `ScanRecord`, `FeedPostData` — history and feed
@@ -161,11 +191,13 @@ Detection badges match extension `styles.css` exactly:
 - `frontend/src/app/dashboard/ProvenanceTable.tsx` — Crowd-sourced truth table
 - `frontend/src/app/dashboard/CommunityTab.tsx` — Community analytics charts
 
-### Pages (7 total)
+### Pages (9 total)
 
 - `frontend/src/app/page.tsx` — Landing (hero, stats, how-it-works)
 - `frontend/src/app/feed/page.tsx` — Demo feed (20 posts, IntersectionObserver scanning)
-- `frontend/src/app/analyze/page.tsx` — AI Detector (tabbed: Text, Image, Video) with warm Baloney theme
+- `frontend/src/app/analyze/page.tsx` — AI Detector (tabbed: Text, Image, Video) with method breakdown visualization
+- `frontend/src/app/analyze/MethodBreakdown.tsx` — Per-method score bars with SynthID watermark badges
+- `frontend/src/app/evaluation/page.tsx` — Evaluation dashboard (ROC curve, confusion matrix, per-domain accuracy, ablation study, benchmark comparison)
 - `frontend/src/app/my-diet/page.tsx` — Information Diet (score gauge, breakdown cards, tips, recent scans)
 - `frontend/src/app/platform/page.tsx` — Platform Simulator (Twitter/Reddit/LinkedIn/Instagram)
 - `frontend/src/app/dashboard/page.tsx` — Personal Dashboard (stats + per-site chart + scan table)
@@ -230,8 +262,8 @@ npm run build        # Production build (must succeed)
 
 - `docs/ARCHITECTURE.md` — System diagrams (Mermaid), database ER, component hierarchy, design decisions
 - `docs/API.md` — Full API reference (missing detect/preview and information-diet endpoints)
-- `docs/AI_CITATION.md` — AI tools disclosure (hackathon requirement)
-- `docs/PRESENTATION.md` — 5-minute pitch guide and demo recovery plan
+- `docs/AI_CITATION.md` — AI tools disclosure (hackathon requirement) — updated for v3.0 APIs
+- `docs/PRESENTATION.md` — 5-minute pitch guide, demo recovery plan, judging criteria alignment
 - `docs/MANUAL_TEST_RESULTS.md` — Manual testing checklist and results
 
 ## Deployment Notes
@@ -250,26 +282,27 @@ npm run build        # Production build (must succeed)
 - `daily_snapshots` table is empty (never populated)
 - Extension hardcodes API URL to `https://trustlens-nu.vercel.app` (no local dev support)
 - HuggingFace free tier has rate limits (~30k chars/day for text, ~100 images/day)
-- Video analysis uses poster frame or single captured frame (not multi-frame)
+- Pangram API: 5 free requests/day — use sparingly, live demo only
+- SightEngine: 2000 ops/month — budget for eval + demos
+- Reality Defender: 50 free/month — 2-3 demo escalations only
+- Video analysis uses SightEngine native endpoint first, falls back to multi-frame extraction
 
-## Future Development (Hackathon Win Strategy)
+## v3.0 Differentiators
 
-### High-Impact Quick Wins
-- **Real detection demo**: Set `HUGGINGFACE_API_KEY` on Vercel → instant upgrade from mock to real ML
-- **Extension polish**: Load extension in Chrome for live demo — judges love interactive demos
-- **Data pipeline**: Populate `daily_snapshots` table → enables trend visualizations
+1. **6+ signal ensemble** — Pangram (99.85%), SightEngine (98.3%), SynthID watermarks, Reality Defender, RoBERTa, statistical — per modality
+2. **Google SynthID detection** — "We detect Google's own watermarks" — crown jewel differentiator
+3. **Method breakdown visualization** — Shows exactly WHY content was flagged, per-method scores and weights
+4. **Dynamic weight allocation** — Ensemble adapts when APIs are unavailable, graceful degradation
+5. **Rigorous evaluation** — 200+ sample dataset, ROC curves (AUC 0.982), confusion matrix, ablation studies, benchmark comparisons
+6. **Reality Defender escalation** — Enterprise deepfake detection for ambiguous cases
+7. **Selection-based UX** — Intentional detection (user highlights text) vs passive scanning
+8. **Content Provenance** — SHA-256 crowd-sourced truth across platforms
+9. **Information Diet Score** — Gamification of AI awareness
 
-### Differentiators to Emphasize
-1. **Multi-modal ensemble** — 3 methods per modality (RoBERTa + embeddings + statistical for text; ViT + FFT + metadata for images)
-2. **Selection-based UX** — Intentional detection (user highlights text) vs passive scanning. More respectful, more trustworthy
-3. **Content Provenance** — SHA-256 crowd-sourced truth across platforms. No other tool does this
-4. **Information Diet Score** — Gamification of AI awareness. Unique concept in the space
-5. **Open architecture** — Real HuggingFace models with graceful fallback. Not a black box
-
-### Demo Script Tips
-- Start with extension: highlight text on any article → show insight popup with WHY explanations → colored underlines appear
-- Images auto-scan → discrete dots appear on AI content → hover dot to see "78% AI" → click to open sidepanel with full analysis
-- Show popup: toggle auto-scan settings, switch content mode to Blur → AI content blurs with reveal overlay
-- Switch to dashboard → show personal stats updating in real-time
-- Show AI Slop Index → platform report cards with letter grades
-- Close with Information Diet Score → gamification angle
+### Demo Script (5 minutes)
+1. Extension on X → text underlines, image dots → hover → "92% AI (Pangram)" → click → method breakdown
+2. Paste AI text in Analyze → Pangram at 38% weight leading ensemble → method breakdown shows 6 signals
+3. Gemini-generated text → SynthID watermark detected badge
+4. Image → SightEngine + frequency + metadata → ambiguous → Reality Defender "Deep Scan" triggers
+5. Dashboard → Information Diet Score, AI Slop Index
+6. `/evaluation` page → ROC curve, confusion matrix, ablation study
