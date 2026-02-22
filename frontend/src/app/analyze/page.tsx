@@ -85,9 +85,15 @@ function AnalyzeContent() {
     if (!resultParam) return;
 
     try {
-      const parsed = JSON.parse(decodeURIComponent(resultParam));
+      const decoded = decodeURIComponent(resultParam);
+      const parsed = JSON.parse(decoded);
       const result = parsed.result || parsed;
       const type = parsed.type;
+
+      if (!result || !result.verdict) {
+        console.warn("[Baloney] Parsed result missing verdict:", result);
+        return;
+      }
 
       // Extract source URLs
       setSourceUrl(parsed.sourceUrl || result.sourceUrl);
@@ -96,15 +102,19 @@ function AnalyzeContent() {
       if (type === "text" || result.feature_vector || result.sentence_scores) {
         setActiveTab("text");
         setExternalTextResult(result);
-      } else if (type === "video" || result.frame_scores) {
+      } else if (
+        type === "video" ||
+        result.frame_scores ||
+        result.frames_analyzed
+      ) {
         setActiveTab("video");
-        setExternalVideoResult(result);
+        setExternalVideoResult(result as VideoDetectionResult);
       } else {
         setActiveTab("image");
         setExternalImageResult(result);
       }
-    } catch {
-      // Invalid JSON, ignore
+    } catch (err) {
+      console.error("[Baloney] Failed to parse result param:", err);
     }
   }, [searchParams]);
 
