@@ -122,6 +122,100 @@
       margin-top: 2px;
     }
 
+    /* ── Page stats ── */
+    .page-stats {
+      margin-bottom: 14px;
+    }
+    .page-stats-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(74,55,40,0.05);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .page-stats-toggle:hover {
+      background: rgba(74,55,40,0.08);
+    }
+    .page-stats-toggle-title {
+      font-family: 'Young Serif', serif;
+      font-size: 12px;
+      color: rgba(74,55,40,0.6);
+    }
+    .page-stats-toggle-arrow {
+      font-size: 10px;
+      color: rgba(74,55,40,0.4);
+      transition: transform 0.25s;
+    }
+    .page-stats-toggle-arrow.open {
+      transform: rotate(180deg);
+    }
+    .page-stats-content {
+      display: none;
+      padding-top: 8px;
+    }
+    .page-stats-content.open {
+      display: block;
+    }
+    .page-stats-current {
+      background: rgba(212,69,107,0.06);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .page-stats-hostname {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a3728;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .page-stats-row {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: rgba(74,55,40,0.6);
+    }
+    .page-stats-row span {
+      white-space: nowrap;
+    }
+    .page-stats-divider {
+      font-size: 10px;
+      color: rgba(74,55,40,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .page-stats-site {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      font-size: 11px;
+    }
+    .page-stats-site-name {
+      color: #4a3728;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 160px;
+    }
+    .page-stats-site-count {
+      color: rgba(74,55,40,0.5);
+      flex-shrink: 0;
+    }
+    .page-stats-empty {
+      font-size: 11px;
+      color: rgba(74,55,40,0.4);
+      text-align: center;
+      padding: 8px 0;
+    }
+
     /* ── Auto-scan toggles ── */
     .toggles-section {
       margin-bottom: 14px;
@@ -281,6 +375,15 @@
       </div>
     </div>
 
+    <!-- Page Stats -->
+    <div class="page-stats">
+      <div class="page-stats-toggle" id="page-stats-toggle">
+        <span class="page-stats-toggle-title">Page Stats</span>
+        <span class="page-stats-toggle-arrow" id="page-stats-arrow">&#9660;</span>
+      </div>
+      <div class="page-stats-content" id="page-stats-content"></div>
+    </div>
+
     <!-- Auto-scan toggles -->
     <div class="toggles-section">
       <div class="toggle-row">
@@ -410,6 +513,70 @@
 
       animateCount(document.getElementById("scanned"), totalScanned);
       animateCount(document.getElementById("flagged"), totalFlagged);
+    });
+
+    // ── Page stats toggle + render ──
+    const pageStatsToggle = document.getElementById("page-stats-toggle");
+    const pageStatsArrow = document.getElementById("page-stats-arrow");
+    const pageStatsContent = document.getElementById("page-stats-content");
+
+    pageStatsToggle.addEventListener("click", () => {
+      const isOpen = pageStatsContent.classList.toggle("open");
+      pageStatsArrow.classList.toggle("open", isOpen);
+    });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const currentUrl = tabs[0]?.url || "";
+      let currentHostname = "";
+      try {
+        currentHostname = new URL(currentUrl).hostname;
+      } catch {}
+
+      chrome.storage.local.get("pageStats", (data) => {
+        const pageStats = data.pageStats || {};
+        let html = "";
+
+        // Current page stats
+        const current = pageStats[currentHostname];
+        if (currentHostname && current) {
+          html += `<div class="page-stats-current">
+            <div class="page-stats-hostname">${currentHostname}</div>
+            <div class="page-stats-row">
+              <span>${current.images || 0} images</span>
+              <span>${current.text || 0} text</span>
+              <span>${current.flagged || 0} flagged</span>
+            </div>
+          </div>`;
+        } else if (currentHostname) {
+          html += `<div class="page-stats-current">
+            <div class="page-stats-hostname">${currentHostname}</div>
+            <div class="page-stats-row"><span>No scan data yet</span></div>
+          </div>`;
+        }
+
+        // Top 3 sites by total scans
+        const sites = Object.entries(pageStats)
+          .map(([host, s]) => ({ host, total: (s.images || 0) + (s.text || 0) }))
+          .filter((s) => s.host !== currentHostname && s.total > 0)
+          .sort((a, b) => b.total - a.total)
+          .slice(0, 3);
+
+        if (sites.length > 0) {
+          html += `<div class="page-stats-divider">Top Sites</div>`;
+          sites.forEach((s) => {
+            html += `<div class="page-stats-site">
+              <span class="page-stats-site-name">${s.host}</span>
+              <span class="page-stats-site-count">${s.total} scans</span>
+            </div>`;
+          });
+        }
+
+        if (!html) {
+          html = `<div class="page-stats-empty">No scan data yet</div>`;
+        }
+
+        pageStatsContent.innerHTML = html;
+      });
     });
 
     // ── Edit allowed websites link ──

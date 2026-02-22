@@ -32,17 +32,17 @@ Baloney is a **Chrome extension** paired with a **web analytics platform** that 
 
 ## Features
 
-### Chrome Extension (v0.3.0) — "Grammarly for AI Detection"
+### Chrome Extension (v0.4.0) — "Grammarly for AI Detection"
 
 Baloney takes design cues from Grammarly's inline UX — but where Grammarly is always-on and aggressive (auto-underlining every text field, floating widgets on every input, red/blue/purple squiggles you can't miss), Baloney is **intentional and non-invasive**. The user chooses when to check.
 
 | | Grammarly | Baloney |
 |--|-----------|---------|
 | **Text** | Always-on. Auto-underlines every word you type with colored squiggles. Floating suggestion card appears on hover. | **On-demand.** User highlights text → popup appears with a scan button → click to get AI analysis with WHY explanations. Nothing happens until you ask. |
-| **Visual indicators** | Colored underlines (red/blue/purple/green) applied to your text automatically. Impossible to ignore. | **Colored borders on hover only.** Images/videos get a verdict-colored outline (red/orange/amber/green) that appears when your cursor enters — invisible otherwise. |
-| **Detail view** | Hover an underline → floating card with fix suggestion. Click to accept. | **Cursor touches border edge** → insight tooltip with verdict, confidence %, plain-English reasons, and model info. For text, sentence-level AI probability bars. |
+| **Visual indicators** | Colored underlines (red/blue/purple/green) applied to your text automatically. Impossible to ignore. | **Discrete 10px detection dots** in the top-right corner of scanned images/videos. Verdict-colored (pink/orange/amber/green). Hover to expand and see "78% AI" label. |
+| **Detail view** | Hover an underline → floating card with fix suggestion. Click to accept. | **Click a detection dot** → Chrome sidepanel opens with full analysis: verdict banner, confidence meter, reasoning bullets, sentence breakdown (text), model attribution. |
 | **Floating widget** | Green circle in corner of every text field showing suggestion count. Always visible. | **Page indicator badge** (bottom-right) showing flagged item count. Click to see a panel of flagged items. Unobtrusive. |
-| **Invasiveness** | High — modifies the editing experience, injects UI into text fields, always processing. | **Low** — never modifies page content, never auto-scans text, images scan silently in background with no visible change until hover. |
+| **Invasiveness** | High — modifies the editing experience, injects UI into text fields, always processing. | **Low** — never modifies page content, never auto-scans text, images scan silently in background with discrete 10px detection dots. |
 
 #### Text: Selection-Based Scanning
 1. **Highlight** any text on any page (minimum 20 characters)
@@ -58,30 +58,25 @@ Baloney takes design cues from Grammarly's inline UX — but where Grammarly is 
    - Model name footer
 4. **Dismiss** by clicking outside, making a new selection, or scrolling 200+ pixels
 
-#### Images: Auto-Scan with Hover Borders
-1. Images (>= 200px) **auto-scan silently** as they enter the viewport (max 2 concurrent API calls)
-2. **No visible change** until you interact — no dots, no badges, no overlays
-3. **Hover** over a scanned image → a colored `outline` border fades in:
-   - Red (`#ef4444`) = AI Generated
+#### Images: Auto-Scan with Detection Dots
+1. Images (>= 200px) **auto-scan silently** as they enter the viewport (max 3 concurrent API calls)
+2. A **10px detection dot** appears in the top-right corner of scanned images, colored by verdict:
+   - Pink (`#d4456b`) = AI Generated
    - Orange (`#f97316`) = Heavy Edit
    - Amber (`#f59e0b`) = Light Edit
-   - Green (`#22c55e`) = Human
-4. **Move cursor to the border edge** (within 15px of any side) → insight tooltip appears above the image with:
-   - Verdict + confidence
-   - Plain-English visual analysis reasons ("Visual patterns strongly match AI generation signatures")
-   - Model name
-5. **Move cursor away from edge** → tooltip hides. **Mouse leaves image** → border fades out.
-
-Uses CSS `outline` (not `border`) to avoid layout shifts. `outline-offset: -3px` keeps it inside the image bounds.
+   - Green (`#16a34a`) = Human
+3. **Hover** the dot → it expands to show a label like "78% AI"
+4. **Click** the dot → Chrome sidepanel opens with full analysis: verdict banner, confidence meter, plain-English reasoning, and model attribution
+5. Dots are non-invasive — no layout shifts, no borders, no overlays on the image itself
 
 #### Videos: Poster/Frame Capture
 - `<video>` elements with width > 200px are observed in the viewport
 - If the video has a `poster` attribute, that URL is sent for analysis
 - Otherwise, the current frame is captured to a `<canvas>`, exported as JPEG base64, and sent through the image detection pipeline
-- Same hover border + tooltip behavior as images
+- Same detection dot + sidepanel behavior as images
 
 #### Content Filtering
-Three modes (toggled in popup): **Label** (borders only), **Blur** (20px gaussian + click-to-reveal overlay), **Hide** (removes flagged content from view). Only AI Generated and Heavy Edit verdicts trigger filtering.
+Three modes (toggled in popup): **Scan** (detection dots only), **Blur** (20px gaussian + click-to-reveal overlay), **Block** (removes flagged content from view). Only AI Generated and Heavy Edit verdicts trigger filtering.
 
 #### Additional Features
 - **Context Menus** — Right-click any image ("Scan with Baloney") or selected text ("Check with Baloney") for on-demand analysis via toast notification.

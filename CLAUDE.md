@@ -207,8 +207,8 @@ Detection badges match extension `styles.css` exactly:
 ### Extension Features (v0.4.0 — Warm Theme + Dot UI + Sidepanel)
 
 - `extension/manifest.json` — MV3, `<all_urls>` content scripts + host permissions, pig icon, `sidePanel` permission, `minimum_chrome_version: 114`
-- `extension/content.js` — **Selection-based text** (highlight → popup → insight + colored underlines), **detection dots** (10px colored dot on images/videos, expands on hover to show "78% AI", click opens sidepanel), **video scanning** (poster/frame capture), max 2 concurrent scans, **gating system** (master on/off, allowed sites list, per-type auto-scan toggles), content mode (scan/blur/block), per-page stats
-- `extension/background.js` — API calls with safe offline fallback, platform detection (8 platforms), context menus, **storage defaults + migration** (filterMode→contentMode), **sidepanel open handler**, session stats preserved across service worker wakes
+- `extension/content.js` — **Selection-based text** (highlight → popup → insight + colored underlines), **detection dots** (10px colored dot on images/videos, expands on hover to show "78% AI", click opens sidepanel), **video scanning** (poster/frame capture), max 3 concurrent scans, **gating system** (master on/off, allowed sites list, per-type auto-scan toggles), content mode (scan/blur/block), per-page stats
+- `extension/background.js` — API calls with safe offline fallback, platform detection (12 platforms), context menus, **storage defaults + migration** (filterMode→contentMode), **sidepanel open handler**, session stats preserved across service worker wakes
 - `extension/popup.html` — **Warm Baloney theme** (cream bg, Young Serif + DM Sans), pig logo, master on/off toggle + status light, pink/gold stat cards, 3 auto-scan toggles (text OFF, images ON, videos ON), segmented Scan/Blur/Block control, 3D pink dashboard CTA
 - `extension/sidepanel.html` + `extension/sidepanel.js` — **Chrome sidepanel** detail view with verdict banner, confidence meter, reasoning bullets, sentence breakdown (text), model attribution
 - `extension/styles.css` — Detection dots with expand animation, text underlines (Grammarly-style slide-in), warm-themed selection popup + page indicator + blur overlay, content filtering
@@ -223,7 +223,7 @@ Detection badges match extension `styles.css` exactly:
 | `autoScanImages` | boolean | `true` |
 | `autoScanVideos` | boolean | `true` |
 | `contentMode` | `"scan"/"blur"/"block"` | `"scan"` |
-| `allowedSites` | string[] | `["x.com","twitter.com","linkedin.com","substack.com"]` |
+| `allowedSites` | string[] | `["x.com","twitter.com","linkedin.com","substack.com","reddit.com","facebook.com","instagram.com","medium.com","tiktok.com","threads.net","bsky.app","mastodon.social","news.ycombinator.com"]` |
 | `sidepanelData` | object | null |
 
 ## Development

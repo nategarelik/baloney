@@ -387,7 +387,7 @@ function createDetectionDot(el, result) {
 
   const confidence = result.confidence || 0;
   const pct = Math.round(confidence * 100);
-  const color = getDotColor(confidence);
+  const color = VERDICT_COLORS[result.verdict] || getDotColor(confidence);
   const opacity = getDotOpacity(confidence);
 
   // Ensure parent is positioned
@@ -981,7 +981,7 @@ function applyTextUnderlines(range, result) {
     const lastRect = rects[rects.length - 1];
     const confidence = result.confidence || 0;
     const pct = Math.round(confidence * 100);
-    const dotColor = getDotColor(confidence);
+    const dotColor = VERDICT_COLORS[result.verdict] || getDotColor(confidence);
 
     const dot = document.createElement("div");
     dot.className = "baloney-text-dot";
