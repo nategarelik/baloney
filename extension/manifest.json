@@ -48,5 +48,12 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+
+  "commands": {
+    "scan-selected-text": {
+      "suggested_key": { "default": "Alt+B", "mac": "Alt+B" },
+      "description": "Scan selected text with Baloney"
+    }
   }
 }
