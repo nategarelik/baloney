@@ -1389,13 +1389,59 @@ async function methodSynthID_text(text: string): Promise<"watermarked" | "not_wa
 // ──────────────────────────────────────────────
 // METHOD SynthID Image: Google Vertex AI Watermark Detection
 // Detects Google Imagen-generated image watermarks
+// Uses service account JWT → OAuth2 access token for auth
 // ──────────────────────────────────────────────
+
+let _gcpAccessToken: string | null = null;
+let _gcpTokenExpiry = 0;
+
+async function getGCPAccessToken(): Promise<string | null> {
+  if (_gcpAccessToken && Date.now() < _gcpTokenExpiry - 60000) return _gcpAccessToken;
+
+  const saJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!saJson) return null;
+
+  try {
+    const sa = JSON.parse(saJson);
+    const crypto = await import("crypto");
+
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const now = Math.floor(Date.now() / 1000);
+    const claims = Buffer.from(JSON.stringify({
+      iss: sa.client_email,
+      scope: "https://www.googleapis.com/auth/cloud-platform",
+      aud: "https://oauth2.googleapis.com/token",
+      iat: now,
+      exp: now + 3600,
+    })).toString("base64url");
+
+    const signInput = `${header}.${claims}`;
+    const sign = crypto.createSign("RSA-SHA256");
+    sign.update(signInput);
+    const signature = sign.sign(sa.private_key, "base64url");
+    const jwt = `${signInput}.${signature}`;
+
+    const response = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+    });
+
+    if (!response.ok) return null;
+    const data = await response.json();
+    _gcpAccessToken = data.access_token;
+    _gcpTokenExpiry = Date.now() + (data.expires_in ?? 3600) * 1000;
+    return _gcpAccessToken;
+  } catch {
+    return null;
+  }
+}
 
 async function methodSynthID_image(imageBytes: Buffer): Promise<"Detected" | "Not Detected" | "Possibly Detected" | null> {
   const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
   const region = process.env.GOOGLE_CLOUD_REGION || "us-central1";
-  const apiKey = process.env.GOOGLE_CLOUD_API_KEY;
-  if (!projectId || !apiKey) return null;
+  const accessToken = await getGCPAccessToken();
+  if (!projectId || !accessToken) return null;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -1403,10 +1449,13 @@ async function methodSynthID_image(imageBytes: Buffer): Promise<"Detected" | "No
   try {
     const base64Image = imageBytes.toString("base64");
     const response = await fetch(
-      `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/publishers/google/models/imageverification:predict?key=${apiKey}`,
+      `https://${region}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${region}/publishers/google/models/imageverification:predict`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
         body: JSON.stringify({
           instances: [{ image: { bytesBase64Encoded: base64Image } }],
         }),
