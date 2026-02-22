@@ -54,6 +54,81 @@ const limitations = [
   "Brand-new generative models not present in our training data may evade detection until we retrain.",
 ];
 
+const supportedSites = [
+  {
+    name: "X",
+    url: "https://x.com",
+    color: "#000000",
+    logo: "https://www.google.com/s2/favicons?domain=x.com&sz=64",
+  },
+  {
+    name: "Instagram",
+    url: "https://instagram.com",
+    color: "#E1306C",
+    logo: "https://www.google.com/s2/favicons?domain=instagram.com&sz=64",
+  },
+  {
+    name: "Reddit",
+    url: "https://reddit.com",
+    color: "#FF4500",
+    logo: "https://www.google.com/s2/favicons?domain=reddit.com&sz=64",
+  },
+  {
+    name: "Facebook",
+    url: "https://facebook.com",
+    color: "#1877F2",
+    logo: "https://www.google.com/s2/favicons?domain=facebook.com&sz=64",
+  },
+  {
+    name: "TikTok",
+    url: "https://tiktok.com",
+    color: "#000000",
+    logo: "https://www.google.com/s2/favicons?domain=tiktok.com&sz=64",
+  },
+  {
+    name: "LinkedIn",
+    url: "https://linkedin.com",
+    color: "#0A66C2",
+    logo: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=64",
+  },
+  {
+    name: "Medium",
+    url: "https://medium.com",
+    color: "#000000",
+    logo: "https://www.google.com/s2/favicons?domain=medium.com&sz=64",
+  },
+  {
+    name: "Substack",
+    url: "https://substack.com",
+    color: "#FF6719",
+    logo: "https://www.google.com/s2/favicons?domain=substack.com&sz=64",
+  },
+  {
+    name: "Threads",
+    url: "https://threads.net",
+    color: "#000000",
+    logo: "https://www.google.com/s2/favicons?domain=threads.net&sz=64",
+  },
+  {
+    name: "Bluesky",
+    url: "https://bsky.app",
+    color: "#0085FF",
+    logo: "https://www.google.com/s2/favicons?domain=bsky.app&sz=64",
+  },
+  {
+    name: "Mastodon",
+    url: "https://mastodon.social",
+    color: "#6364FF",
+    logo: "https://www.google.com/s2/favicons?domain=mastodon.social&sz=64",
+  },
+  {
+    name: "Hacker News",
+    url: "https://news.ycombinator.com",
+    color: "#FF6600",
+    logo: "https://www.google.com/s2/favicons?domain=news.ycombinator.com&sz=64",
+  },
+];
+
 const installSteps = [
   {
     step: "1",
@@ -554,7 +629,39 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 12. AI in Development ── */}
+      {/* ── 12. Sites We Natively Support ── */}
+      <section className="max-w-4xl mx-auto px-6 py-16">
+        <h2 className="font-display text-3xl text-secondary mb-10 text-center">
+          Sites We Natively Support
+        </h2>
+        <div className="flex flex-wrap justify-center gap-6 max-w-2xl mx-auto">
+          {supportedSites.map((site) => (
+            <a
+              key={site.name}
+              href={site.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={site.name}
+              className="w-16 h-16 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+              style={{ backgroundColor: site.color }}
+            >
+              <img
+                src={site.logo}
+                alt={site.name}
+                className="w-8 h-8 rounded-full"
+                style={{
+                  filter:
+                    site.color === "#000000"
+                      ? "brightness(0) invert(1)"
+                      : "none",
+                }}
+              />
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 13. AI in Development ── */}
       <section className="max-w-4xl mx-auto px-6 pt-16 pb-24">
         <div className="bg-secondary/5 rounded-lg p-6 text-center max-w-2xl mx-auto">
           <h2 className="font-display text-xl text-secondary mb-2">
