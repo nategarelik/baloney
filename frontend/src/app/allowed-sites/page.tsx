@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Pencil, Trash2, Globe, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Globe, X, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 interface SiteEntry {
   title: string;
   url: string;
 }
 
+// Sync: keep in sync with extension/background.js and extension/content.js allowedSites defaults
 const DEFAULT_SITES: SiteEntry[] = [
   { title: "X (Twitter)", url: "x.com" },
+  { title: "Twitter", url: "twitter.com" },
   { title: "LinkedIn", url: "linkedin.com" },
   { title: "Substack", url: "substack.com" },
   { title: "Reddit", url: "reddit.com" },
@@ -46,6 +49,7 @@ export default function AllowedSitesPage() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalUrl, setModalUrl] = useState("");
   const [extensionConnected, setExtensionConnected] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Request sites from extension via custom events
   const requestSites = useCallback(() => {
@@ -53,11 +57,15 @@ export default function AllowedSitesPage() {
   }, []);
 
   useEffect(() => {
+    let connected = false;
+
     // Listen for sites response from extension content script
     function handleSitesResponse(e: Event) {
       const detail = (e as CustomEvent).detail;
       if (detail?.sites && Array.isArray(detail.sites)) {
+        connected = true;
         setExtensionConnected(true);
+        setLoading(false);
         const entries: SiteEntry[] = detail.sites.map((url: string) => ({
           title: getTitleForDomain(url),
           url,
@@ -69,12 +77,19 @@ export default function AllowedSitesPage() {
     window.addEventListener("baloney-sites-response", handleSitesResponse);
     // Try to connect to extension
     requestSites();
-    // Retry once after a short delay (content script may not be injected yet)
-    const timer = setTimeout(requestSites, 500);
+    // Retry after short delays (content script may not be injected yet)
+    const timer1 = setTimeout(requestSites, 500);
+    const timer2 = setTimeout(requestSites, 1500);
+    // If no response after all retries, stop loading and show defaults
+    const loadingTimeout = setTimeout(() => {
+      if (!connected) setLoading(false);
+    }, 2000);
 
     return () => {
       window.removeEventListener("baloney-sites-response", handleSitesResponse);
-      clearTimeout(timer);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(loadingTimeout);
     };
   }, [requestSites]);
 
@@ -137,69 +152,106 @@ export default function AllowedSitesPage() {
         <h1 className="font-display text-4xl text-secondary mb-2">
           Allowed Websites
         </h1>
-        <p className="text-secondary/50 mb-8">
+        <p className="text-secondary/50 mb-6">
           Baloney will only scan content on these websites.
-          {!extensionConnected && (
-            <span className="block text-xs text-secondary/40 mt-1">
-              Install the Baloney extension to sync changes automatically.
-            </span>
-          )}
         </p>
 
-        {/* Grid of site cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sites.map((site, i) => (
-            <div
-              key={site.url}
-              className="group relative bg-base-dark rounded-xl border border-secondary/10 p-5 transition-shadow hover:shadow-md"
-              style={{
-                boxShadow:
-                  "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(74,55,40,0.06)",
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-secondary/5 shrink-0">
-                  <Globe className="h-4 w-4 text-secondary/40" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="font-display text-base text-secondary truncate">
-                    {site.title}
-                  </h3>
-                  <p className="text-xs text-secondary/50 truncate">
-                    {site.url}
-                  </p>
-                </div>
-              </div>
-
-              {/* Hover actions */}
-              <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleEdit(i)}
-                  className="p-1.5 rounded-md bg-secondary/5 hover:bg-secondary/10 transition-colors"
-                  title="Edit"
-                >
-                  <Pencil className="h-3.5 w-3.5 text-secondary/50" />
-                </button>
-                <button
-                  onClick={() => handleDelete(i)}
-                  className="p-1.5 rounded-md bg-primary/5 hover:bg-primary/10 transition-colors"
-                  title="Remove"
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-primary/70" />
-                </button>
-              </div>
+        {/* Disconnected banner */}
+        {!loading && !extensionConnected && (
+          <div className="flex items-start gap-3 rounded-xl border border-secondary/20 bg-secondary/5 p-4 mb-6">
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div className="text-sm text-secondary/70">
+              <span className="font-semibold text-secondary">
+                Extension not connected
+              </span>
+              {
+                " — changes won\u2019t take effect until the extension is installed. "
+              }
+              <Link
+                href="/extension"
+                className="text-primary underline hover:text-primary/80"
+              >
+                Install Baloney Extension
+              </Link>
             </div>
-          ))}
+          </div>
+        )}
 
-          {/* Add new site card */}
-          <button
-            onClick={handleAdd}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-secondary/15 p-5 text-secondary/40 hover:text-secondary/60 hover:border-secondary/25 transition-colors min-h-[88px]"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="text-sm font-medium">Add Website</span>
-          </button>
-        </div>
+        {/* Grid of site cards */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-secondary/10 bg-base-dark p-5 animate-pulse"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-secondary/8 shrink-0">
+                    <div className="h-4 w-4" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-24 bg-secondary/8 rounded" />
+                    <div className="h-3 w-32 bg-secondary/8 rounded" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {sites.map((site, i) => (
+              <div
+                key={site.url}
+                className="group relative bg-base-dark rounded-xl border border-secondary/10 p-5 transition-shadow hover:shadow-md"
+                style={{
+                  boxShadow:
+                    "inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(74,55,40,0.06)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-secondary/5 shrink-0">
+                    <Globe className="h-4 w-4 text-secondary/40" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-base text-secondary truncate">
+                      {site.title}
+                    </h3>
+                    <p className="text-xs text-secondary/50 truncate">
+                      {site.url}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Hover actions */}
+                <div className="absolute top-3 right-3 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(i)}
+                    className="p-1.5 rounded-md bg-secondary/5 hover:bg-secondary/10 transition-colors"
+                    title="Edit"
+                  >
+                    <Pencil className="h-3.5 w-3.5 text-secondary/50" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(i)}
+                    className="p-1.5 rounded-md bg-primary/5 hover:bg-primary/10 transition-colors"
+                    title="Remove"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-primary/70" />
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {/* Add new site card */}
+            <button
+              onClick={handleAdd}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-secondary/15 p-5 text-secondary/40 hover:text-secondary/60 hover:border-secondary/25 transition-colors min-h-[88px]"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-sm font-medium">Add Website</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Modal */}
