@@ -80,6 +80,7 @@ frontend/.vercel/
 # ──────────────────────────────────────────────
 *.md
 !docs/AI_CITATION.md
+!docs/NEXT_STEPS.md
 .worktrees/
 *.zip
 
