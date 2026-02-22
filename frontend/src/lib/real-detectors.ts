@@ -1274,7 +1274,10 @@ function methodG_metadata(base64Image: string): number {
 // Returns: type.ai_generated (0-1 float)
 // ──────────────────────────────────────────────
 
-async function methodS_sightEngine(imageBytes: Buffer): Promise<number | null> {
+async function methodS_sightEngine(
+  imageBytes: Buffer,
+  mimeType: string = "image/jpeg",
+): Promise<number | null> {
   const apiUser = process.env.SIGHTENGINE_API_USER;
   const apiSecret = process.env.SIGHTENGINE_API_SECRET;
   if (!apiUser || !apiSecret) return null;
@@ -1284,10 +1287,11 @@ async function methodS_sightEngine(imageBytes: Buffer): Promise<number | null> {
 
   try {
     const formData = new FormData();
+    const ext = mimeType.split("/")[1]?.replace("+xml", "") || "jpg";
     formData.append(
       "media",
-      new Blob([new Uint8Array(imageBytes)], { type: "image/jpeg" }),
-      "image.jpg",
+      new Blob([new Uint8Array(imageBytes)], { type: mimeType }),
+      `image.${ext}`,
     );
     formData.append("models", "genai");
     formData.append("api_user", apiUser);
@@ -1308,8 +1312,10 @@ async function methodS_sightEngine(imageBytes: Buffer): Promise<number | null> {
     }
 
     const data = await response.json();
+    console.log("[Baloney] SightEngine response:", JSON.stringify(data));
     return data.type?.ai_generated ?? null;
-  } catch {
+  } catch (err) {
+    console.error("[Baloney] SightEngine image error:", err);
     return null;
   } finally {
     clearTimeout(timeoutId);
@@ -1340,10 +1346,12 @@ async function methodS_sightEngineURL(
       { signal: controller.signal },
     );
 
-    if (!response.ok) throw new Error(`SightEngine ${response.status}`);
+    if (!response.ok) throw new Error(`SightEngine URL ${response.status}`);
     const data = await response.json();
+    console.log("[Baloney] SightEngine URL response:", JSON.stringify(data));
     return data.type?.ai_generated ?? null;
-  } catch {
+  } catch (err) {
+    console.error("[Baloney] SightEngine URL error:", err);
     return null;
   } finally {
     clearTimeout(timeoutId);
@@ -1380,10 +1388,19 @@ export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
 
     if (!response.ok) throw new Error(`SightEngine Video ${response.status}`);
     const data = await response.json();
+    console.log(
+      "[Baloney] SightEngine Video response:",
+      JSON.stringify(data).slice(0, 1000),
+    );
 
-    const frames = (data.data?.frames || []).map(
-      (f: { time?: number; type?: { ai_generated?: number } }) => ({
-        timestamp: f.time ?? 0,
+    const rawFrames = data.data?.frames || [];
+    const frames = rawFrames.map(
+      (f: {
+        time?: number;
+        info?: { position?: number };
+        type?: { ai_generated?: number };
+      }) => ({
+        timestamp: f.time ?? f.info?.position ?? 0,
         ai_score: f.type?.ai_generated ?? 0,
       }),
     );
@@ -1397,7 +1414,8 @@ export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
         : null;
 
     return avgScore !== null ? { ai_generated_score: avgScore, frames } : null;
-  } catch {
+  } catch (err) {
+    console.error("[Baloney] SightEngine Video error:", err);
     return null;
   } finally {
     clearTimeout(timeoutId);
@@ -1691,7 +1709,9 @@ export async function realImageDetection(
     }
 
     // ── Stage 2: SightEngine API (98.3% accuracy) ──
-    const sightEngineScore = await methodS_sightEngine(bytes).catch(() => null);
+    const sightEngineScore = await methodS_sightEngine(bytes, mimeType).catch(
+      () => null,
+    );
 
     if (sightEngineScore !== null) {
       // SightEngine returned a result — use it as primary verdict
