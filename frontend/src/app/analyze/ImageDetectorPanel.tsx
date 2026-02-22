@@ -5,6 +5,7 @@ import { detectImage } from "@/lib/api";
 import { DEMO_USER_ID } from "@/lib/constants";
 import type { DetectionResult } from "@/lib/types";
 import { AnimatedPercentage } from "./AnimatedPercentage";
+import { MethodBreakdown } from "./MethodBreakdown";
 
 const VERDICT_LABELS: Record<string, string> = {
   ai_generated: "AI Generated",
@@ -198,6 +199,11 @@ export function ImageDetectorPanel({
             Model: {result.model_used}
           </p>
         </div>
+      )}
+
+      {/* Method breakdown */}
+      {result && !loading && result.method_scores && Object.keys(result.method_scores).length > 0 && (
+        <MethodBreakdown methodScores={result.method_scores} type="image" />
       )}
     </div>
   );
