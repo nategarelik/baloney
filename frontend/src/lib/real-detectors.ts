@@ -889,11 +889,47 @@ export async function realTextDetection(
         feature_vector: featureVector,
         sentence_scores: scoreSentencesReal(text, 0.97),
         method_scores: {
+          pangram: {
+            score: 0,
+            weight: 0.38,
+            label: "Pangram (99.85%)",
+            available: false,
+            status: "not_run",
+          },
           synthid_text: {
             score: 1.0,
             weight: 1.0,
             label: "SynthID (Google Watermark)",
             available: true,
+            status: "success",
+          },
+          roberta: {
+            score: 0,
+            weight: 0.17,
+            label: "RoBERTa GPT-2",
+            available: false,
+            status: "not_run",
+          },
+          chatgpt: {
+            score: 0,
+            weight: 0.14,
+            label: "ChatGPT Detector",
+            available: false,
+            status: "not_run",
+          },
+          embeddings: {
+            score: 0,
+            weight: 0.06,
+            label: "Sentence Embeddings",
+            available: false,
+            status: "not_run",
+          },
+          statistical: {
+            score: stats.signal,
+            weight: 0.18,
+            label: "Statistical (12 features)",
+            available: true,
+            status: "success",
           },
         },
         synthid_text_result: "watermarked",
@@ -936,28 +972,56 @@ export async function realTextDetection(
         if (pangramSentences.length > 0) sentenceScores = pangramSentences;
       }
 
+      const synthidAvailable =
+        synthidResult !== null && synthidResult !== undefined;
       const methodScores: Record<string, MethodScore> = {
         pangram: {
           score: pangramResult.score,
           weight: 1.0,
           label: "Pangram (99.85%)",
           available: true,
+          status: "success",
+        },
+        synthid_text: {
+          score: synthidAvailable
+            ? synthidResult === "not_watermarked"
+              ? 0.0
+              : 0.5
+            : 0,
+          weight: 0.0,
+          label: "SynthID (Google Watermark)",
+          available: synthidAvailable,
+          status: synthidAvailable ? "success" : "unavailable",
+        },
+        roberta: {
+          score: 0,
+          weight: 0.17,
+          label: "RoBERTa GPT-2",
+          available: false,
+          status: "not_run",
+        },
+        chatgpt: {
+          score: 0,
+          weight: 0.14,
+          label: "ChatGPT Detector",
+          available: false,
+          status: "not_run",
+        },
+        embeddings: {
+          score: 0,
+          weight: 0.06,
+          label: "Sentence Embeddings",
+          available: false,
+          status: "not_run",
         },
         statistical: {
           score: stats.signal,
-          weight: 0.0,
+          weight: 0.18,
           label: "Statistical (12 features)",
           available: true,
+          status: "success",
         },
       };
-      if (synthidResult && synthidResult !== "uncertain") {
-        methodScores.synthid_text = {
-          score: synthidResult === "not_watermarked" ? 0.0 : 0.5,
-          weight: 0.0,
-          label: "SynthID (Google Watermark)",
-          available: true,
-        };
-      }
 
       return {
         verdict: mapping.verdict,
@@ -1034,42 +1098,57 @@ export async function realTextDetection(
       aiProbability = precise(0.5 + (aiProbability - 0.5) * lengthPenalty);
     }
 
-    // Build method_scores for UI
-    const methodScores: Record<string, MethodScore> = {};
-    if (hfScore !== null)
-      methodScores.roberta = {
-        score: hfScore,
-        weight: 0.3,
-        label: "RoBERTa GPT-2",
-        available: true,
-      };
-    if (chatgptScore !== null)
-      methodScores.chatgpt = {
-        score: chatgptScore,
-        weight: 0.25,
-        label: "ChatGPT Detector",
-        available: true,
-      };
-    methodScores.embeddings = {
-      score: embeddingScore,
-      weight: 0.15,
-      label: "Sentence Embeddings",
-      available: true,
-    };
-    methodScores.statistical = {
-      score: stats.signal,
-      weight: 0.3,
-      label: "Statistical (12 features)",
-      available: true,
-    };
-    if (synthidResult && synthidResult !== "uncertain") {
-      methodScores.synthid_text = {
-        score: synthidResult === "not_watermarked" ? 0.0 : 0.5,
+    // Build method_scores for UI — always include ALL methods
+    const synthidAvailable =
+      synthidResult !== null && synthidResult !== undefined;
+    const methodScores: Record<string, MethodScore> = {
+      pangram: {
+        score: 0,
+        weight: 0.38,
+        label: "Pangram (99.85%)",
+        available: false,
+        status: "unavailable",
+      },
+      synthid_text: {
+        score: synthidAvailable
+          ? synthidResult === "not_watermarked"
+            ? 0.0
+            : 0.5
+          : 0,
         weight: 0.0,
         label: "SynthID (Google Watermark)",
+        available: synthidAvailable,
+        status: synthidAvailable ? "success" : "unavailable",
+      },
+      roberta: {
+        score: hfScore ?? 0,
+        weight: 0.3,
+        label: "RoBERTa GPT-2",
+        available: hfScore !== null,
+        status: hfScore !== null ? "success" : "error",
+      },
+      chatgpt: {
+        score: chatgptScore ?? 0,
+        weight: 0.25,
+        label: "ChatGPT Detector",
+        available: chatgptScore !== null,
+        status: chatgptScore !== null ? "success" : "error",
+      },
+      embeddings: {
+        score: embeddingScore,
+        weight: 0.15,
+        label: "Sentence Embeddings",
         available: true,
-      };
-    }
+        status: "success",
+      },
+      statistical: {
+        score: stats.signal,
+        weight: 0.3,
+        label: "Statistical (12 features)",
+        available: true,
+        status: "success",
+      },
+    };
 
     const sentenceScores = scoreSentencesReal(text, aiProbability);
     const mapping = mapVerdict(aiProbability, text.length);
@@ -1875,18 +1954,42 @@ export async function realImageDetection(
             weight: 1.0,
             label: "SynthID Image (Google)",
             available: true,
+            status: "success",
+          },
+          sightengine: {
+            score: 0,
+            weight: 0.32,
+            label: "SightEngine (98.3%)",
+            available: false,
+            status: "not_run",
+          },
+          vit: {
+            score: 0,
+            weight: 0.18,
+            label: "ViT AI Detector",
+            available: false,
+            status: "not_run",
+          },
+          sdxl: {
+            score: 0,
+            weight: 0.09,
+            label: "SDXL Detector",
+            available: false,
+            status: "not_run",
           },
           frequency: {
             score: freqScore,
-            weight: 0.0,
+            weight: 0.18,
             label: "Frequency/DCT Analysis",
             available: true,
+            status: "success",
           },
           metadata: {
             score: metaScore,
-            weight: 0.0,
+            weight: 0.13,
             label: "Metadata/EXIF/C2PA",
             available: true,
+            status: "success",
           },
         },
       };
@@ -1903,38 +2006,61 @@ export async function realImageDetection(
       const freqScore = methodF_frequency(bytes);
       const metaScore = methodG_metadata(base64Image);
       let compositeScore = sightEngineScore;
+      const synthidAvail =
+        synthidImageResult !== null && synthidImageResult !== undefined;
       const methodScores: Record<string, MethodScore> = {
         sightengine: {
           score: sightEngineScore,
           weight: 1.0,
           label: "SightEngine (98.3%)",
           available: true,
+          status: "success",
+        },
+        synthid_image: {
+          score: synthidAvail
+            ? synthidImageResult === "Not Detected"
+              ? 0.0
+              : synthidImageResult === "Possibly Detected"
+                ? 0.5
+                : 0.5
+            : 0,
+          weight: 0.0,
+          label: "SynthID Image (Google)",
+          available: synthidAvail,
+          status: synthidAvail ? "success" : "unavailable",
+        },
+        vit: {
+          score: 0,
+          weight: 0.18,
+          label: "ViT AI Detector",
+          available: false,
+          status: "not_run",
+        },
+        sdxl: {
+          score: 0,
+          weight: 0.09,
+          label: "SDXL Detector",
+          available: false,
+          status: "not_run",
         },
         frequency: {
           score: freqScore,
-          weight: 0.0,
+          weight: 0.18,
           label: "Frequency/DCT Analysis",
           available: true,
+          status: "success",
         },
         metadata: {
           score: metaScore,
-          weight: 0.0,
+          weight: 0.13,
           label: "Metadata/EXIF/C2PA",
           available: true,
+          status: "success",
         },
       };
       let modelName =
         "sightengine" +
         (synthidImageResult ? "+synthid-image:" + synthidImageResult : "");
-
-      if (synthidImageResult && synthidImageResult !== "Possibly Detected") {
-        methodScores.synthid_image = {
-          score: synthidImageResult === "Not Detected" ? 0.0 : 0.5,
-          weight: 0.0,
-          label: "SynthID Image (Google)",
-          available: true,
-        };
-      }
 
       // Reality Defender escalation for ambiguous SightEngine results
       if (compositeScore >= 0.4 && compositeScore <= 0.7) {
@@ -1954,8 +2080,17 @@ export async function realImageDetection(
             weight: 0.3,
             label: "Reality Defender (Deep Scan)",
             available: true,
+            status: "success",
           };
           modelName += "+reality-defender";
+        } else {
+          methodScores.reality_defender = {
+            score: 0,
+            weight: 0.0,
+            label: "Reality Defender (Deep Scan)",
+            available: false,
+            status: "error",
+          };
         }
       }
 
@@ -2027,42 +2162,57 @@ export async function realImageDetection(
       modelName = "local:dct-fft+metadata";
     }
 
-    // Build method_scores for UI
-    const methodScores: Record<string, MethodScore> = {};
-    if (vitScore !== null)
-      methodScores.vit = {
-        score: vitScore,
+    // Build method_scores for UI — always include ALL methods
+    const synthidAvail =
+      synthidImageResult !== null && synthidImageResult !== undefined;
+    const methodScores: Record<string, MethodScore> = {
+      sightengine: {
+        score: 0,
+        weight: 0.32,
+        label: "SightEngine (98.3%)",
+        available: false,
+        status: "unavailable",
+      },
+      synthid_image: {
+        score: synthidAvail
+          ? synthidImageResult === "Not Detected"
+            ? 0.0
+            : 0.5
+          : 0,
+        weight: 0.1,
+        label: "SynthID Image (Google)",
+        available: synthidAvail,
+        status: synthidAvail ? "success" : "unavailable",
+      },
+      vit: {
+        score: vitScore ?? 0,
         weight: 0.35,
         label: "ViT AI Detector",
-        available: true,
-      };
-    if (sdxlScore !== null)
-      methodScores.sdxl = {
-        score: sdxlScore,
+        available: vitScore !== null,
+        status: vitScore !== null ? "success" : "error",
+      },
+      sdxl: {
+        score: sdxlScore ?? 0,
         weight: 0.2,
         label: "SDXL Detector",
+        available: sdxlScore !== null,
+        status: sdxlScore !== null ? "success" : "error",
+      },
+      frequency: {
+        score: freqScore,
+        weight: 0.25,
+        label: "Frequency/DCT Analysis",
         available: true,
-      };
-    methodScores.frequency = {
-      score: freqScore,
-      weight: 0.25,
-      label: "Frequency/DCT Analysis",
-      available: true,
-    };
-    methodScores.metadata = {
-      score: metaScore,
-      weight: 0.2,
-      label: "Metadata/EXIF/C2PA",
-      available: true,
-    };
-    if (synthidImageResult && synthidImageResult !== "Possibly Detected") {
-      methodScores.synthid_image = {
-        score: synthidImageResult === "Not Detected" ? 0.0 : 0.5,
-        weight: 0.0,
-        label: "SynthID Image (Google)",
+        status: "success",
+      },
+      metadata: {
+        score: metaScore,
+        weight: 0.2,
+        label: "Metadata/EXIF/C2PA",
         available: true,
-      };
-    }
+        status: "success",
+      },
+    };
 
     // Reality Defender escalation for ambiguous Stage 3 results
     if (compositeScore >= 0.4 && compositeScore <= 0.7) {
@@ -2080,8 +2230,17 @@ export async function realImageDetection(
           weight: 0.3,
           label: "Reality Defender (Deep Scan)",
           available: true,
+          status: "success",
         };
         modelName += "+reality-defender";
+      } else {
+        methodScores.reality_defender = {
+          score: 0,
+          weight: 0.0,
+          label: "Reality Defender (Deep Scan)",
+          available: false,
+          status: "error",
+        };
       }
     }
 
@@ -2104,7 +2263,7 @@ export async function realImageDetection(
       method_scores: methodScores,
     };
   } catch (error) {
-    console.warn(
+    console.error(
       "[Baloney] Real image detection failed, using mock fallback:",
       error,
     );
