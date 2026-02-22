@@ -16,7 +16,6 @@ import type {
   ExposureScore,
   ContentProvenance,
   TrackerResponse,
-  InformationDietScore,
   RadarAxisData,
   HeatmapCell,
   FlowData,
@@ -230,16 +229,8 @@ export async function getTopProvenance(
 }
 
 // ──────────────────────────────────────────────
-// Information Diet + Preview
+// Preview
 // ──────────────────────────────────────────────
-
-export async function getInformationDietScore(
-  userId: string,
-): Promise<InformationDietScore> {
-  return fetchApi<InformationDietScore>(
-    `/api/information-diet?user_id=${userId}`,
-  );
-}
 
 export async function detectPreview(
   text: string,

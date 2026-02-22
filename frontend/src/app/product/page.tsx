@@ -3,231 +3,136 @@
 import Link from "next/link";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
 
-/* ────────────────────────────────────────────────────────────────────────── */
-/*  Baloney — Product Page                                                   */
-/* ────────────────────────────────────────────────────────────────────────── */
-
-const apiServices = [
-  {
-    name: "SynthID",
-    provider: "Google DeepMind",
-    desc: "Watermark detector for text and images. First stage in both pipelines — if a watermark is found, we return a high-confidence AI verdict immediately.",
-  },
-  {
-    name: "Pangram",
-    provider: "Pangram API",
-    desc: "Best-in-class commercial text detector. Excellent at catching subtly edited AI text that evades open-source models.",
-  },
-  {
-    name: "SightEngine",
-    provider: "SightEngine API",
-    desc: "Generative AI image detector purpose-built for content from Kling, Sora, Veo, DALL-E, Midjourney, Stable Diffusion, and other frontier models.",
-  },
-  // Reality Defender commented out — primary APIs only
-  // {
-  //   name: "Reality Defender",
-  //   provider: "Reality Defender API",
-  //   desc: "Specialized deepfake detection. Triggered on ambiguous SightEngine results for a second opinion on manipulated media.",
-  // },
-];
-
-// Open-source models commented out — primary APIs only
-// const openSourceModels = [
-//   { name: "RoBERTa OpenAI Detector", id: "openai-community/roberta-base-openai-detector", desc: "..." },
-//   { name: "ChatGPT Detector", id: "Hello-SimpleAI/chatgpt-detector-roberta", desc: "..." },
-//   { name: "MiniLM-L6-v2", id: "sentence-transformers/all-MiniLM-L6-v2", desc: "..." },
-//   { name: "AI Image Detector", id: "umm-maybe/AI-image-detector", desc: "..." },
-//   { name: "SDXL Detector", id: "Organika/sdxl-detector", desc: "..." },
-// ];
-
-const stats = [
-  { label: "Scans Run", value: "[TBD]" },
-  { label: "Accuracy", value: "[TBD]" },
-  { label: "Modalities", value: "3" },
-  { label: "Average Latency", value: "[TBD]" },
-];
-
-const limitations = [
-  "Short text under ~50 words lacks enough signal for reliable classification.",
-  "Heavily human-edited AI text blends signals and may read as human-written.",
-  "Screenshots of AI-generated text bypass our text pipeline entirely.",
-  "Brand-new generative models not present in our training data may evade detection until we retrain.",
-];
-
 const supportedSites = [
-  {
-    name: "X",
-    url: "https://x.com",
-    color: "#000000",
-    logo: "/logos/x-logo.png",
-  },
+  { name: "X", url: "https://x.com", logo: "/logos/x-logo.png" },
   {
     name: "Instagram",
     url: "https://instagram.com",
-    color: "#E1306C",
     logo: "https://www.google.com/s2/favicons?domain=instagram.com&sz=64",
   },
   {
     name: "Reddit",
     url: "https://reddit.com",
-    color: "#FF4500",
     logo: "https://www.google.com/s2/favicons?domain=reddit.com&sz=64",
   },
   {
     name: "Facebook",
     url: "https://facebook.com",
-    color: "#1877F2",
     logo: "https://www.google.com/s2/favicons?domain=facebook.com&sz=64",
   },
   {
     name: "TikTok",
     url: "https://tiktok.com",
-    color: "#000000",
     logo: "https://www.google.com/s2/favicons?domain=tiktok.com&sz=64",
   },
   {
     name: "LinkedIn",
     url: "https://linkedin.com",
-    color: "#0A66C2",
     logo: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=64",
     scale: 1.3,
   },
-  {
-    name: "Medium",
-    url: "https://medium.com",
-    color: "#000000",
-    logo: "/logos/medium-logo.png",
-  },
+  { name: "Medium", url: "https://medium.com", logo: "/logos/medium-logo.png" },
   {
     name: "Substack",
     url: "https://substack.com",
-    color: "#FF6719",
     logo: "https://www.google.com/s2/favicons?domain=substack.com&sz=64",
   },
   {
     name: "Threads",
     url: "https://threads.net",
-    color: "#000000",
     logo: "/logos/threads-logo.png",
-  },
-];
-
-const installSteps = [
-  {
-    step: "1",
-    title: "Install Extension",
-    desc: "Add Baloney to Chrome from the extension page. One click, zero config.",
-  },
-  {
-    step: "2",
-    title: "Browse Normally",
-    desc: "Visit any social media platform. Baloney quietly scans content in the background.",
-  },
-  {
-    step: "3",
-    title: "See AI Everywhere",
-    desc: "Colored dots on images, underlines on text, and a full analysis sidepanel on click.",
   },
 ];
 
 export default function ProductPage() {
   return (
     <main className="min-h-screen bg-base">
-      {/* ── 1. Hero ── */}
-      <section className="max-w-4xl mx-auto px-6 pt-24 pb-16 page-top-offset text-center">
+      {/* ── Hero ── */}
+      <section className="max-w-4xl mx-auto px-6 pt-24 pb-12 page-top-offset text-center">
         <h1 className="font-display text-4xl md:text-5xl text-secondary mb-5 leading-tight">
-          Ever been fooled by AI?
+          The cost of generating a lie is now zero.
+          <br />
+          The cost of verifying truth shouldn&apos;t be.
         </h1>
         <p className="text-secondary/70 text-lg max-w-2xl mx-auto leading-relaxed">
-          AI-generated text, images, and videos are flooding every social
-          platform you use. Most of it is invisible. Some of it is designed to
-          deceive. <span className="text-primary font-semibold">Baloney</span>{" "}
-          gives you the power to see what&apos;s real and what isn&apos;t
-          &mdash; right inside your browser.
+          GPT, Gemini, Claude &mdash; free, instant, infinite. But verifying
+          what&apos;s real still costs human time and attention.{" "}
+          <span className="text-primary font-semibold">Baloney</span> closes
+          that gap with multi-signal AI detection across text, images, and
+          video &mdash; right inside your browser.
         </p>
       </section>
 
-      {/* ── 2. The Problem ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          The Problem
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          AI-generated deception is no longer hypothetical. It&apos;s happening
-          right now, to real people, with real consequences.
-        </p>
+      {/* ── The Asymmetry ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
+          {[
+            {
+              label: "Generating AI content",
+              value: "Free",
+              sub: "Unlimited text, images, and video from any frontier model",
+            },
+            {
+              label: "Detecting AI content",
+              value: "Hard",
+              sub: "No single method catches everything across modalities",
+            },
+            {
+              label: "Trusting what you see",
+              value: "Broken",
+              sub: "Platforms can't grade their own homework. Users have no tools.",
+            },
+          ].map((item) => (
             <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
+              key={item.label}
+              className="bg-base-dark rounded-xl border border-secondary/10 p-6 text-center"
             >
-              Email Deepfake
+              <p className="font-display text-2xl text-primary mb-1">
+                {item.value}
+              </p>
+              <p className="font-display text-secondary text-sm mb-2">
+                {item.label}
+              </p>
+              <p className="text-secondary/50 text-xs leading-relaxed">
+                {item.sub}
+              </p>
             </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: Mnookin email deepfake incident &mdash; a university
-              president targeted by an AI-generated voice clone used to
-              authorize fraudulent wire transfers.]
-            </p>
-          </div>
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
-            >
-              AI Content Flood
-            </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: Neetcode tweet about AI-generated content dominating
-              feeds &mdash; developers noticing the majority of online
-              discussion is now synthetic.]
-            </p>
-          </div>
-          <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <div
-              className="text-xs font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "#e8c97a" }}
-            >
-              Video Deception
-            </div>
-            <p className="text-secondary/70 text-sm leading-relaxed">
-              [Example: AI-generated video deception &mdash; deepfake videos
-              used to spread misinformation during elections, financial scams,
-              and social engineering attacks.]
-            </p>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* ── 3. What is Baloney? ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── What Baloney Does ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <div className="text-center mb-10">
           <h2 className="font-display text-3xl text-secondary mb-1 inline-block">
-            What is Baloney?
+            What Baloney Does
             <HandDrawnUnderline width={200} className="mx-auto mt-1" />
           </h2>
           <p className="text-secondary/70 mt-4 max-w-2xl mx-auto leading-relaxed">
-            Baloney is a multi-modal AI content detection platform shipped as a{" "}
-            <span className="text-primary font-medium">Chrome extension</span>{" "}
-            and a{" "}
-            <span className="text-primary font-medium">web dashboard</span>. It
-            analyzes text, images, and video in real time &mdash; so you always
-            know what you&apos;re looking at.
+            A Chrome extension and{" "}
+            <a
+              href="https://baloney.app/dashboard/community"
+              className="text-primary underline hover:opacity-80"
+            >
+              web dashboard
+            </a>{" "}
+            that detect AI-generated content as you browse. No copy-pasting
+            into a separate tool. It works where you already are.
           </p>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {[
             {
-              title: "Text Detection",
-              desc: "Highlight any text on a page. Our cascading pipeline returns a verdict in under a second.",
+              title: "Text",
+              desc: "Highlight any text on a page. Our pipeline runs multiple independent signals and returns a verdict with confidence in under a second.",
             },
             {
-              title: "Image Detection",
-              desc: "Images are auto-scanned with a discrete colored dot. Hover to see the confidence; click for full analysis.",
+              title: "Images",
+              desc: "Every image gets a small colored dot. Pink means AI-generated. Green means human. Hover for the confidence score, click for the full breakdown.",
             },
             {
-              title: "Video Detection",
-              desc: "Poster frames and captured keyframes are run through the image pipeline for per-frame verdicts.",
+              title: "Video",
+              desc: "Video frames are captured and routed through the image pipeline. Same multi-signal approach, applied to every frame.",
             },
           ].map((item) => (
             <div
@@ -245,158 +150,185 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 4. How It Works ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-10 text-center">
+      {/* ── Architecture ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
+        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
           How It Works
         </h2>
+        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
+          Every scan runs through a multi-signal ensemble. Each signal is
+          independent. If one fails, the others still work. We show you
+          exactly which methods contributed to the verdict and why.
+        </p>
 
-        {/* Text Pipeline — Cascading */}
+        {/* System diagram */}
         <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 mb-6">
-          <h3 className="font-display text-xl text-secondary mb-1">
-            Text Detection &mdash; Cascading Pipeline
+          <h3 className="font-display text-lg text-secondary mb-4">
+            System Architecture
+          </h3>
+          <div className="bg-secondary/5 rounded-lg p-5 font-mono text-xs text-secondary/70 leading-relaxed overflow-x-auto">
+            <pre>{`┌─────────────────┐     POST /api/detect/*     ┌──────────────────────┐
+│ Chrome Extension │ ─────────────────────────▶ │ Vercel (Next.js 16)  │
+│ (Manifest V3)    │                            │ API Routes           │
+└─────────────────┘                             └──────────┬───────────┘
+                                                           │
+         ┌─────────────────────────────────────────────────┤
+         │                                                 │
+         ▼                                                 ▼
+┌─────────────────────┐                        ┌───────────────────────┐
+│ Detection Ensemble  │                        │ Supabase Postgres     │
+│                     │                        │                       │
+│  Text:              │                        │  7 tables             │
+│   ① SynthID         │                        │  11 analytics views   │
+│   ② Pangram (99.8%) │                        │  4 RPC functions      │
+│   ③ Statistical     │                        │                       │
+│                     │                        │  record_scan_with_    │
+│  Image:             │                        │    provenance()       │
+│   ① SynthID         │                        │  compute_exposure_    │
+│   ② SightEngine     │                        │    score()            │
+│   ③ Frequency/DCT   │                        │  compute_slop_index() │
+│   ④ Metadata/EXIF   │                        │                       │
+└─────────────────────┘                        └───────────────────────┘
+
+         ┌──────────────────────────────────────────┐
+         │ Web Dashboard (baloney.app)              │
+         │                                          │
+         │  /analyze        — AI Detector           │
+         │  /dashboard      — Live Scan Feed        │
+         │  /dashboard/community — Analytics        │
+         │  /evaluation     — ROC, Ablation, Bench  │
+         │  /feed           — Demo Feed             │
+         │  /tracker        — Platform Trends       │
+         └──────────────────────────────────────────┘`}</pre>
+          </div>
+        </div>
+
+        {/* Text pipeline */}
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 mb-6">
+          <h3 className="font-display text-lg text-secondary mb-1">
+            Text Detection Pipeline
           </h3>
           <p className="text-secondary/50 text-sm mb-4">
-            Models run sequentially. Each stage can exit early with a
-            high-confidence verdict, saving latency and cost.
+            Three independent signals. SynthID checks for Google&apos;s
+            invisible watermarks first &mdash; if found, we return immediately
+            with high confidence.
           </p>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
               {
-                stage: "Stage 1",
-                label: "SynthID",
+                name: "Google SynthID",
                 detail:
-                  "Google's watermark detector. If a watermark is found, we return a high-confidence AI verdict immediately and stop.",
-                exit: true,
+                  "Detects invisible cryptographic watermarks embedded in all Gemini-generated text. If present, returns 0.97 confidence immediately.",
+                tag: "watermark",
               },
               {
-                stage: "Stage 2",
-                label: "Pangram API",
+                name: "Pangram API",
                 detail:
-                  "Best-in-class commercial text detector. Excellent at catching subtly edited AI text that evades open-source models. If high confidence, use result and stop.",
-                exit: true,
+                  "99.85% accuracy commercial detector (Emi & Spero 2024, arXiv:2402.14873). Catches subtly edited AI text that evades open-source models.",
+                tag: "99.85%",
               },
-              // Stage 3 (HF Ensemble fallback) commented out — primary APIs only
+              {
+                name: "Statistical Analysis",
+                detail:
+                  "12 features: burstiness, entropy, readability, hedging ratio, transition word density, type-token ratio, repetition patterns, and more.",
+                tag: "12 features",
+              },
             ].map((s) => (
-              <div key={s.stage} className="bg-secondary/5 rounded-lg p-4">
+              <div key={s.name} className="bg-secondary/5 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-primary font-semibold text-sm">
-                    {s.stage}
+                  <span className="font-display text-secondary text-base">
+                    {s.name}
                   </span>
-                  {s.exit && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-800/20 text-green-600">
-                      early exit
-                    </span>
-                  )}
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                    {s.tag}
+                  </span>
                 </div>
-                <p className="font-display text-secondary text-base mb-1">
-                  {s.label}
-                </p>
                 <p className="text-secondary/60 text-xs leading-relaxed">
                   {s.detail}
                 </p>
               </div>
             ))}
           </div>
-          <p className="text-secondary/40 text-xs mt-4 italic">
-            [More details coming &mdash; placeholder for in-depth model
-            descriptions]
-          </p>
         </div>
 
-        {/* Image/Video Pipeline — Cascading */}
-        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6 mb-6">
-          <h3 className="font-display text-xl text-secondary mb-1">
-            Image / Video Detection &mdash; Cascading Pipeline
+        {/* Image pipeline */}
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
+          <h3 className="font-display text-lg text-secondary mb-1">
+            Image Detection Pipeline
           </h3>
           <p className="text-secondary/50 text-sm mb-4">
-            Same early-exit strategy. Video additionally uses multi-frame
-            extraction (poster + keyframes) before routing through this
-            pipeline.
+            Four independent signals. Video frames are captured and routed
+            through this same pipeline.
           </p>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {[
               {
-                stage: "Stage 1",
-                label: "SynthID",
+                name: "Google SynthID",
                 detail:
-                  "Google's watermark detector for images. If a watermark is found, we return a high-confidence AI verdict immediately and stop.",
-                exit: true,
+                  "Detects invisible watermarks in Imagen-generated images via Vertex AI. If present, returns 0.95 confidence immediately.",
+                tag: "watermark",
               },
               {
-                stage: "Stage 2",
-                label: "SightEngine Generative AI",
+                name: "SightEngine API",
                 detail:
-                  "Commercial API purpose-built for detecting content from Kling, Sora, Veo, DALL-E, Midjourney, Stable Diffusion, and other frontier models. If high confidence, use result and stop.",
-                exit: true,
+                  "98.3% accuracy, ARIA benchmark #1. Covers 120+ generators including Sora, Veo, DALL-E, Midjourney, Stable Diffusion, Kling.",
+                tag: "98.3%",
               },
-              // Stage 3 (Reality Defender) and Stage 4 (HF Ensemble) commented out — primary APIs only
+              {
+                name: "Frequency / DCT Analysis",
+                detail:
+                  "Local variance uniformity and high-frequency energy measurements. AI images have distinct spectral signatures in the frequency domain.",
+                tag: "spectral",
+              },
+              {
+                name: "Metadata / EXIF",
+                detail:
+                  "Camera provenance, EXIF markers, C2PA content credentials. Real photos leave hardware traces that AI generators don't.",
+                tag: "provenance",
+              },
             ].map((s) => (
-              <div key={s.stage} className="bg-secondary/5 rounded-lg p-4">
+              <div key={s.name} className="bg-secondary/5 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-primary font-semibold text-sm">
-                    {s.stage}
+                  <span className="font-display text-secondary text-base">
+                    {s.name}
                   </span>
-                  {s.exit && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-green-800/20 text-green-600">
-                      early exit
-                    </span>
-                  )}
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary">
+                    {s.tag}
+                  </span>
                 </div>
-                <p className="font-display text-secondary text-base mb-1">
-                  {s.label}
-                </p>
                 <p className="text-secondary/60 text-xs leading-relaxed">
                   {s.detail}
                 </p>
               </div>
             ))}
           </div>
-          <p className="text-secondary/40 text-xs mt-4 italic">
-            [More details coming &mdash; placeholder for in-depth model
-            descriptions]
-          </p>
         </div>
       </section>
 
-      {/* ── 5. Technologies & Models ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-10 text-center">
-          Technologies &amp; Models
-        </h2>
-
-        {/* API Services */}
-        <h3 className="font-display text-lg text-secondary mb-4">
-          API Services
-        </h3>
-        <div className="grid sm:grid-cols-2 gap-6 mb-10">
-          {apiServices.map((s) => (
-            <div
-              key={s.name}
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6"
-            >
-              <p className="font-display text-lg text-secondary mb-1">
-                {s.name}
-              </p>
-              <p className="text-secondary/40 text-xs mb-3">{s.provider}</p>
-              <p className="text-secondary/70 text-sm leading-relaxed">
-                {s.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Open-Source Models — commented out (primary APIs only) */}
-      </section>
-
-      {/* ── 6. Detection Results ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-10 text-center">
-          Detection Results
+      {/* ── Evaluation ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
+        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
+          We Prove It Works
           <HandDrawnUnderline width={180} className="mx-auto mt-1" />
         </h2>
+        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
+          Any team can plug in an API. We built a 207-sample evaluation
+          pipeline across 15 content categories to prove the ensemble
+          actually works.{" "}
+          <a
+            href="https://baloney.app/evaluation"
+            className="text-primary underline hover:opacity-80"
+          >
+            See the full evaluation dashboard.
+          </a>
+        </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((s) => (
+          {[
+            { value: "0.982", label: "ROC AUC" },
+            { value: "207", label: "Benchmark Samples" },
+            { value: "3", label: "Modalities" },
+            { value: "15", label: "Content Categories" },
+          ].map((s) => (
             <div
               key={s.label}
               className="bg-base-dark rounded-xl border border-secondary/10 p-6 text-center"
@@ -408,115 +340,126 @@ export default function ProductPage() {
             </div>
           ))}
         </div>
+        <p className="text-secondary/50 text-xs text-center mt-6">
+          The ablation study proves the ensemble beats any single method.
+          Bootstrap confidence intervals and Bayesian PPV analysis included.
+        </p>
       </section>
 
-      {/* ── 7. Error Analysis ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── The Bigger Picture ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          Error Analysis
+          The Detector Is Valuable. The Data Is the Product.
         </h2>
         <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          We prioritize minimizing{" "}
-          <span className="text-primary font-medium">false positives</span>{" "}
-          (Type I errors) &mdash; incorrectly labeling human content as AI. A
-          false accusation erodes trust far more than a missed detection.
+          Every scan generates a data point: this content, this platform, this
+          time, AI-generated with this confidence. At scale, that becomes
+          something nobody else has &mdash; a real-time map of AI content
+          across the internet.
         </p>
-
         <div className="grid md:grid-cols-2 gap-6">
           <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <h3 className="font-display text-xl text-secondary mb-2">
-              Confidence Floor
+            <h3
+              className="font-display text-base mb-2"
+              style={{ color: "#e8c97a" }}
+            >
+              AI Slop Index
             </h3>
             <p className="text-secondary/70 text-sm leading-relaxed">
-              No verdict is issued below a{" "}
-              <span className="font-semibold" style={{ color: "#e8c97a" }}>
-                60% confidence threshold
-              </span>
-              . Content that falls below this floor is marked{" "}
-              <span className="text-amber-500 font-medium">Inconclusive</span>{" "}
-              rather than making a shaky call. Users can trust that when Baloney
-              says &ldquo;AI-generated,&rdquo; the system is genuinely
-              confident.
+              We grade every platform from A+ to F based on AI content
+              pollution. Social media companies can&apos;t independently
+              measure their own bot problem. They need independent
+              measurement.{" "}
+              <a
+                href="https://baloney.app/dashboard/community"
+                className="text-primary underline hover:opacity-80"
+              >
+                See the live index.
+              </a>
             </p>
           </div>
           <div className="bg-base-dark rounded-xl border border-secondary/10 p-6">
-            <h3 className="font-display text-xl text-secondary mb-2">
-              Bayesian Posterior Adjustment
+            <h3
+              className="font-display text-base mb-2"
+              style={{ color: "#e8c97a" }}
+            >
+              Content Provenance
             </h3>
             <p className="text-secondary/70 text-sm leading-relaxed">
-              Raw model outputs are adjusted using{" "}
-              <span className="font-semibold" style={{ color: "#e8c97a" }}>
-                Bayesian posterior reasoning
-              </span>
-              . In plain terms: we factor in how common AI content actually is
-              on each platform. A 70% model score on a platform where only 5% of
-              content is AI means the real probability is much lower than 70%.
-              This dramatically reduces false positives in low-prevalence
-              environments.
+              SHA-256 content hashes track the same content across platforms.
+              Multiple independent scans build crowd-sourced consensus. No raw
+              content stored &mdash; only hashes and metadata.
             </p>
           </div>
         </div>
-
-        <div className="bg-secondary/5 rounded-lg p-4 mt-6">
+        <div className="bg-secondary/5 rounded-lg p-5 mt-6">
           <p className="text-secondary/60 text-sm leading-relaxed text-center">
-            <strong className="text-secondary/80">
-              Type I (False Positive):
-            </strong>{" "}
-            Human content flagged as AI &mdash; we minimize this aggressively.
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            <strong className="text-secondary/80">
-              Type II (False Negative):
-            </strong>{" "}
-            AI content missed &mdash; acceptable at the margin; users can always
-            re-scan manually.
+            Before Nielsen, TV networks reported their own viewership. Nobody
+            trusted them. Nielsen put monitoring devices in homes and created
+            the measurement standard. Our extension is the monitoring device.
+            Our Slop Index is the rating.
           </p>
         </div>
       </section>
 
-      {/* ── 8. Limitations ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── Honesty Section ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          Limitations
+          What We Can&apos;t Do
         </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-8 leading-relaxed">
-          No detection system is perfect. Here&apos;s what we can&apos;t
-          reliably detect &mdash; and we think honesty about this matters more
-          than marketing claims.
+        <p className="text-secondary/70 text-center max-w-xl mx-auto mb-8 leading-relaxed">
+          No detection system is perfect. Honesty about limitations matters
+          more than marketing claims.
         </p>
         <div className="max-w-2xl mx-auto space-y-4">
-          {limitations.map((lim, i) => (
+          {[
+            "Short text under ~50 words lacks enough signal for reliable classification.",
+            "Heavily human-edited AI text blends signals and may read as human-written.",
+            "Screenshots of AI-generated text bypass our text pipeline entirely.",
+            "Brand-new generators not in our training data may evade detection until we retrain.",
+          ].map((lim, i) => (
             <div key={i} className="flex gap-3">
               <span className="text-primary font-semibold text-sm mt-0.5 shrink-0">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <p className="text-secondary/70 text-sm leading-relaxed">{lim}</p>
+              <p className="text-secondary/70 text-sm leading-relaxed">
+                {lim}
+              </p>
             </div>
           ))}
         </div>
+        <div className="bg-secondary/5 rounded-lg p-4 mt-8 max-w-2xl mx-auto">
+          <p className="text-secondary/60 text-sm leading-relaxed text-center">
+            We prioritize minimizing{" "}
+            <strong className="text-secondary/80">false positives</strong>{" "}
+            &mdash; incorrectly labeling human content as AI. A false
+            accusation erodes trust far more than a missed detection.
+          </p>
+        </div>
       </section>
 
-      {/* ── 9. Safety & Ethics ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── Privacy ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <h2 className="font-display text-3xl text-secondary mb-8 text-center">
-          Safety &amp; Ethics
+          Privacy
         </h2>
         <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {[
             {
-              title: "No PII Collected",
-              desc: "We never collect personally identifiable information. User IDs are anonymous session tokens.",
+              title: "No PII collected",
+              desc: "User IDs are anonymous session tokens. We never collect personally identifiable information.",
             },
             {
-              title: "Server-Side Processing",
-              desc: "All detection runs on our server. No model weights or inference happen on your device.",
+              title: "Content never stored",
+              desc: "Text and images are analyzed in memory and discarded. We store verdicts and metadata only.",
             },
             {
-              title: "Transparent Detection",
-              desc: "Commercial APIs with published accuracy benchmarks. Statistical analysis runs locally with open methodology.",
+              title: "Server-side processing",
+              desc: "All detection runs on our servers. No model weights or inference on your device.",
             },
             {
-              title: "No Permanent Storage",
-              desc: "Content is analyzed in memory and discarded. We store verdicts and metadata, never the content itself.",
+              title: "Community sharing is opt-in",
+              desc: "Your scans are private by default. You choose whether to contribute to aggregate analytics.",
             },
           ].map((item) => (
             <div key={item.title} className="bg-secondary/5 rounded-lg p-4">
@@ -531,59 +474,29 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 10. What's Next ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          What&apos;s Next
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          Baloney started as a hackathon project. Here&apos;s where we&apos;re
-          taking it.
-        </p>
-        <div className="grid sm:grid-cols-2 gap-6">
-          {[
-            {
-              title: "Developer API",
-              desc: "A REST API so any app can run AI content detection. Pay-per-scan pricing. Ship detection into your own product.",
-            },
-            {
-              title: "Enterprise Dashboard",
-              desc: "Organization-wide AI content analytics. Track AI exposure across teams, domains, and content types.",
-            },
-            {
-              title: "More Models",
-              desc: "Continuously adding detectors as new generative models emerge. Fine-tuning on the latest GPT, Claude, Gemini, and Sora outputs.",
-            },
-            {
-              title: "Browser-Native Integration",
-              desc: "Working toward deeper browser APIs for seamless, zero-install detection. Manifest V3 sidepanel is just the start.",
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6"
-            >
-              <h3
-                className="font-display text-base mb-2"
-                style={{ color: "#e8c97a" }}
-              >
-                {item.title}
-              </h3>
-              <p className="text-secondary/70 text-sm leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── 11. Installation ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── Get Started ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
-          Get Started in 3 Steps
+          Get Started
         </h2>
         <div className="grid md:grid-cols-3 gap-6">
-          {installSteps.map((s) => (
+          {[
+            {
+              step: "1",
+              title: "Install the Extension",
+              desc: "Add Baloney to Chrome. One click, zero config.",
+            },
+            {
+              step: "2",
+              title: "Browse Normally",
+              desc: "Visit any supported site. Baloney scans content as you scroll.",
+            },
+            {
+              step: "3",
+              title: "See What's Real",
+              desc: "Colored dots on images, underlines on text, full method breakdown on click.",
+            },
+          ].map((s) => (
             <div
               key={s.step}
               className="bg-base-dark rounded-xl border border-secondary/10 p-6 text-center"
@@ -612,10 +525,10 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── 12. Sites We Natively Support ── */}
-      <section className="max-w-4xl mx-auto px-6 py-16">
+      {/* ── Supported Sites ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
         <h2 className="font-display text-3xl text-secondary mb-10 text-center">
-          Sites We Natively Support
+          Works On
         </h2>
         <div className="flex justify-center gap-5 mb-5">
           {supportedSites.slice(0, 5).map((site) => (
@@ -632,10 +545,11 @@ export default function ProductPage() {
                 alt={site.name}
                 className="w-11 h-11 rounded-full object-cover"
                 style={
-                  site.scale ? { transform: `scale(${site.scale})` } : undefined
+                  "scale" in site
+                    ? { transform: `scale(${site.scale})` }
+                    : undefined
                 }
               />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-transparent to-black/10 pointer-events-none" />
             </a>
           ))}
         </div>
@@ -654,34 +568,106 @@ export default function ProductPage() {
                 alt={site.name}
                 className="w-11 h-11 rounded-full object-cover"
                 style={
-                  site.scale ? { transform: `scale(${site.scale})` } : undefined
+                  "scale" in site
+                    ? { transform: `scale(${site.scale})` }
+                    : undefined
                 }
               />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/40 via-transparent to-black/10 pointer-events-none" />
             </a>
           ))}
         </div>
       </section>
 
-      {/* ── 13. AI in Development ── */}
-      <section className="max-w-4xl mx-auto px-6 pt-16 pb-24">
-        <div className="bg-secondary/5 rounded-lg p-6 text-center max-w-2xl mx-auto">
-          <h2 className="font-display text-xl text-secondary mb-2">
+      {/* ── Try It Live ── */}
+      <section className="max-w-4xl mx-auto px-6 py-14">
+        <div className="bg-base-dark rounded-xl border border-secondary/10 p-8 text-center">
+          <h2 className="font-display text-2xl text-secondary mb-3">
+            Try It Right Now
+          </h2>
+          <p className="text-secondary/70 text-sm mb-6 max-w-lg mx-auto">
+            Paste any text into the analyzer, browse the demo feed, or
+            explore the evaluation dashboard. Everything is live.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Link
+              href="/analyze"
+              className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm"
+            >
+              Analyze Content
+            </Link>
+            <Link
+              href="/feed"
+              className="px-6 py-2.5 border border-secondary/20 text-secondary font-semibold rounded-lg hover:bg-secondary/5 transition-colors text-sm"
+            >
+              Demo Feed
+            </Link>
+            <Link
+              href="/evaluation"
+              className="px-6 py-2.5 border border-secondary/20 text-secondary font-semibold rounded-lg hover:bg-secondary/5 transition-colors text-sm"
+            >
+              Evaluation
+            </Link>
+            <Link
+              href="/dashboard/community"
+              className="px-6 py-2.5 border border-secondary/20 text-secondary font-semibold rounded-lg hover:bg-secondary/5 transition-colors text-sm"
+            >
+              Community Dashboard
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── AI in Development ── */}
+      <section className="max-w-4xl mx-auto px-6 pt-14 pb-24">
+        <div className="bg-secondary/5 rounded-lg p-8 max-w-3xl mx-auto">
+          <h2 className="font-display text-xl text-secondary mb-4 text-center">
             AI in Development
           </h2>
-          <p className="text-secondary/70 text-sm leading-relaxed">
-            Baloney was built with the assistance of AI coding tools. We believe
-            in full transparency about AI usage in our own development process.
-            For a complete disclosure of AI tools used, see our{" "}
-            <a
-              href="/docs/AI_CITATION.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline hover:opacity-80 transition-opacity"
-            >
-              AI Citation document
-            </a>
-            .
+          <p className="text-secondary/70 text-sm leading-relaxed mb-4">
+            Baloney was built during MadData26 (UW-Madison Data Science
+            Hackathon, Feb 21-22, 2026). We didn&apos;t use AI to build
+            this &mdash; we directed AI to build this. Every architectural
+            decision, every data collection choice, every privacy safeguard
+            came from our own judgment. AI amplified the quality of our
+            thinking and let us move at the speed our ideas demanded.
+          </p>
+
+          <div className="space-y-3 text-sm text-secondary/70 leading-relaxed">
+            <div>
+              <span className="font-semibold text-secondary">Tools: </span>
+              Claude Code CLI (Opus 4.6 &amp; Sonnet 4.6) for architecture,
+              implementation, and debugging. Pangram API for text detection,
+              SightEngine API for image/video detection, Google SynthID for
+              watermark detection.
+            </div>
+            <div>
+              <span className="font-semibold text-secondary">
+                What AI helped build:{" "}
+              </span>
+              Boilerplate scaffolding, TypeScript interfaces, Tailwind theming,
+              ensemble architecture, extension UX, chart components, seed data,
+              and documentation.
+            </div>
+            <div>
+              <span className="font-semibold text-secondary">
+                What we did:{" "}
+              </span>
+              Product vision, architecture decisions (Supabase, serverless,
+              extension-first), feature design (AI Slop Index, Exposure Score,
+              Content Provenance), database schema (7 tables, 11 views, 4 RPC
+              functions), deployment, testing, and all final code review.
+            </div>
+            <div>
+              <span className="font-semibold text-secondary">Process: </span>
+              Every feature followed the same loop &mdash; we defined
+              requirements and constraints, AI generated initial
+              implementations, we reviewed and tested, then iterated together
+              until shipped. No code was blindly accepted.
+            </div>
+          </div>
+
+          <p className="text-secondary/50 text-xs mt-4 text-center">
+            Built in 24 hours by Nathaniel Garelik &amp; Ben Verhaalen
           </p>
         </div>
       </section>
