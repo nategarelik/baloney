@@ -14,6 +14,16 @@ function scoreColor(score: number): string {
   return "#16a34a"; // human green
 }
 
+function statusLabel(status?: string): string {
+  switch (status) {
+    case "unavailable": return "Unavailable";
+    case "rate_limited": return "Rate Limited";
+    case "error": return "Error";
+    case "not_run": return "Not Run";
+    default: return "Unavailable";
+  }
+}
+
 function parsePipelineDescription(model: string): string | null {
   if (!model) return null;
   const parts: string[] = [];
@@ -34,12 +44,16 @@ function parsePipelineDescription(model: string): string | null {
 }
 
 export function MethodBreakdown({ methodScores, type, modelUsed }: MethodBreakdownProps) {
+  // Sort: available methods first (by weight desc), then unavailable methods (by weight desc)
   const entries = Object.entries(methodScores)
-    .filter(([, v]) => v.available)
-    .sort((a, b) => b[1].weight - a[1].weight);
+    .sort((a, b) => {
+      if (a[1].available !== b[1].available) return a[1].available ? -1 : 1;
+      return b[1].weight - a[1].weight;
+    });
 
   if (entries.length === 0) return null;
 
+  const availableCount = entries.filter(([, v]) => v.available).length;
   const pipelineDesc = modelUsed ? parsePipelineDescription(modelUsed) : null;
 
   return (
@@ -49,7 +63,7 @@ export function MethodBreakdown({ methodScores, type, modelUsed }: MethodBreakdo
       </h2>
       <p className="text-secondary/50 text-xs mb-1">
         {type === "text" ? "Text" : type === "image" ? "Image" : "Video"} detection
-        — {entries.length} signal{entries.length > 1 ? "s" : ""}
+        — {availableCount} of {entries.length} signal{entries.length > 1 ? "s" : ""} active
       </p>
       {pipelineDesc && (
         <p className="text-secondary/30 text-[10px] mb-4">
@@ -60,35 +74,49 @@ export function MethodBreakdown({ methodScores, type, modelUsed }: MethodBreakdo
 
       <div className="space-y-3">
         {entries.map(([key, method]) => {
-          const pct = Math.round(method.score * 100);
+          const isAvailable = method.available;
+          const pct = isAvailable ? Math.round(method.score * 100) : 0;
           const weightPct = Math.round(method.weight * 100);
-          const color = scoreColor(method.score);
+          const color = isAvailable ? scoreColor(method.score) : "#6b7280";
           const isSynthID = key.startsWith("synthid");
 
           return (
-            <div key={key}>
+            <div key={key} style={{ opacity: isAvailable ? 1 : 0.4 }}>
               <div className="flex items-center justify-between text-sm mb-1">
                 <span className="text-secondary/70 flex items-center gap-1.5">
                   {method.label}
-                  {isSynthID && (
+                  {isSynthID && isAvailable && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
                       WATERMARK
                     </span>
                   )}
                 </span>
                 <span className="text-secondary/50 text-xs tabular-nums">
-                  {pct}% AI · {weightPct}% weight
+                  {isAvailable
+                    ? `${pct}% AI · ${weightPct}% weight`
+                    : statusLabel(method.status)}
                 </span>
               </div>
               <div className="h-3 bg-secondary/8 rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-700 ease-out"
-                  style={{
-                    width: `${pct}%`,
-                    backgroundColor: color,
-                    opacity: 0.85,
-                  }}
-                />
+                {isAvailable ? (
+                  <div
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: color,
+                      opacity: 0.85,
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: "100%",
+                      backgroundColor: "#6b7280",
+                      opacity: 0.1,
+                    }}
+                  />
+                )}
               </div>
             </div>
           );
@@ -98,10 +126,10 @@ export function MethodBreakdown({ methodScores, type, modelUsed }: MethodBreakdo
       {/* Weight total sanity check */}
       <div className="mt-4 pt-3 border-t border-secondary/8 flex justify-between text-xs text-secondary/40">
         <span>
-          Ensemble: {entries.length} method{entries.length > 1 ? "s" : ""}
+          Ensemble: {availableCount} method{availableCount !== 1 ? "s" : ""} active
         </span>
         <span>
-          Total weight: {Math.round(entries.reduce((s, [, m]) => s + m.weight, 0) * 100)}%
+          Total weight: {Math.round(entries.filter(([, m]) => m.available).reduce((s, [, m]) => s + m.weight, 0) * 100)}%
         </span>
       </div>
     </div>

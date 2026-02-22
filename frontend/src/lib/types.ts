@@ -50,6 +50,7 @@ export interface MethodScore {
   weight: number;
   label: string;
   available: boolean;
+  status?: "success" | "unavailable" | "rate_limited" | "error" | "not_run";
 }
 
 export interface PangramWindow {

@@ -78,11 +78,15 @@ export async function detectImage(
   userId?: string,
   platform = "manual_upload",
 ): Promise<DetectionResult> {
-  return fetchApi<DetectionResult>("/api/detect/image", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image: base64Image, user_id: userId, platform }),
-  });
+  return fetchApi<DetectionResult>(
+    "/api/detect/image",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: base64Image, user_id: userId, platform }),
+    },
+    45_000,
+  );
 }
 
 export async function detectVideo(
@@ -90,11 +94,15 @@ export async function detectVideo(
   userId?: string,
   platform = "manual_upload",
 ): Promise<VideoDetectionResult> {
-  return fetchApi<VideoDetectionResult>("/api/detect/video", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ video: base64Video, user_id: userId, platform }),
-  });
+  return fetchApi<VideoDetectionResult>(
+    "/api/detect/video",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ video: base64Video, user_id: userId, platform }),
+    },
+    60_000,
+  );
 }
 
 export async function detectText(
@@ -102,11 +110,15 @@ export async function detectText(
   userId?: string,
   platform = "manual_upload",
 ): Promise<TextDetectionResult> {
-  return fetchApi<TextDetectionResult>("/api/detect/text", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, user_id: userId, platform }),
-  });
+  return fetchApi<TextDetectionResult>(
+    "/api/detect/text",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, user_id: userId, platform }),
+    },
+    45_000,
+  );
 }
 
 // ──────────────────────────────────────────────
