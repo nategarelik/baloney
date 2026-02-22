@@ -37,33 +37,34 @@ let settings = {
 };
 
 function loadSettings() {
-  chrome.storage.local.get(
-    [
-      "extensionEnabled",
-      "autoScanText",
-      "autoScanImages",
-      "autoScanVideos",
-      "contentMode",
-      "allowedSites",
-    ],
-    (data) => {
-      if (data.extensionEnabled !== undefined)
-        settings.extensionEnabled = data.extensionEnabled;
-      if (data.autoScanText !== undefined)
-        settings.autoScanText = data.autoScanText;
-      if (data.autoScanImages !== undefined)
-        settings.autoScanImages = data.autoScanImages;
-      if (data.autoScanVideos !== undefined)
-        settings.autoScanVideos = data.autoScanVideos;
-      if (data.contentMode !== undefined)
-        settings.contentMode = data.contentMode;
-      if (data.allowedSites !== undefined)
-        settings.allowedSites = data.allowedSites;
-    },
-  );
+  return new Promise((resolve) => {
+    chrome.storage.local.get(
+      [
+        "extensionEnabled",
+        "autoScanText",
+        "autoScanImages",
+        "autoScanVideos",
+        "contentMode",
+        "allowedSites",
+      ],
+      (data) => {
+        if (data.extensionEnabled !== undefined)
+          settings.extensionEnabled = data.extensionEnabled;
+        if (data.autoScanText !== undefined)
+          settings.autoScanText = data.autoScanText;
+        if (data.autoScanImages !== undefined)
+          settings.autoScanImages = data.autoScanImages;
+        if (data.autoScanVideos !== undefined)
+          settings.autoScanVideos = data.autoScanVideos;
+        if (data.contentMode !== undefined)
+          settings.contentMode = data.contentMode;
+        if (data.allowedSites !== undefined)
+          settings.allowedSites = data.allowedSites;
+        resolve();
+      },
+    );
+  });
 }
-
-loadSettings();
 
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.extensionEnabled)
@@ -73,10 +74,22 @@ chrome.storage.onChanged.addListener((changes) => {
     if (canAutoScanText()) startTextAutoScan();
     else stopTextAutoScan();
   }
-  if (changes.autoScanImages)
+  if (changes.autoScanImages) {
     settings.autoScanImages = changes.autoScanImages.newValue;
-  if (changes.autoScanVideos)
+    if (settings.autoScanImages && isEnabled() && isSiteAllowed()) {
+      document.querySelectorAll("img").forEach((img) => {
+        if (!img.dataset.baloneyScanned) viewportObserver.observe(img);
+      });
+    }
+  }
+  if (changes.autoScanVideos) {
     settings.autoScanVideos = changes.autoScanVideos.newValue;
+    if (settings.autoScanVideos && isEnabled() && isSiteAllowed()) {
+      document.querySelectorAll("video").forEach((vid) => {
+        if (!vid.dataset.baloneyScanned) viewportObserver.observe(vid);
+      });
+    }
+  }
   if (changes.contentMode) {
     settings.contentMode = changes.contentMode.newValue;
     reapplyContentMode();
@@ -1549,8 +1562,10 @@ if (
 // Start
 // ──────────────────────────────────────────────
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
-}
+loadSettings().then(() => {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+});
