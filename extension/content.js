@@ -519,6 +519,43 @@ function reapplyContentMode() {
 let flaggedItems = [];
 let pageIndicator = null;
 let pagePanel = null;
+let loadingIndicator = null;
+let hasFirstDetection = false;
+
+function createLoadingIndicator() {
+  if (loadingIndicator) return;
+
+  loadingIndicator = document.createElement("div");
+  loadingIndicator.className = "baloney-loading-indicator";
+
+  for (let i = 0; i < 3; i++) {
+    const dot = document.createElement("div");
+    dot.className = "baloney-loading-dot";
+    loadingIndicator.appendChild(dot);
+  }
+
+  document.body.appendChild(loadingIndicator);
+}
+
+function transitionToCounter() {
+  if (hasFirstDetection) return;
+  hasFirstDetection = true;
+
+  if (loadingIndicator) {
+    loadingIndicator.classList.add("baloney-loading-indicator--hidden");
+    loadingIndicator.addEventListener(
+      "transitionend",
+      () => {
+        loadingIndicator.remove();
+        loadingIndicator = null;
+      },
+      { once: true },
+    );
+  }
+
+  ensurePageIndicator();
+  pageIndicator.classList.add("baloney-page-indicator--fade-in");
+}
 
 function ensurePageIndicator() {
   if (pageIndicator) return;
@@ -584,11 +621,10 @@ function togglePagePanel() {
 }
 
 function addFlaggedItem(element, verdict, preview) {
+  transitionToCounter();
   if (verdict === "ai_generated" || verdict === "heavy_edit") {
     flaggedItems.push({ element, verdict, preview });
     updatePageIndicator();
-  } else {
-    ensurePageIndicator();
   }
 }
 
@@ -1266,7 +1302,7 @@ function init() {
     }
   });
 
-  ensurePageIndicator();
+  createLoadingIndicator();
 }
 
 // ──────────────────────────────────────────────
