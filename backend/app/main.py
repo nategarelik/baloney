@@ -95,8 +95,19 @@ def health():
         "text_device": str(TEXT_DEVICE),
         "image_device": str(IMG_DEVICE),
         "models_loaded": {
-            "text": ["deberta-v3-large", "roberta-openai", "roberta-chatgpt", "minilm-v2", "statistical"],
-            "image": ["vit-ai-detector", "sdxl-detector", "fft", "exif"],
+            "text": [
+                "deberta-v3-large (RAID #1)",
+                "superannotate-ai-detector (14 LLMs, 98-99% acc)",
+                "roberta-chatgpt (HC3 dataset)",
+                "minilm-v2 (sentence embeddings)",
+                "statistical (12 features)",
+            ],
+            "image": [
+                "siglip-deepfake-v1 (94.44% acc)",
+                "vit-deepfake-v2 (92.12% acc, 56k test)",
+                "fft (spectral analysis)",
+                "exif (metadata forensics)",
+            ],
         },
         "total_models": 9,
     }
