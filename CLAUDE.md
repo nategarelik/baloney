@@ -211,7 +211,7 @@ Detection badges match extension `styles.css` exactly:
 | `autoScanImages` | boolean | `true` |
 | `autoScanVideos` | boolean | `true` |
 | `contentMode` | `"scan"/"blur"/"block"` | `"scan"` |
-| `allowedSites` | string[] | `["x.com","twitter.com","linkedin.com","substack.com","reddit.com","facebook.com","instagram.com","medium.com","tiktok.com","threads.net","bsky.app","mastodon.social","news.ycombinator.com"]` |
+| `allowedSites` | string[] | `["x.com","linkedin.com","substack.com","reddit.com","facebook.com","instagram.com","medium.com","tiktok.com","threads.net"]` |
 | `sidepanelData` | object | null |
 
 ## Development
