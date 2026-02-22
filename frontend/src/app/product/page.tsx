@@ -23,40 +23,22 @@ const apiServices = [
     provider: "SightEngine API",
     desc: "Generative AI image detector purpose-built for content from Kling, Sora, Veo, DALL-E, Midjourney, Stable Diffusion, and other frontier models.",
   },
-  {
-    name: "Reality Defender",
-    provider: "Reality Defender API",
-    desc: "Specialized deepfake detection. Triggered on ambiguous SightEngine results for a second opinion on manipulated media.",
-  },
+  // Reality Defender commented out — primary APIs only
+  // {
+  //   name: "Reality Defender",
+  //   provider: "Reality Defender API",
+  //   desc: "Specialized deepfake detection. Triggered on ambiguous SightEngine results for a second opinion on manipulated media.",
+  // },
 ];
 
-const openSourceModels = [
-  {
-    name: "RoBERTa OpenAI Detector",
-    id: "openai-community/roberta-base-openai-detector",
-    desc: "Fine-tuned RoBERTa for GPT-family text detection. Primary open-source text signal.",
-  },
-  {
-    name: "ChatGPT Detector",
-    id: "Hello-SimpleAI/chatgpt-detector-roberta",
-    desc: "Dedicated ChatGPT-output classifier tuned for conversational AI patterns.",
-  },
-  {
-    name: "MiniLM-L6-v2",
-    id: "sentence-transformers/all-MiniLM-L6-v2",
-    desc: "Sentence-level embeddings that capture semantic patterns unique to LLM outputs.",
-  },
-  {
-    name: "AI Image Detector",
-    id: "umm-maybe/AI-image-detector",
-    desc: "ViT-based classifier trained on real vs. AI-generated image pairs.",
-  },
-  {
-    name: "SDXL Detector",
-    id: "Organika/sdxl-detector",
-    desc: "Specialized for Stable Diffusion XL outputs — catches the latest diffusion artifacts.",
-  },
-];
+// Open-source models commented out — primary APIs only
+// const openSourceModels = [
+//   { name: "RoBERTa OpenAI Detector", id: "openai-community/roberta-base-openai-detector", desc: "..." },
+//   { name: "ChatGPT Detector", id: "Hello-SimpleAI/chatgpt-detector-roberta", desc: "..." },
+//   { name: "MiniLM-L6-v2", id: "sentence-transformers/all-MiniLM-L6-v2", desc: "..." },
+//   { name: "AI Image Detector", id: "umm-maybe/AI-image-detector", desc: "..." },
+//   { name: "SDXL Detector", id: "Organika/sdxl-detector", desc: "..." },
+// ];
 
 const stats = [
   { label: "Scans Run", value: "[TBD]" },
@@ -236,13 +218,7 @@ export default function ProductPage() {
                   "Best-in-class commercial text detector. Excellent at catching subtly edited AI text that evades open-source models. If high confidence, use result and stop.",
                 exit: true,
               },
-              {
-                stage: "Stage 3",
-                label: "4-Method Ensemble (Fallback)",
-                detail:
-                  "RoBERTa + ChatGPT Detector + MiniLM Embeddings + Statistical Features. Only runs if stages 1-2 are inconclusive or unavailable. Weighted fusion produces the final verdict.",
-                exit: false,
-              },
+              // Stage 3 (HF Ensemble fallback) commented out — primary APIs only
             ].map((s) => (
               <div key={s.stage} className="bg-secondary/5 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -296,20 +272,7 @@ export default function ProductPage() {
                   "Commercial API purpose-built for detecting content from Kling, Sora, Veo, DALL-E, Midjourney, Stable Diffusion, and other frontier models. If high confidence, use result and stop.",
                 exit: true,
               },
-              {
-                stage: "Stage 3",
-                label: "Reality Defender (Deepfake)",
-                detail:
-                  "Only triggered on ambiguous SightEngine results. Specialized deepfake detection for a second opinion on manipulated media.",
-                exit: true,
-              },
-              {
-                stage: "Stage 4",
-                label: "4-Method Image Ensemble (Fallback)",
-                detail:
-                  "ViT + SDXL Detector + FFT/DCT + EXIF. HuggingFace fallback if APIs are unavailable.",
-                exit: false,
-              },
+              // Stage 3 (Reality Defender) and Stage 4 (HF Ensemble) commented out — primary APIs only
             ].map((s) => (
               <div key={s.stage} className="bg-secondary/5 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-1">
@@ -365,33 +328,7 @@ export default function ProductPage() {
           ))}
         </div>
 
-        {/* Open-Source Models */}
-        <h3 className="font-display text-lg text-secondary mb-4">
-          Open-Source Models
-        </h3>
-        <div className="grid sm:grid-cols-2 gap-6">
-          {openSourceModels.map((m) => (
-            <a
-              key={m.id}
-              href={`https://huggingface.co/${m.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6 hover:border-primary/30 transition-colors group"
-            >
-              <p className="font-display text-lg text-secondary group-hover:text-primary transition-colors mb-1">
-                {m.name}
-              </p>
-              <p className="text-secondary/40 text-xs font-mono mb-3">{m.id}</p>
-              <p className="text-secondary/70 text-sm leading-relaxed">
-                {m.desc}
-              </p>
-            </a>
-          ))}
-        </div>
-        <p className="text-secondary/50 text-xs text-center mt-6">
-          Open-source models are hosted on HuggingFace. Click any card to view
-          the model page.
-        </p>
+        {/* Open-Source Models — commented out (primary APIs only) */}
       </section>
 
       {/* ── 6. Detection Results ── */}
@@ -516,8 +453,8 @@ export default function ProductPage() {
               desc: "All detection runs on our server. No model weights or inference happen on your device.",
             },
             {
-              title: "Open-Source Models",
-              desc: "Every model we use is publicly available on HuggingFace. No black boxes.",
+              title: "Transparent Detection",
+              desc: "Commercial APIs with published accuracy benchmarks. Statistical analysis runs locally with open methodology.",
             },
             {
               title: "No Permanent Storage",

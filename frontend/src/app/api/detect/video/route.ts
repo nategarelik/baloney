@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import {
-  realVideoDetection,
-  methodS_sightEngineVideo,
-} from "@/lib/real-detectors";
-import { mockVideoResult } from "@/lib/mock-detectors";
+import { methodS_sightEngineVideo } from "@/lib/real-detectors";
+// import { mockVideoResult } from "@/lib/mock-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import crypto from "crypto";
 import type { VideoDetectionResult, Verdict } from "@/lib/types";
@@ -97,17 +94,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Fallback to multi-frame image analysis
+    // Multi-frame fallback commented out — primary APIs only
     if (!result) {
-      try {
-        result = await realVideoDetection(frameBase64s);
-      } catch (error) {
-        console.warn(
-          "[Baloney] Real video detection failed, using mock:",
-          error,
-        );
-        result = mockVideoResult();
-      }
+      return errorResponse("Video detection unavailable", 500);
     }
 
     const duration = Date.now() - start;
