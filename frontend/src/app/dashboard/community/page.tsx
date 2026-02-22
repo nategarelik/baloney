@@ -16,12 +16,8 @@ import { ChartCard } from "@/components/ChartCard";
 import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { getCommunityAnalytics, getAllScans } from "@/lib/api";
 import type { CommunityAnalytics, ScanRecord } from "@/lib/types";
-import { SlopIndexCard } from "../SlopIndexCard";
-import { InformationDietCard } from "../InformationDietCard";
 import { AuthenticityRadar } from "../AuthenticityRadar";
 import { SlopClock } from "../SlopClock";
-import { ConfidenceConviction } from "../ConfidenceConviction";
-import { ContaminationMap } from "../ContaminationMap";
 import { ContentFlowSankey } from "../ContentFlowSankey";
 import { ViralTrajectory } from "../ViralTrajectory";
 import { SentinelBoard } from "../SentinelBoard";
@@ -274,12 +270,6 @@ export default function CommunityDashboardPage() {
           <SlopClock />
         </div>
 
-        {/* ── Confidence vs Conviction + Contamination Map ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <ConfidenceConviction scans={scans} />
-          <ContaminationMap />
-        </div>
-
         {/* ── Content Flow (full-width) ── */}
         <div className="mt-6">
           <ContentFlowSankey />
@@ -289,12 +279,6 @@ export default function CommunityDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <ViralTrajectory />
           <SentinelBoard />
-        </div>
-
-        {/* ── AI Slop Index + Information Diet Score ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          <SlopIndexCard />
-          <InformationDietCard />
         </div>
       </div>
     </main>
