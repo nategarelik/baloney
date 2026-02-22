@@ -6,6 +6,8 @@ import {
   useReducer,
   useCallback,
   useMemo,
+  useState,
+  useEffect,
 } from "react";
 import { createPortal } from "react-dom";
 import { Toast, type ToastData, type ToastType } from "./Toast";
@@ -41,6 +43,9 @@ function reducer(state: ToastData[], action: Action): ToastData[] {
 let toastCounter = 0;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const [toasts, dispatch] = useReducer(reducer, []);
 
   const addToast = useCallback((type: ToastType, message: string) => {
@@ -60,7 +65,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastActionsContext.Provider value={actions}>
       {children}
-      {typeof document !== "undefined" &&
+      {mounted &&
         createPortal(
           <div
             aria-live="polite"
