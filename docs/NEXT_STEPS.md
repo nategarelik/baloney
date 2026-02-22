@@ -38,14 +38,21 @@ The core innovation is not any single detector but the **ensemble architecture w
 
 ### Pangram Labs (Text Detection — 99.85% accuracy)
 
-| Item | Detail |
-|------|--------|
-| Free tier | 4 requests/day (exhausted immediately at scale) |
-| Paid plans | Subscription-based; volume pricing is enterprise-negotiated |
-| Commercial use | Allowed under subscription |
-| Reselling | No explicit reseller rights in public TOS; enterprise agreement required |
-| Data rights | Does NOT train on submitted data. Content deleted within 30 days of account closure. No third-party sharing. |
-| Key risk | At 1,000 users doing 10 text scans/day = 10,000 calls/day. Free tier is immediately exhausted. **Contact Pangram for enterprise pricing before any public launch.** |
+| Plan | Price | Included |
+|------|-------|---------|
+| Free | $0 | 4 checks/day, UI only (no API key) |
+| Individual/Premium | ~$12.50–$20/month | ~600 scans/month |
+| Professional | ~$37.50/month | ~3,000 scans/month |
+| Developer (API) | ~$100/month | API key access |
+| Educational | ~$5/month | Unlimited checks |
+| Enterprise | Custom | Custom volume |
+
+Each "scan" covers 1,000 words. Annual billing discounts of ~25%. Verify current rates at pangram.com/pricing — the tier table does not render to scrapers.
+
+- **Commercial use:** Allowed, but only a **"limited, non-exclusive, non-transferable, non-sublicensable, revocable license"** for internal business purposes. No redistribution, sublicensing, or resale under standard ToS.
+- **Reselling:** Explicitly requires a separate enterprise/OEM agreement. Contact info@pangram.com.
+- **Data rights:** Does NOT train on submitted data — explicit, permanent commitment. No cross-user comparison of submissions (unlike Turnitin). Deletion on request to privacy@pangram.com. Governed by New York State law.
+- **Key risk:** At 1,000 users doing 10 text scans/day = 10,000 calls/day. Free tier (4/day, UI only) is useless at scale. Developer API is ~$100/month for low volume. **Contact Pangram for enterprise pricing before any public launch. This is a long sales cycle.**
 
 ---
 
@@ -59,9 +66,10 @@ The core innovation is not any single detector but the **ensemble architecture w
 | Pro | $399 | 200,000 | $0.0015/op |
 | Enterprise | Custom | Custom | Negotiated |
 
-- **Commercial use:** Permitted under subscription
-- **Reselling:** TOS prohibits making the API available directly to third parties; building products that call SightEngine behind the scenes is allowed
-- **Data retention:** Images processed and discarded; not stored long-term
+- **Commercial use:** Permitted — TOS explicitly allows building integrated products. The carve-out language: you may not "sell, resell, license, sublicense, distribute...the Services **except as integrated with its own offerings that provide additional functionality to its end users.**" Meaning: you CAN build a product on top of SightEngine if it genuinely adds value. You CANNOT simply proxy raw API calls as your product.
+- **Reselling:** Raw resale prohibited. Your product must add real functionality — own UI, workflow, or logic on top.
+- **Data retention:** SightEngine is incorporated in France and subject to GDPR as a data processor. They do not publish a specific numeric retention window post-processing. Clarify via DPA or support contact before handling regulated user data.
+- **GDPR note:** You (Baloney) are the data controller. You bear responsibility for obtaining appropriate consent from users before sending their content to SightEngine.
 
 **Cost model at scale:**
 
@@ -81,8 +89,11 @@ The core innovation is not any single detector but the **ensemble architecture w
 | SynthID Text (HuggingFace model) | Free to self-host | Apache 2.0 |
 | SynthID Image (Vertex AI endpoint) | ~$0.001–$0.003/image | Standard GCP ToS |
 
-- **Commercial use:** Fully permitted
-- **Key risk:** Our Railway-hosted SynthID backend is on a free tier; at scale it needs a dedicated GPU instance. The Vertex AI image endpoint accrues real GCP costs.
+**Critical clarification:** SynthID only detects content watermarked by Google's own models (Gemini text, Imagen images, Veo video, Lyria audio). It returns "Watermarked", "Not Watermarked", or "Uncertain". A "Not Watermarked" result does NOT mean content is human-made — it means it wasn't made by a Google AI model. This must be clearly communicated in the UI. The signal is an early-exit positive indicator, not a negative proof.
+
+- **Commercial use:** Fully permitted under standard GCP ToS. You own AI-generated output.
+- **Pre-GA warning:** Do NOT process personal data through Pre-GA (Alpha/Beta) endpoints. The GCP Data Processing Addendum explicitly excludes coverage for pre-GA services. Confirm GA status of any SynthID endpoint before handling regulated data.
+- **Key risk:** Our Railway-hosted SynthID backend is on a free tier; at scale it needs a dedicated GPU instance. The Vertex AI image endpoint accrues real GCP costs. Rate limits are quota-managed and can be raised via GCP Console.
 - **Opportunity:** SynthID text is the highest-value signal at zero per-call cost. Invest in a robust self-hosted deployment.
 
 ---
@@ -109,22 +120,29 @@ The core innovation is not any single detector but the **ensemble architecture w
 
 1. **Privacy Policy** — Must be publicly hosted and linked in the listing. Must disclose: what data is collected (UUID, scan metadata, content hashes), where it goes (Supabase), retention periods, opt-in community sharing mechanics, and that raw content is never stored.
 
-2. **Permissions Justification** — `<all_urls>` host permission (used for image fetching) requires explicit disclosure in the listing description.
+2. **In-Product Disclosure (Critical — not just a privacy policy link)** — This is the most commonly missed requirement. Google requires that if the extension collects personal or sensitive data not immediately obvious from the store listing, you must show a disclosure **within the extension's own UI** before collecting that data, and obtain **explicit affirmative consent**. A privacy policy link alone does not satisfy this requirement. For Baloney: before the first scan, the extension must show the user what data will be collected and sent to third-party APIs (Pangram, SightEngine, SynthID), and they must actively consent.
 
-3. **Data Use Disclosure** — Google's "Data Use" section in the developer dashboard must accurately declare user activity collection and website content interaction (hashed only).
+3. **Developer Dashboard Certification** — Google's Data Use section in the Developer Dashboard must be completed before publishing. If not completed, users see a warning that the extension has not provided data disclosure. This is a hard block on adoption.
 
-4. **Manifest V3** — Already using MV3. ✓
+4. **Permissions Justification** — `<all_urls>` host permission (used for image fetching) requires explicit disclosure in the listing description explaining why it is necessary.
 
-5. **Single Purpose** — "AI content detection while browsing" is clear and defensible. ✓
+5. **Limited Use Policy** — Data collected may only be used for the stated detection purpose. Prohibited: transferring data to advertising platforms, data brokers, or using it for credit/lending decisions.
 
-6. **Developer Verification** — Two-step verification required on the developer account.
+6. **Manifest V3** — Already using MV3. ✓
+
+7. **Single Purpose** — "AI content detection while browsing" is clear and defensible. ✓
+
+8. **Developer Verification** — Two-step verification required on the developer account.
+
+9. **Code Readability** — Code must be reviewable by Google. Minification is allowed; obfuscation is not. Do not obfuscate the extension code.
 
 ### Things That Could Cause Rejection
 
+- Missing in-product consent UI before first data collection (most common rejection reason for data-collecting extensions)
 - `<all_urls>` without clear justification in the listing description
-- Missing or vague privacy policy
-- Ambiguous data collection disclosure (be explicit that content is hashed, not stored raw)
+- Missing or incomplete Developer Dashboard data disclosure certification
 - Any runtime loading of external scripts (MV3 largely prevents this, but verify)
+- Extensions harvesting AI chatbot conversation text face heightened enforcement scrutiny (a December 2025 wave of removals targeted exactly this pattern)
 
 ### Chrome Web Store One-Time Developer Fee
 $5 one-time registration fee.
