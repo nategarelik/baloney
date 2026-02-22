@@ -50,6 +50,10 @@ class BatchTextRequest(BaseModel):
     texts: list[str]
     url: str | None = None
 
+class PhishingRequest(BaseModel):
+    html: str
+    url: str | None = None
+
 
 # ── Routes ────────────────────────────────────────────────────────
 
@@ -111,4 +115,15 @@ async def analyze_image(file: UploadFile = File(...)):
     from app.services.image_detector import detect_image
     image_bytes = await file.read()
     result = await detect_image(image_bytes)
+    return result
+
+
+@app.post("/api/detect-phishing")
+def detect_phishing(req: PhishingRequest):
+    """
+    Classify a webpage as phishing, suspicious, or legitimate.
+    Extracts 80+ features from raw HTML source and URL.
+    """
+    from app.services.phishing_detector import classify_phishing
+    result = classify_phishing(req.html, req.url or "")
     return result
