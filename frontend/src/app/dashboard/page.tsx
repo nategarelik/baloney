@@ -1,31 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { BarChart3, Bot, Percent } from "lucide-react";
 import { ChartCard } from "@/components/ChartCard";
 import { AiRateBySiteChart } from "./AiRateBySiteChart";
 import { RecentScansTable } from "./RecentScansTable";
-import { DEMO_USER_ID } from "@/lib/constants";
-import { getMyScans } from "@/lib/api";
+import { getAllScans } from "@/lib/api";
 import type { ScanRecord } from "@/lib/types";
 
 export default function DashboardPage() {
   const [scans, setScans] = useState<ScanRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await getMyScans(DEMO_USER_ID, 200);
-        setScans(res.scans);
-      } catch (err) {
-        console.error("Failed to fetch scans:", err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await getAllScans(200);
+      setScans(res.scans);
+    } catch (err) {
+      console.error("Failed to fetch scans:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 15_000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   const totalScans = scans.length;
   const aiDetected = scans.filter(
@@ -38,7 +40,7 @@ export default function DashboardPage() {
       <div className="max-w-6xl mx-auto px-6 pt-8 pb-16 page-top-offset">
         <h1 className="text-3xl font-display text-secondary mb-2">Dashboard</h1>
         <p className="text-secondary/50 text-sm mb-6">
-          Your AI content detection analytics
+          Live AI content detection analytics from all Baloney users
         </p>
 
         {/* ── 3 stat cards ── */}

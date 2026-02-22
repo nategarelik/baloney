@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Users, TrendingUp, BarChart3 } from "lucide-react";
 import {
   BarChart,
@@ -39,19 +39,22 @@ export default function CommunityDashboardPage() {
   const [analytics, setAnalytics] = useState<CommunityAnalytics | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await getCommunityAnalytics();
-        setAnalytics(res);
-      } catch (err) {
-        console.error("Failed to fetch community data:", err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await getCommunityAnalytics();
+      setAnalytics(res);
+    } catch (err) {
+      console.error("Failed to fetch community data:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 15_000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   const platformData = (analytics?.by_platform ?? []).map((d) => ({
     platform: PLATFORM_LABELS[d.platform] ?? d.platform,
@@ -171,10 +174,7 @@ export default function CommunityDashboardPage() {
           </ChartCard>
 
           {/* By Medium */}
-          <ChartCard
-            title="By Medium"
-            subtitle="AI vs Human content per type"
-          >
+          <ChartCard title="By Medium" subtitle="AI vs Human content per type">
             {loading ? (
               <div className="h-64 animate-pulse bg-secondary/5 rounded-lg" />
             ) : contentTypeData.length === 0 ? (

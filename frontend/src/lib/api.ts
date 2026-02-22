@@ -123,6 +123,10 @@ export async function getMyScans(
   );
 }
 
+export async function getAllScans(limit = 200): Promise<ScansResponse> {
+  return fetchApi<ScansResponse>(`/api/scans/all?limit=${limit}`);
+}
+
 // ──────────────────────────────────────────────
 // Analytics
 // ──────────────────────────────────────────────
