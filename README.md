@@ -337,8 +337,8 @@ The community edition is fully open source. Pro detection methods are available 
 
 ## Team
 
-- **Nathaniel Garelik** — Full Stack, Product Owner
-- **Ben Verhaalen** — Frontend Design, UI/UX
+- **Nathaniel Garelik**
+- **Ben Verhaalen**
 
 ---
 
