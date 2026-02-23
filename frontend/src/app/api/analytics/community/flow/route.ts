@@ -1,7 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { requireAuth, isAuthError } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
+
   const { data: scans } = await supabase
     .from("scans")
     .select("content_type, platform, verdict");
@@ -10,7 +14,7 @@ export async function GET() {
     return NextResponse.json({ nodes: [], links: [] });
   }
 
-  // Count flows: content_type → platform → verdict
+  // Count flows: content_type -> platform -> verdict
   const ctToPlatform: Record<string, number> = {};
   const platformToVerdict: Record<string, number> = {};
 
@@ -27,10 +31,10 @@ export async function GET() {
     platforms.add(p);
     verdicts.add(v);
 
-    const key1 = `${ct}→${p}`;
+    const key1 = `${ct}\u2192${p}`;
     ctToPlatform[key1] = (ctToPlatform[key1] ?? 0) + 1;
 
-    const key2 = `${p}→${v}`;
+    const key2 = `${p}\u2192${v}`;
     platformToVerdict[key2] = (platformToVerdict[key2] ?? 0) + 1;
   }
 
@@ -53,7 +57,7 @@ export async function GET() {
   const links = [];
 
   for (const [key, value] of Object.entries(ctToPlatform)) {
-    const [ct, p] = key.split("→");
+    const [ct, p] = key.split("\u2192");
     if (p === "demo_feed") continue;
     const sourceIdx = ctArr.indexOf(ct);
     const targetIdx = ctArr.length + pArr.indexOf(p);
@@ -63,7 +67,7 @@ export async function GET() {
   }
 
   for (const [key, value] of Object.entries(platformToVerdict)) {
-    const [p, v] = key.split("→");
+    const [p, v] = key.split("\u2192");
     if (p === "demo_feed") continue;
     const sourceIdx = ctArr.length + pArr.indexOf(p);
     const targetIdx = ctArr.length + pArr.length + vArr.indexOf(v);

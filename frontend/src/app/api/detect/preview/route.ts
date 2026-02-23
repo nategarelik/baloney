@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { realTextDetection } from "@/lib/real-detectors";
 import { errorResponse } from "@/lib/api-utils";
 import { API_LIMITS } from "@/lib/constants";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ...result, platform: platform || "unknown", preview: true });
   } catch (err) {
-    console.error("Preview detection error:", err);
+    logger.error("detect/preview", "Preview detection failed", err);
     return errorResponse("Preview detection failed", 500);
   }
 }

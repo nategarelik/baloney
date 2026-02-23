@@ -17,7 +17,7 @@
   ],
 
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.js"
   },
 
   "content_scripts": [
@@ -25,11 +25,15 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["content.js"],
+      "js": ["dist/content.js"],
       "css": ["styles.css"],
       "run_at": "document_idle"
     }
   ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
 
   "action": {
     "default_popup": "popup.html",

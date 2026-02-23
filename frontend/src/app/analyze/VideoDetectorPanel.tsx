@@ -124,7 +124,6 @@ export function VideoDetectorPanel({
         try {
           const data = await detectVideo(
             base64,
-            userId,
             "manual_upload",
             controller.signal,
           );

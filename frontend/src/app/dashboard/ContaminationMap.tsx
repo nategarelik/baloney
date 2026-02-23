@@ -44,7 +44,17 @@ function getColor(rate: number): string {
 // Custom tile renderer
 // ──────────────────────────────────────────────
 
-const CustomTreemapContent = (props: any) => {
+interface TreemapContentProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  name: string;
+  ai_rate?: number;
+  platform?: string;
+}
+
+const CustomTreemapContent = (props: TreemapContentProps) => {
   const { x, y, width, height, name, ai_rate, platform } = props;
   if (width < 20 || height < 20) return null;
 
@@ -173,7 +183,7 @@ export function ContaminationMap() {
           dataKey="size"
           aspectRatio={4 / 3}
           stroke="#f0e6ca"
-          content={<CustomTreemapContent />}
+          content={<CustomTreemapContent x={0} y={0} width={0} height={0} name="" />}
         >
           <Tooltip contentStyle={CHART_TOOLTIP_STYLE} />
         </Treemap>

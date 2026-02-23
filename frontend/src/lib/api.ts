@@ -40,6 +40,7 @@ export class ApiError extends Error {
 
 // ──────────────────────────────────────────────
 // Fetch helper with timeout + typed errors
+// Auth is handled automatically via cookies (Supabase SSR)
 // ──────────────────────────────────────────────
 
 async function fetchApi<T>(
@@ -63,7 +64,11 @@ async function fetchApi<T>(
   }
 
   try {
-    const res = await fetch(url, { ...init, signal: controller.signal });
+    const res = await fetch(url, {
+      ...init,
+      signal: controller.signal,
+      credentials: "same-origin",
+    });
 
     if (!res.ok) {
       let body: ErrorResponse | null = null;
@@ -91,7 +96,6 @@ async function fetchApi<T>(
 
 export async function detectImage(
   base64Image: string,
-  userId?: string,
   platform = "manual_upload",
   signal?: AbortSignal,
 ): Promise<DetectionResult> {
@@ -100,7 +104,7 @@ export async function detectImage(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ image: base64Image, user_id: userId, platform }),
+      body: JSON.stringify({ image: base64Image, platform }),
     },
     45_000,
     signal,
@@ -109,7 +113,6 @@ export async function detectImage(
 
 export async function detectVideo(
   base64Video: string,
-  userId?: string,
   platform = "manual_upload",
   signal?: AbortSignal,
 ): Promise<VideoDetectionResult> {
@@ -118,7 +121,7 @@ export async function detectVideo(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ video: base64Video, user_id: userId, platform }),
+      body: JSON.stringify({ video: base64Video, platform }),
     },
     60_000,
     signal,
@@ -127,7 +130,6 @@ export async function detectVideo(
 
 export async function detectText(
   text: string,
-  userId?: string,
   platform = "manual_upload",
   signal?: AbortSignal,
 ): Promise<TextDetectionResult> {
@@ -136,7 +138,7 @@ export async function detectText(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, user_id: userId, platform }),
+      body: JSON.stringify({ text, platform }),
     },
     45_000,
     signal,
@@ -148,12 +150,11 @@ export async function detectText(
 // ──────────────────────────────────────────────
 
 export async function getMyScans(
-  userId: string,
   limit = 50,
   offset = 0,
 ): Promise<ScansResponse> {
   return fetchApi<ScansResponse>(
-    `/api/scans/me?user_id=${userId}&limit=${limit}&offset=${offset}`,
+    `/api/scans/me?limit=${limit}&offset=${offset}`,
   );
 }
 
@@ -165,12 +166,8 @@ export async function getAllScans(limit = 200): Promise<ScansResponse> {
 // Analytics
 // ──────────────────────────────────────────────
 
-export async function getPersonalAnalytics(
-  userId: string,
-): Promise<PersonalAnalytics> {
-  return fetchApi<PersonalAnalytics>(
-    `/api/analytics/personal?user_id=${userId}`,
-  );
+export async function getPersonalAnalytics(): Promise<PersonalAnalytics> {
+  return fetchApi<PersonalAnalytics>("/api/analytics/personal");
 }
 
 export async function getCommunityAnalytics(): Promise<CommunityAnalytics> {
@@ -196,18 +193,17 @@ export async function getDomainLeaderboard(
 // ──────────────────────────────────────────────
 
 export async function toggleSharing(
-  userId: string,
   enabled: boolean,
 ): Promise<SharingToggleResponse> {
   return fetchApi<SharingToggleResponse>("/api/sharing/toggle", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, enabled }),
+    body: JSON.stringify({ enabled }),
   });
 }
 
-export async function getSharingStatus(userId: string): Promise<SharingStatus> {
-  return fetchApi<SharingStatus>(`/api/sharing/status?user_id=${userId}`);
+export async function getSharingStatus(): Promise<SharingStatus> {
+  return fetchApi<SharingStatus>("/api/sharing/status");
 }
 
 // ──────────────────────────────────────────────
@@ -218,8 +214,8 @@ export async function getSlopIndex(): Promise<SlopIndexEntry[]> {
   return fetchApi<SlopIndexEntry[]>("/api/slop-index");
 }
 
-export async function getExposureScore(userId: string): Promise<ExposureScore> {
-  return fetchApi<ExposureScore>(`/api/exposure-score?user_id=${userId}`);
+export async function getExposureScore(): Promise<ExposureScore> {
+  return fetchApi<ExposureScore>("/api/exposure-score");
 }
 
 export async function getTopProvenance(
@@ -229,7 +225,7 @@ export async function getTopProvenance(
 }
 
 // ──────────────────────────────────────────────
-// Preview
+// Preview (public — no auth required)
 // ──────────────────────────────────────────────
 
 export async function detectPreview(

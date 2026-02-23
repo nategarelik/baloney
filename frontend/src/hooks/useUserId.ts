@@ -1,30 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { DEMO_USER_ID } from "@/lib/constants";
 
-const STORAGE_KEY = "baloney-user-id";
-
+/**
+ * Returns the authenticated user's ID, or DEMO_USER_ID for unauthenticated visitors.
+ * This replaces the old localStorage-based approach with Supabase auth.
+ */
 export function useUserId(): string {
-  // Always start with DEMO_USER_ID to avoid SSR hydration mismatch,
-  // then update from localStorage in useEffect (client-only)
-  const [userId, setUserId] = useState(DEMO_USER_ID);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setUserId(stored);
-    } catch {}
-
-    function handleReady(e: Event) {
-      const detail = (e as CustomEvent).detail;
-      if (detail?.userId) {
-        setUserId(detail.userId);
-      }
-    }
-    window.addEventListener("baloney-userid-ready", handleReady);
-    return () => window.removeEventListener("baloney-userid-ready", handleReady);
-  }, []);
-
-  return userId;
+  const { user } = useAuth();
+  return user?.id ?? DEMO_USER_ID;
 }

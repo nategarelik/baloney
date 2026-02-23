@@ -126,7 +126,6 @@ export function ImageDetectorPanel({
         try {
           const data = await detectImage(
             base64,
-            userId,
             "manual_upload",
             controller.signal,
           );
