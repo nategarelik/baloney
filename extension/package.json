@@ -1,0 +1,14 @@
+{
+  "name": "baloney-extension",
+  "version": "0.5.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild src/content.ts src/background.ts --bundle --outdir=dist --format=iife --target=chrome114",
+    "watch": "esbuild src/content.ts src/background.ts --bundle --outdir=dist --format=iife --target=chrome114 --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

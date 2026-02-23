@@ -359,6 +359,23 @@
       font-size: 10px;
       color: rgba(74,55,40,0.35);
     }
+    .winner-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(232,201,122,0.25), rgba(212,69,107,0.12));
+      border: 1px solid rgba(232,201,122,0.4);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin-bottom: 14px;
+    }
+    .winner-badge-icon { font-size: 14px; }
+    .winner-badge-text {
+      font-size: 11px;
+      font-weight: 600;
+      color: #4a3728;
+    }
   </style>
 </head>
 <body>
@@ -377,6 +394,12 @@
   </div>
 
   <div class="body-content" id="body-content">
+    <!-- Winner Badge -->
+    <div class="winner-badge">
+      <span class="winner-badge-icon">&#127942;</span>
+      <span class="winner-badge-text">1st Place &mdash; MAD Data 2026</span>
+    </div>
+
     <!-- Stats -->
     <div class="stats">
       <div class="stat-card pink">

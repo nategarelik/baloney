@@ -277,7 +277,6 @@ function TextPanel({
     try {
       const data = await detectText(
         text,
-        userId,
         "manual_upload",
         controller.signal,
       );

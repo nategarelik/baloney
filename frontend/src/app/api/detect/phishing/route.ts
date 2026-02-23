@@ -1,11 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { classifyPhishing } from "@/lib/phishing-detector";
 import { errorResponse } from "@/lib/api-utils";
+import { requireAuth, isAuthError } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 const MAX_HTML_LENGTH = 2_000_000; // 2MB max HTML input
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req);
+    if (isAuthError(auth)) return auth;
+
     const body = await req.json();
     const { html, url } = body;
 
@@ -29,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err) {
-    console.error("Phishing detection error:", err);
+    logger.error("detect/phishing", "Phishing detection failed", err);
     return errorResponse("Phishing detection failed", 500);
   }
 }

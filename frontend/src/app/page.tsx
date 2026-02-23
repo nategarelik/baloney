@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MadDataWinner } from "@/components/MadDataWinner";
 
 const CHROME_STORE_URL =
   "https://github.com/nategarelik/baloney/tree/master/extension";
@@ -117,9 +118,15 @@ export default function Home() {
         >
           {/* Left column — headline + CTA */}
           <div className="max-w-lg pt-24 pb-16">
+            <div
+              className="mb-4 opacity-0"
+              style={{ animation: "hero-fade-in 0.7s ease-out 0s forwards" }}
+            >
+              <MadDataWinner variant="banner" />
+            </div>
             <h1
               className="font-display text-5xl md:text-6xl text-secondary leading-[1.1] mb-5 opacity-0"
-              style={{ animation: "hero-fade-in 0.7s ease-out 0s forwards" }}
+              style={{ animation: "hero-fade-in 0.7s ease-out 0.1s forwards" }}
             >
               Cut The Baloney
             </h1>

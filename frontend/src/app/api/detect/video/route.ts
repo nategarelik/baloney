@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { methodS_sightEngineVideo } from "@/lib/real-detectors";
+import { getProVideoMethods } from "@/lib/detection/pro-loader";
 import { errorResponse, validatePlatform } from "@/lib/api-utils";
+import { requireAuth, isAuthError } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import crypto from "crypto";
 import type { VideoDetectionResult, Verdict } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireAuth(req);
+    if (isAuthError(auth)) return auth;
+
     const body = await req.json();
-    const { video, frames, user_id } = body;
+    const { video, frames } = body;
     const platform = validatePlatform(body.platform);
+    const userId = auth.userId;
 
     // v2.0: Accept either a single video base64 or an array of frame base64s
     const frameBase64s: string[] = [];
@@ -44,7 +50,8 @@ export async function POST(req: NextRequest) {
         const videoBlob = new Blob([new Uint8Array(videoBytes)], {
           type: videoMime,
         });
-        const seResult = await methodS_sightEngineVideo(videoBlob);
+        const proVideo = await getProVideoMethods();
+        const seResult = proVideo ? await proVideo.methodS_sightEngineVideo(videoBlob) : null;
 
         if (seResult) {
           const score = seResult.ai_generated_score;
@@ -89,10 +96,7 @@ export async function POST(req: NextRequest) {
           };
         }
       } catch (e) {
-        console.warn(
-          "[Baloney] SightEngine native video failed, falling back:",
-          e,
-        );
+        logger.warn("detect/video", "SightEngine native video failed, falling back", e);
       }
     }
 
@@ -129,7 +133,7 @@ export async function POST(req: NextRequest) {
             : {},
         };
       } catch (e) {
-        console.warn("[Baloney] Frame fallback also failed:", e);
+        logger.warn("detect/video", "Frame fallback also failed", e);
       }
     }
 
@@ -144,27 +148,25 @@ export async function POST(req: NextRequest) {
       .update(frameBase64s[0].slice(0, 1000))
       .digest("hex");
 
-    if (user_id) {
-      await supabase.rpc("record_scan_with_provenance", {
-        p_user_id: user_id,
-        p_content_type: "video",
-        p_platform: platform,
-        p_verdict: result.verdict,
-        p_confidence: result.confidence,
-        p_model_used: result.model_used,
-        p_source_domain: null,
-        p_content_category: "video",
-        p_content_hash: contentHash,
-        p_scan_duration_ms: duration,
-        p_trust_score: 1 - result.confidence,
-        p_classification: result.verdict,
-        p_edit_magnitude: result.ai_frame_percentage,
-      });
-    }
+    await supabase.rpc("record_scan_with_provenance", {
+      p_user_id: userId,
+      p_content_type: "video",
+      p_platform: platform,
+      p_verdict: result.verdict,
+      p_confidence: result.confidence,
+      p_model_used: result.model_used,
+      p_source_domain: null,
+      p_content_category: "video",
+      p_content_hash: contentHash,
+      p_scan_duration_ms: duration,
+      p_trust_score: 1 - result.confidence,
+      p_classification: result.verdict,
+      p_edit_magnitude: result.ai_frame_percentage,
+    });
 
     return NextResponse.json({ ...result, scan_id: contentHash.slice(0, 8) });
   } catch (err) {
-    console.error("Video detection error:", err);
+    logger.error("detect/video", "Video detection failed", err);
     return errorResponse("Detection failed", 500);
   }
 }

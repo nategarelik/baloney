@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { getAvailableMethods, getEdition } from "@/lib/edition";
 import type { HealthResponse } from "@/lib/types";
 
 export async function GET() {
@@ -12,10 +13,17 @@ export async function GET() {
     status = "degraded";
   }
 
-  const response: HealthResponse = {
+  const methods = getAvailableMethods();
+
+  const response: HealthResponse & {
+    edition: string;
+    methods: ReturnType<typeof getAvailableMethods>;
+  } = {
     status,
     timestamp: new Date().toISOString(),
-    version: "0.1.0",
+    version: "1.0.0",
+    edition: getEdition(),
+    methods,
   };
 
   return NextResponse.json(response);

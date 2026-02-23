@@ -41,7 +41,7 @@ export default function FeedPage() {
             reader.readAsDataURL(blob);
           });
 
-          return detectImage(base64, userId, post.platform);
+          return detectImage(base64, post.platform);
         });
 
         const detectionResult = result as DetectionResult;

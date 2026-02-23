@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { errorResponse, clampInt } from "@/lib/api-utils";
+import { clampInt } from "@/lib/api-utils";
+import { requireAuth, isAuthError } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("user_id");
-  if (!userId) {
-    return errorResponse("user_id required", 400);
-  }
+  const auth = await requireAuth(req);
+  if (isAuthError(auth)) return auth;
 
+  const userId = auth.userId;
   const limit = clampInt(req.nextUrl.searchParams.get("limit"), 50, 1, 200);
   const offset = clampInt(req.nextUrl.searchParams.get("offset"), 0, 0, 10_000);
 

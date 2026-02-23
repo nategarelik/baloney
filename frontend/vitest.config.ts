@@ -10,11 +10,21 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     testTimeout: 60000,
+    setupFiles: ["src/__tests__/setup.ts"],
     coverage: {
       provider: "v8",
-      include: ["src/lib/real-detectors.ts", "src/lib/mock-detectors.ts"],
+      include: [
+        "src/lib/**/*.ts",
+        "src/app/api/**/*.ts",
+      ],
+      exclude: [
+        "src/lib/detection-config.ts",
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "src/__tests__/**",
+      ],
     },
   },
 });

@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
 
+import { logger } from "@/lib/logger";
+
 const SEED_SECRET = process.env.SEED_SECRET;
 if (!SEED_SECRET) {
-  console.error("[Baloney] SEED_SECRET env var is required");
+  logger.error("seed", "SEED_SECRET env var is required");
 }
 
 const PLATFORMS: Record<string, { weight: number; ai_rate: number }> = {

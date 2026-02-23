@@ -13,7 +13,16 @@ import { ChartCard } from "@/components/ChartCard";
 import { CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import type { FlowData } from "@/lib/types";
 
-const SankeyNode = ({ x, y, width, height, index, payload }: any) => {
+interface SankeyNodeProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  index: number;
+  payload: { name: string };
+}
+
+const SankeyNode = ({ x, y, width, height, index, payload }: SankeyNodeProps) => {
   const nodeColors: Record<string, string> = {
     Text: "#8B5CF6",
     Image: "#3B82F6",
@@ -102,7 +111,7 @@ export function ContentFlowSankey() {
           nodeWidth={12}
           margin={{ top: 10, right: 30, bottom: 10, left: 30 }}
           link={{ stroke: "rgba(74,55,40,0.15)" }}
-          node={<SankeyNode />}
+          node={<SankeyNode x={0} y={0} width={0} height={0} index={0} payload={{ name: "" }} />}
         >
           <Tooltip
             contentStyle={CHART_TOOLTIP_STYLE}

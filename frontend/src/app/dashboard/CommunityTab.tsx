@@ -110,7 +110,7 @@ export function CommunityTab({
       </ChartCard>
 
       {/* Share toggle */}
-      <ShareToggle userId={userId} />
+      <ShareToggle />
     </div>
   );
 }

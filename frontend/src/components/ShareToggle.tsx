@@ -6,13 +6,11 @@ import { cn } from "@/lib/cn";
 import { toggleSharing, getSharingStatus } from "@/lib/api";
 
 interface ShareToggleProps {
-  userId: string;
   initialEnabled?: boolean;
   className?: string;
 }
 
 export function ShareToggle({
-  userId,
   initialEnabled,
   className,
 }: ShareToggleProps) {
@@ -21,17 +19,17 @@ export function ShareToggle({
 
   useEffect(() => {
     if (initialEnabled !== undefined) return;
-    getSharingStatus(userId)
+    getSharingStatus()
       .then((data) => setEnabled(data.sharing_enabled))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [userId, initialEnabled]);
+  }, [initialEnabled]);
 
   async function handleToggle() {
     const next = !enabled;
     setEnabled(next);
     try {
-      await toggleSharing(userId, next);
+      await toggleSharing(next);
     } catch {
       setEnabled(!next); // revert on failure
     }

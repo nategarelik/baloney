@@ -2,10 +2,11 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronDown, Menu, X, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
+import { useAuth } from "@/components/AuthProvider";
 
 const NAV_LINKS = [
   { href: "/product", label: "Product" },
@@ -22,6 +23,8 @@ const CHROME_STORE_URL =
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isLoading, signOut } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -199,14 +202,32 @@ export function Navbar() {
             )}
           </div>
 
-          <a
-            href={CHROME_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-2 px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary/90 btn-primary-3d"
-          >
-            Get Baloney for Free
-          </a>
+          {!isLoading && !user && (
+            <Link
+              href="/login"
+              className="ml-2 px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary/90 btn-primary-3d"
+            >
+              Sign In
+            </Link>
+          )}
+          {!isLoading && user && (
+            <div className="ml-2 flex items-center gap-3">
+              <span className="text-xs text-secondary/50 flex items-center gap-1">
+                <User className="h-3.5 w-3.5" />
+                {user.email?.split("@")[0]}
+              </span>
+              <button
+                onClick={async () => {
+                  await signOut();
+                  router.push("/");
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 text-sm text-secondary/60 hover:text-secondary transition-colors rounded-lg hover:bg-secondary/5"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile hamburger */}
@@ -271,16 +292,29 @@ export function Navbar() {
                 </Link>
               ))}
 
-              {/* CTA */}
-              <a
-                href={CHROME_STORE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMobileOpen(false)}
-                className="mt-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-full text-center hover:bg-primary/90 btn-primary-3d"
-              >
-                Get Baloney for Free
-              </a>
+              {/* Auth actions */}
+              {!isLoading && !user && (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-full text-center hover:bg-primary/90 btn-primary-3d"
+                >
+                  Sign In
+                </Link>
+              )}
+              {!isLoading && user && (
+                <button
+                  onClick={async () => {
+                    setMobileOpen(false);
+                    await signOut();
+                    router.push("/");
+                  }}
+                  className="mt-2 flex items-center justify-center gap-2 px-5 py-2.5 text-sm text-secondary/60 hover:text-secondary transition-colors rounded-lg hover:bg-secondary/5"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              )}
             </div>
           </div>
         )}

@@ -2,10 +2,14 @@
 
 import { NextResponse } from "next/server";
 
-/** Standardized error JSON response */
+/** Standardized error JSON response — details only sent in development */
 export function errorResponse(error: string, status: number, details?: string) {
+  const isDev = process.env.NODE_ENV === "development";
+  if (details && !isDev) {
+    console.error(`[API Error] ${error}: ${details}`);
+  }
   return NextResponse.json(
-    { error, ...(details ? { details } : {}) },
+    { error, ...(isDev && details ? { details } : {}) },
     { status },
   );
 }
