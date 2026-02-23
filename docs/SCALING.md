@@ -947,4 +947,95 @@ Every user correction ("this is wrong, I wrote this") is an adversarial training
 
 ---
 
-*Generated February 22, 2026. Updated February 23, 2026 with strategic revisions from technical landscape analysis. Research conducted via parallel web search agents covering market analysis, API pricing, legal/ethical frameworks, detection technology, and growth strategy.*
+## Appendix E: Solving the Generalization Gap — The Data Moat
+
+*Added February 23, 2026.*
+
+### Why Lab Models Fail on Social Media
+
+Lab models are trained on: `Generator output → Detection model`
+
+Real world is: `Generator output → Screenshot/save → Upload → Platform compression → CDN resizing → User's browser → Detection model`
+
+Every step between generation and detection degrades the signals lab models rely on. **Nobody has a large-scale dataset of AI content as it actually appears on social media.** That's the gap — and the opportunity.
+
+### The Extension Sees Content in Its Deployed State
+
+Every other detection company gets content submitted to an API in its original form. Baloney's extension sees it how users actually encounter it — after platform compression, after resizing, after CDN processing. That's fundamentally different data.
+
+### Moat 1: Social-Media-Native Training Dataset
+
+With user opt-in, the extension extracts **feature vectors** (not raw content) from content as the platform serves it:
+
+```
+Content on Twitter → Extension extracts:
+  - CLIP embedding (768-dim vector, not the image itself)
+  - Compression artifact signature
+  - Frequency-domain features
+  - Platform ID
+  - Detection result from current models
+
+User corrects result → Now you have a LABELED sample
+```
+
+Over time this builds a dataset of "what AI content looks like on Twitter/Instagram/Reddit after platform processing." Train on this and you've solved the generalization gap. The dataset is un-replicable because it requires browser-level access to platform-served content at scale.
+
+### Moat 2: User Corrections as Adversarial Gold
+
+Every user correction — "wrong, I wrote this" or "wrong, this is obviously AI" — is a labeled adversarial sample. These are the hardest and most expensive samples to collect:
+
+- **False positives on human content** → teaches the model what human writing looks like on social media
+- **False negatives on AI content** → teaches the model what evasion looks like in the wild
+- **Corrections on humanized text** → adversarial robustness data nobody else has
+
+At 10K users with even a 2% correction rate: hundreds of adversarial labels per day. That compounds.
+
+### Moat 3: Cross-Platform Normalization
+
+The `content_sightings` table tracks the same SHA-256 hash across platforms. When the same image appears on Twitter AND Instagram:
+
+- Twitter version has Twitter's compression artifacts
+- Instagram version has Instagram's compression artifacts
+- Same underlying content, different platform processing
+
+This paired data enables a **platform normalization layer** — strip platform-specific artifacts before detection. Nobody else can build this because nobody else sees the same content served by multiple platforms.
+
+### Moat 4: Social Graph Signals (Orthogonal to Content Analysis)
+
+The extension has access to signals completely independent of pixel/text analysis:
+
+- **Propagation velocity**: AI disinformation content often appears simultaneously across multiple platforms. The provenance table detects this.
+- **Engagement anomalies**: Visible in the DOM — likes, replies, shares. AI content may have different engagement signatures.
+- **Account-level patterns**: Same account posting 50 images/day, all flagged AI → signal even when individual detection is uncertain.
+- **Temporal first-seen**: Content appearing on 8 platforms within 1 hour is suspicious regardless of detection score.
+
+These social signals break ties when pixel/text-level detection is uncertain (the 0.4-0.6 confidence zone). No API-based competitor has access to any of this.
+
+### Moat 5: Continuous Drift Tracking
+
+Generators update constantly. GPT-5 text looks different than GPT-4. Midjourney v7 images differ from v6. Lab datasets go stale within months.
+
+The extension sees the **current** distribution of AI content as it evolves. When a new generator starts evading detection, users correct false negatives in real-time. Retrain on fresh data before any lab-based competitor even knows the distribution has shifted.
+
+### The Revised Flywheel
+
+```
+Users browse social media with extension
+    → Extension extracts features from platform-served content
+    → Users correct wrong predictions (adversarial labels)
+    → Cross-platform hashes create paired training data
+    → Train platform-specific, compression-aware models
+    → Better real-world accuracy than any lab-trained model
+    → Users trust results more → tell friends → more users
+    → More data → better models → wider gap over competitors
+```
+
+The moat isn't "we have more data." It's "we have the **only** dataset of AI content as it actually appears on social media, labeled by real users in adversarial conditions, paired across platforms." That dataset cannot exist without the extension installed at scale. It's structurally un-replicable.
+
+### Why the Free Tier Is Strategic, Not Charitable
+
+The first 10K users aren't just customers — they're building a dataset that makes the product better for user 10,001. Every free user contributes data (with consent) that makes the paid product more accurate. This is the same flywheel that made Google Search, Waze, and Tesla Autopilot dominant — the product improves because people use it.
+
+---
+
+*Generated February 22, 2026. Updated February 23, 2026 with strategic revisions from technical landscape analysis and data moat strategy. Research conducted via parallel web search agents covering market analysis, API pricing, legal/ethical frameworks, detection technology, and growth strategy.*
