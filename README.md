@@ -14,8 +14,10 @@
 
 <p align="center">
   <a href="https://trustlens-nu.vercel.app">Live Demo</a> |
-  <a href="#quick-start">Quick Start</a> |
-  <a href="#roadmap">Roadmap</a>
+  <a href="https://trustlens-nu.vercel.app/analyze">Try Detection</a> |
+  <a href="https://trustlens-nu.vercel.app/dashboard">Dashboard</a> |
+  <a href="https://trustlens-nu.vercel.app/evaluation">Evaluation</a> |
+  <a href="#quick-start">Quick Start</a>
 </p>
 
 ---
@@ -39,7 +41,7 @@ Baloney closes this gap. A Chrome extension scans content as you browse nine pla
 </p>
 
 <p align="center">
-  <a href="https://trustlens-nu.vercel.app">Try the live demo</a>
+  <a href="https://trustlens-nu.vercel.app/feed">Try the demo feed</a> · <a href="https://trustlens-nu.vercel.app/platform">See platform overlays</a>
 </p>
 
 ---
@@ -57,9 +59,13 @@ Baloney closes this gap. A Chrome extension scans content as you browse nine pla
 
 Baloney uses a **cascading detection architecture**: high-accuracy commercial APIs run first when available. If not, the system gracefully falls back to local statistical and frequency-domain methods — no API keys required.
 
+See the full evaluation with ROC curves, confusion matrices, and ablation studies at [trustlens-nu.vercel.app/evaluation](https://trustlens-nu.vercel.app/evaluation).
+
 ---
 
 ## The Dashboard
+
+Explore the live dashboards: [Personal Analytics](https://trustlens-nu.vercel.app/dashboard) · [Community Intelligence](https://trustlens-nu.vercel.app/dashboard/community)
 
 ### Personal Analytics
 
@@ -79,11 +85,11 @@ Baloney uses a **cascading detection architecture**: high-accuracy commercial AP
 
 ### Content Analysis
 
-- Individual scan history with full method breakdowns
+- Individual scan history with full method breakdowns — [try it live](https://trustlens-nu.vercel.app/analyze)
 - SHA-256 content provenance tracking
 - Side-by-side confidence comparisons across detection methods
 
-22+ interactive visualization components built with Recharts.
+22+ interactive visualization components built with Recharts. See the [product overview](https://trustlens-nu.vercel.app/product) for the full feature breakdown.
 
 ---
 
@@ -103,7 +109,7 @@ Next.js API (Vercel)
 Supabase (Auth + Analytics + Provenance)
 ```
 
-**Extension:** 18 TypeScript modules compiled with esbuild. Passive detection on 9 platforms with configurable scan modes. Content scripts inject detection overlays (dots, toasts, insight panels) directly into the page.
+**Extension:** 18 TypeScript modules compiled with esbuild. Passive detection on 9 platforms with configurable scan modes. Content scripts inject detection overlays (dots, toasts, insight panels) directly into the page. See [supported platforms and installation](https://trustlens-nu.vercel.app/extension).
 
 **Backend:** 21 API routes behind Supabase Auth (cookie sessions for the webapp, Bearer tokens for the extension). Middleware handles CORS, rate limiting, CSP headers, and session refresh.
 
@@ -321,4 +327,11 @@ The community edition is fully open source. Pro detection methods are available 
 ## Links
 
 - **Live Demo:** [trustlens-nu.vercel.app](https://trustlens-nu.vercel.app)
+- **Product Overview:** [trustlens-nu.vercel.app/product](https://trustlens-nu.vercel.app/product)
+- **Content Analyzer:** [trustlens-nu.vercel.app/analyze](https://trustlens-nu.vercel.app/analyze)
+- **Dashboard:** [trustlens-nu.vercel.app/dashboard](https://trustlens-nu.vercel.app/dashboard)
+- **Community Analytics:** [trustlens-nu.vercel.app/dashboard/community](https://trustlens-nu.vercel.app/dashboard/community)
+- **Evaluation Metrics:** [trustlens-nu.vercel.app/evaluation](https://trustlens-nu.vercel.app/evaluation)
+- **Demo Feed:** [trustlens-nu.vercel.app/feed](https://trustlens-nu.vercel.app/feed)
+- **Platform Overlays:** [trustlens-nu.vercel.app/platform](https://trustlens-nu.vercel.app/platform)
 - **MAD Data 2026:** 1st Place Winner
