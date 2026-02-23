@@ -79,6 +79,7 @@ frontend/.vercel/
 # Markdown (hide all except AI_CITATION)
 # ──────────────────────────────────────────────
 *.md
+!SECURITY.md
 !docs/AI_CITATION.md
 !docs/NEXT_STEPS.md
 .worktrees/
