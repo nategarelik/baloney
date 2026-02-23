@@ -3,8 +3,7 @@ import { NextRequest } from "next/server";
 
 // Mock auth module
 vi.mock("@/lib/auth", () => ({
-  requireAuth: vi.fn(),
-  isAuthError: (r: unknown) => r instanceof Response,
+  optionalAuth: vi.fn(),
 }));
 
 // Mock supabase
@@ -43,7 +42,7 @@ vi.mock("@/lib/real-detectors", () => ({
 }));
 
 import { POST } from "./route";
-import { requireAuth } from "@/lib/auth";
+import { optionalAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { realTextDetection } from "@/lib/real-detectors";
 import { API_LIMITS } from "@/lib/constants";
@@ -88,32 +87,33 @@ describe("POST /api/detect/text", () => {
     });
   });
 
-  it("should return 401 without authentication", async () => {
+  it("should detect text without auth but skip scan recording", async () => {
     // Arrange
-    const mockAuthResponse = new Response(
-      JSON.stringify({ error: "Authentication required" }),
-      {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-    vi.mocked(requireAuth).mockResolvedValue(mockAuthResponse);
+    vi.mocked(optionalAuth).mockResolvedValue(null);
 
-    const req = makeReq({ text: "Hello world" });
+    const testText = "This is a test message that should be detected without auth.";
+    const req = makeReq({ text: testText, platform: "x" });
 
     // Act
     const response = await POST(req);
 
     // Assert
-    expect(response.status).toBe(401);
+    expect(response.status).toBe(200);
+    expect(realTextDetection).toHaveBeenCalledWith(testText);
+
     const data = await response.json();
-    expect(data.error).toBe("Authentication required");
-    expect(realTextDetection).not.toHaveBeenCalled();
+    expect(data.verdict).toBe("human");
+
+    // Scan should NOT be recorded for anonymous users
+    expect(supabase.rpc).not.toHaveBeenCalledWith(
+      "record_scan_with_provenance",
+      expect.anything(),
+    );
   });
 
   it("should return 400 when text is missing", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -132,7 +132,7 @@ describe("POST /api/detect/text", () => {
 
   it("should return 400 when text is not a string", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -151,7 +151,7 @@ describe("POST /api/detect/text", () => {
 
   it("should return 400 when text is too long", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -172,7 +172,7 @@ describe("POST /api/detect/text", () => {
 
   it("should detect text and return result", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -214,7 +214,7 @@ describe("POST /api/detect/text", () => {
 
   it("should use default platform when not provided", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -239,7 +239,7 @@ describe("POST /api/detect/text", () => {
 
   it("should handle detection errors gracefully", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -258,7 +258,7 @@ describe("POST /api/detect/text", () => {
 
   it("should handle database errors gracefully", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -277,7 +277,7 @@ describe("POST /api/detect/text", () => {
 
   it("should include content hash in scan record", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });
@@ -303,7 +303,7 @@ describe("POST /api/detect/text", () => {
 
   it("should record scan duration", async () => {
     // Arrange
-    vi.mocked(requireAuth).mockResolvedValue({
+    vi.mocked(optionalAuth).mockResolvedValue({
       userId: "test-user-001",
       email: "test@example.com",
     });

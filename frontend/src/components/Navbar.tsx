@@ -14,7 +14,7 @@ const NAV_LINKS = [
 ] as const;
 
 const DASHBOARD_ITEMS = [
-  { href: "/dashboard", label: "Personal" },
+  { href: "/dashboard", label: "Overview" },
   { href: "/dashboard/community", label: "Community" },
 ] as const;
 

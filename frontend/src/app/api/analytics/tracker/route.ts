@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { errorResponse, clampInt } from "@/lib/api-utils";
-import { requireAuth, isAuthError } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAuth(req);
-  if (isAuthError(auth)) return auth;
-
   const params = req.nextUrl.searchParams;
   const platform = params.get("platform");
   const contentType = params.get("content_type");

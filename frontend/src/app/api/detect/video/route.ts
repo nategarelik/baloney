@@ -2,20 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getProVideoMethods } from "@/lib/detection/pro-loader";
 import { errorResponse, validatePlatform } from "@/lib/api-utils";
-import { requireAuth, isAuthError } from "@/lib/auth";
+import { optionalAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import crypto from "crypto";
 import type { VideoDetectionResult, Verdict } from "@/lib/types";
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireAuth(req);
-    if (isAuthError(auth)) return auth;
+    const auth = await optionalAuth(req);
+    const userId = auth?.userId;
 
     const body = await req.json();
     const { video, frames } = body;
     const platform = validatePlatform(body.platform);
-    const userId = auth.userId;
 
     // v2.0: Accept either a single video base64 or an array of frame base64s
     const frameBase64s: string[] = [];
@@ -148,21 +147,23 @@ export async function POST(req: NextRequest) {
       .update(frameBase64s[0].slice(0, 1000))
       .digest("hex");
 
-    await supabase.rpc("record_scan_with_provenance", {
-      p_user_id: userId,
-      p_content_type: "video",
-      p_platform: platform,
-      p_verdict: result.verdict,
-      p_confidence: result.confidence,
-      p_model_used: result.model_used,
-      p_source_domain: null,
-      p_content_category: "video",
-      p_content_hash: contentHash,
-      p_scan_duration_ms: duration,
-      p_trust_score: 1 - result.confidence,
-      p_classification: result.verdict,
-      p_edit_magnitude: result.ai_frame_percentage,
-    });
+    if (userId) {
+      await supabase.rpc("record_scan_with_provenance", {
+        p_user_id: userId,
+        p_content_type: "video",
+        p_platform: platform,
+        p_verdict: result.verdict,
+        p_confidence: result.confidence,
+        p_model_used: result.model_used,
+        p_source_domain: null,
+        p_content_category: "video",
+        p_content_hash: contentHash,
+        p_scan_duration_ms: duration,
+        p_trust_score: 1 - result.confidence,
+        p_classification: result.verdict,
+        p_edit_magnitude: result.ai_frame_percentage,
+      });
+    }
 
     return NextResponse.json({ ...result, scan_id: contentHash.slice(0, 8) });
   } catch (err) {

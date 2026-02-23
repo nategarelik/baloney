@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { requireAuth, isAuthError } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  const auth = await requireAuth(req);
-  if (isAuthError(auth)) return auth;
-
   // Get all scans with timestamps from last 30 days
   const since = new Date();
   since.setDate(since.getDate() - 30);

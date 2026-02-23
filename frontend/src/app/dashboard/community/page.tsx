@@ -17,6 +17,7 @@ import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { getCommunityAnalytics, getAllScans } from "@/lib/api";
 import type { CommunityAnalytics, ScanRecord } from "@/lib/types";
 import { SlopIndexCard } from "../SlopIndexCard";
+import { AccountCTA } from "@/components/AccountCTA";
 
 import { AuthenticityRadar } from "../AuthenticityRadar";
 import { SlopClock } from "../SlopClock";
@@ -95,6 +96,8 @@ export default function CommunityDashboardPage() {
         <p className="text-secondary/50 text-sm mb-6">
           Aggregated AI detection data from all Baloney users
         </p>
+
+        <AccountCTA />
 
         {/* ── Error banner ── */}
         {fetchError && (
