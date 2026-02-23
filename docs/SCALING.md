@@ -853,4 +853,98 @@ Extension popup --> "Sign in" button --> Opens baloney.app/auth
 
 ---
 
-*Generated February 22, 2026. Research conducted via parallel web search agents covering market analysis, API pricing, legal/ethical frameworks, detection technology, and growth strategy.*
+## Appendix D: Post-Research Strategic Revisions
+
+*Added February 23, 2026 after reviewing a comprehensive technical landscape report on AI content detection across platforms.*
+
+### The Lab-to-Wild Accuracy Gap
+
+SOTA detection systems lose **45-50% of their accuracy** when deployed on real social media content compared to laboratory benchmarks (Deepfake-Eval-2024, TrueMedia.org). This means Baloney's reported AUC of 0.982 is a lab number — real-world performance on social media is likely 0.75-0.85. This is universal across all detectors, not a Baloney-specific flaw. The implication: **stop competing on accuracy numbers, compete on honesty.** Show confidence intervals, show when methods disagree, and say "insufficient data" when you can't determine reliably.
+
+### Architectural Revisions
+
+**1. CLIP-based detection should replace frequency/DCT for images at scale**
+
+The current pipeline uses SightEngine + frequency/DCT + metadata. Research confirms frequency-domain features are the most vulnerable to JPEG compression — exactly what every social media platform applies. CLIP-based detectors (UnivFD: linear probe on ViT-L/14, trained on ProGAN only, generalizes to 19 generators) survive compression because they operate at semantic level. When self-hosting (Phase 3), the image model should be CLIP-based.
+
+**2. Binoculars over fine-tuned classifiers for text**
+
+SCALING.md originally recommended fine-tuned DeBERTa (leads RAID benchmark). However, fine-tuned classifiers generalize poorly to new models. Binoculars (Hans et al., ICML 2024) computes perplexity/cross-perplexity ratio between two LLMs — >90% detection at 0.01% FPR, zero-shot, works across all models. Requires two ~7B models (A10G at $317/mo on RunPod instead of T4 at $122/mo), but is future-proof against new generators.
+
+**3. Platform-specific compression-aware training**
+
+Each social media platform compresses content differently. Upload ~50 test images/videos to each platform, download them back, measure compression parameters, then emulate that compression during model training. This recovers much of the 45-50% accuracy loss. Route detection through platform-specific models based on which site the extension detects (already have platform detection for 12 platforms in `background.js`). **Nobody else is doing this publicly — it's a concrete moat.**
+
+**4. Short content honesty threshold**
+
+Text detectors need 100-300+ tokens for reliable classification. Average tweet is ~40 tokens. Rather than guessing on short text, show "Too short to analyze reliably" for content under 100 tokens. Builds trust and differentiates from competitors who silently give bad results.
+
+### Video Strategy: High-Precision, Low-Recall
+
+Video detection is the weakest modality across the entire field. The strategy is to only flag when confident, and let ambiguous content pass without a verdict:
+
+| Signal | Action | False Positive Risk |
+|--------|--------|-------------------|
+| SynthID/C2PA watermark found | Flag confidently | Zero |
+| SightEngine high confidence (>0.85) | Flag with method breakdown | Low |
+| SightEngine medium confidence (0.5-0.85) | Show "Unable to determine" | N/A |
+| No signal | Silence — no dot, no badge | N/A |
+
+The absence of a verdict is better than a wrong one. Users learn that when Baloney flags a video, it means something.
+
+### Detection Scope: All Content, User Decides
+
+The extension detects all content types — photorealistic images, stylized art, animated films, edited photos, text. The product does not filter by "intent to deceive" because the extension can't know intent. Instead:
+
+- **Detect accurately** across all content types
+- **Present honestly** with confidence scores and method breakdowns
+- **Let the user decide** what matters to them
+
+A user seeing a flagged AI animated short may not care. A user seeing a flagged news photo will care deeply. Both are valid detections. The Information Diet Score and method breakdown already let users contextualize results for themselves.
+
+What the extension **does** skip (technical filtering, not philosophical):
+- Tiny images, icons, SVGs, ads (not content, just UI)
+- Known logos and avatars (waste of API calls)
+- Text under 100 tokens (insufficient data for reliable analysis)
+
+### Data Collection Revisions
+
+**1. Platform compression fingerprints (new priority)**
+
+Store compression characteristics of content per-platform. This enables platform-specific model training and cross-platform re-upload detection (different compression artifacts = different platform of origin). Minimal privacy concern — it's metadata about compression, not content.
+
+**2. Cross-platform provenance (validated)**
+
+The technical landscape report validates the SHA-256 provenance approach. Coordinated disinformation campaigns reuse synthetic content across platforms. The `content_sightings` table is building cross-platform disinformation detection capability. No competitor has this.
+
+**3. Adversarial feedback data (highest value)**
+
+Every user correction ("this is wrong, I wrote this") is an adversarial training sample — the hardest data to collect and most valuable for improving robustness against humanizers and evasion techniques.
+
+### Revised Positioning
+
+| Before | After |
+|--------|-------|
+| "98.2% AUC" | "Trained on real social media content, not lab data" |
+| "Multi-modal detection" | "Layered defense: watermarks + forensics + provenance + you" |
+| "Works everywhere" | "Built for where detection doesn't exist: X, Reddit, Substack" |
+| "Ensemble of 3-4 APIs" | "Platform-aware detection tuned for how each site compresses content" |
+| Binary AI/Human verdicts | "Honest confidence with method-level transparency" |
+
+**X/Twitter is the beachhead.** The report confirms X has no dedicated detection system and is not a C2PA member. Every other major platform has something. X has Community Notes covering ~1 in 500,000 tweets. The marketing angle: "X won't detect AI content for you. We will."
+
+### Key Research References
+
+- Deepfake-Eval-2024 (Chandra et al., TrueMedia.org, March 2025) — 45-50% accuracy drop on social media
+- UnivFD (Ojha et al., CVPR 2023) — CLIP-based detection generalizing across 19 generators
+- Binoculars (Hans et al., ICML 2024) — >90% detection at 0.01% FPR, zero-shot
+- AEROBLADE (Ricker et al., CVPR 2024) — Training-free detection via autoencoder reconstruction, AP 0.991-0.999
+- SynthID-Text (Dathathri et al., Nature 634:818-823, October 2024) — Production text watermarking on 20M+ Gemini responses
+- RAID Benchmark (Dugan et al., ACL 2024) — 6M+ generations, 11 LLMs, 12 adversarial attacks
+- Sadasivan et al. (arXiv:2303.11156) — Theoretical limits on detection as LLMs improve
+- Liang et al. (Patterns, July 2023) — AI detectors biased against non-native English writers
+- Meta Seal suite (Fernandez et al., 2023-2025) — Open-source watermarking across all modalities
+
+---
+
+*Generated February 22, 2026. Updated February 23, 2026 with strategic revisions from technical landscape analysis. Research conducted via parallel web search agents covering market analysis, API pricing, legal/ethical frameworks, detection technology, and growth strategy.*
