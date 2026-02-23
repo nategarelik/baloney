@@ -83,6 +83,7 @@ frontend/.vercel/
 !SECURITY.md
 !docs/AI_CITATION.md
 !docs/NEXT_STEPS.md
+!docs/SCALING.md
 .worktrees/
 *.zip
 
