@@ -63,6 +63,24 @@ See the full evaluation with ROC curves, confusion matrices, and ablation studie
 
 ---
 
+## What Powers the Live Demo
+
+The [live demo](https://trustlens-nu.vercel.app) runs the **full pro ensemble** — this is what we submitted and demoed at MAD Data 2026. In the interest of transparency, here is exactly what is running:
+
+| Service | What it does | Why we use it |
+|---------|-------------|---------------|
+| [Pangram](https://pangram.com) | Text AI detection | 99.85% accuracy, peer-reviewed ([arXiv:2402.14873](https://arxiv.org/abs/2402.14873)) |
+| [SightEngine](https://sightengine.com) | Image and video AI detection | 98.3% accuracy, ARIA benchmark #1, 2000 free ops/month |
+| [Google Vertex AI](https://cloud.google.com/vertex-ai) | SynthID watermark detection | Detects Gemini + Imagen watermarks via Google's own tooling |
+| [HuggingFace Inference](https://huggingface.co) | RoBERTa text classification | Open-source model ensemble, free tier available |
+| [Supabase](https://supabase.com) | Auth, database, RLS | Free tier PostgreSQL with row-level security |
+
+The detection pipeline we built is original — the cascading architecture, scoring logic, ensemble weighting, verdict system, and all 22+ dashboard visualizations are ours. The third-party APIs above provide the raw detection signals that our pipeline orchestrates.
+
+**When Baloney ships publicly**, the open-source community edition will use only local detection methods (statistical text analysis, FFT/DCT image analysis, EXIF/C2PA metadata). No third-party API calls, no data leaving your machine. The commercial APIs above will be available separately for users who opt into the pro edition.
+
+---
+
 ## The Dashboard
 
 Explore the live dashboards: [Personal Analytics](https://trustlens-nu.vercel.app/dashboard) · [Community Intelligence](https://trustlens-nu.vercel.app/dashboard/community)
