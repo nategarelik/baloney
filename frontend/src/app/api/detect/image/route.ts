@@ -2,19 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { realImageDetection } from "@/lib/real-detectors";
 import { errorResponse, validatePlatform } from "@/lib/api-utils";
-import { requireAuth, isAuthError } from "@/lib/auth";
+import { optionalAuth } from "@/lib/auth";
 import { logger } from "@/lib/logger";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireAuth(req);
-    if (isAuthError(auth)) return auth;
+    const auth = await optionalAuth(req);
+    const userId = auth?.userId;
 
     const body = await req.json();
     const { image, source_domain = null } = body;
     const platform = validatePlatform(body.platform);
-    const userId = auth.userId;
 
     if (!image || typeof image !== "string") {
       return errorResponse("No image provided", 400);
@@ -31,27 +30,29 @@ export async function POST(req: NextRequest) {
       .update(image.slice(0, 10000))
       .digest("hex");
 
-    await supabase.rpc("record_scan_with_provenance", {
-      p_user_id: userId,
-      p_content_type: "image",
-      p_platform: platform,
-      p_verdict: result.verdict,
-      p_confidence: result.confidence,
-      p_model_used: result.model_used,
-      p_source_domain: source_domain,
-      p_content_category: "photo",
-      p_content_hash: contentHash,
-      p_scan_duration_ms: duration,
-      p_trust_score: result.trust_score,
-      p_classification: result.classification,
-      p_edit_magnitude: result.edit_magnitude,
-    });
+    if (userId) {
+      await supabase.rpc("record_scan_with_provenance", {
+        p_user_id: userId,
+        p_content_type: "image",
+        p_platform: platform,
+        p_verdict: result.verdict,
+        p_confidence: result.confidence,
+        p_model_used: result.model_used,
+        p_source_domain: source_domain,
+        p_content_category: "photo",
+        p_content_hash: contentHash,
+        p_scan_duration_ms: duration,
+        p_trust_score: result.trust_score,
+        p_classification: result.classification,
+        p_edit_magnitude: result.edit_magnitude,
+      });
 
-    // Recompute user scores (fire-and-forget, don't delay response)
-    supabase.rpc("compute_exposure_score", { p_user_id: userId }).then(
-      () => {},
-      () => {},
-    );
+      // Recompute user scores (fire-and-forget, don't delay response)
+      supabase.rpc("compute_exposure_score", { p_user_id: userId }).then(
+        () => {},
+        () => {},
+      );
+    }
     // Recompute slop index ~10% of scans to avoid DB load
     if (Math.random() < 0.1) {
       supabase.rpc("compute_slop_index").then(

@@ -10,6 +10,7 @@ import { DetectionVelocity } from "./DetectionVelocity";
 import { getAllScans } from "@/lib/api";
 import { isAiWithFloor } from "@/lib/bayesian";
 import type { ScanRecord } from "@/lib/types";
+import { AccountCTA } from "@/components/AccountCTA";
 
 export default function DashboardPage() {
   const [scans, setScans] = useState<ScanRecord[]>([]);
@@ -49,6 +50,8 @@ export default function DashboardPage() {
         <p className="text-secondary/50 text-sm mb-6">
           Live AI content detection analytics from all Baloney users
         </p>
+
+        <AccountCTA />
 
         {/* ── Error banner ── */}
         {fetchError && (

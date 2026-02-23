@@ -28,6 +28,7 @@ import { ProvenanceCard } from "./ProvenanceCard";
 import { ExportActions } from "./ExportActions";
 import { ScanMetadata } from "./ScanMetadata";
 import { DetectionInsights } from "./DetectionInsights";
+import { AccountCTA } from "@/components/AccountCTA";
 
 const TABS = [
   { id: "text", label: "Text" },
@@ -144,6 +145,8 @@ function AnalyzeContent() {
         <p className="text-secondary/50 mb-8">
           Analyze text, images, and video for AI-generated content
         </p>
+
+        <AccountCTA />
 
         {parseError && (
           <div

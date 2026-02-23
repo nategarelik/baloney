@@ -10,11 +10,7 @@ const PUBLIC_API_ROUTES = new Set([
 ]);
 
 // Page routes that should redirect to login if not authenticated
-const PROTECTED_PAGE_ROUTES = [
-  "/dashboard",
-  "/my-diet",
-  "/analyze",
-];
+const PROTECTED_PAGE_ROUTES: string[] = [];
 
 function addSecurityHeaders(
   response: NextResponse,
