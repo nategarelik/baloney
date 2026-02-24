@@ -14,7 +14,6 @@ import {
   Brain,
   Layers,
   CheckCircle2,
-  TrendingUp,
   FileText,
   Image as ImageIcon,
   Video,
@@ -667,18 +666,17 @@ export default function ExtensionPage() {
       {/* ── CTAs ── */}
       <section className="px-6 pb-16 max-w-5xl mx-auto text-center space-y-4">
         <Link
-          href="/evaluation"
+          href="/analyze"
           className="inline-flex items-center gap-2 px-8 py-3.5 bg-primary hover:bg-primary/90 text-white font-semibold rounded-full transition text-base"
         >
-          <TrendingUp className="h-4 w-4" />
-          View Full Evaluation
+          Try the Detector
         </Link>
         <div>
           <Link
-            href="/analyze"
+            href="/dashboard/community"
             className="inline-flex items-center gap-2 px-8 py-3.5 border-2 border-secondary/20 text-secondary font-semibold rounded-full hover:bg-secondary/5 transition text-base"
           >
-            Try the Detector
+            Community Dashboard
           </Link>
         </div>
       </section>

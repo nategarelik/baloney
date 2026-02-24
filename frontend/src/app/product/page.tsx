@@ -304,46 +304,6 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── Evaluation ── */}
-      <section className="max-w-4xl mx-auto px-6 py-14">
-        <h2 className="font-display text-3xl text-secondary mb-3 text-center">
-          We Prove It Works
-          <HandDrawnUnderline width={180} className="mx-auto mt-1" />
-        </h2>
-        <p className="text-secondary/70 text-center max-w-2xl mx-auto mb-10 leading-relaxed">
-          Any team can plug in an API. We built a 207-sample evaluation
-          pipeline across 15 content categories to prove the ensemble
-          actually works.{" "}
-          <a
-            href="https://baloney.app/evaluation"
-            className="text-primary underline hover:opacity-80"
-          >
-            See the full evaluation dashboard.
-          </a>
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { value: "0.982", label: "ROC AUC" },
-            { value: "207", label: "Benchmark Samples" },
-            { value: "3", label: "Modalities" },
-            { value: "15", label: "Content Categories" },
-          ].map((s) => (
-            <div
-              key={s.label}
-              className="bg-base-dark rounded-xl border border-secondary/10 p-6 text-center"
-            >
-              <p className="font-display text-3xl text-primary mb-1">
-                {s.value}
-              </p>
-              <p className="text-secondary/50 text-sm">{s.label}</p>
-            </div>
-          ))}
-        </div>
-        <p className="text-secondary/50 text-xs text-center mt-6">
-          The ablation study proves the ensemble beats any single method.
-          Bootstrap confidence intervals and Bayesian PPV analysis included.
-        </p>
-      </section>
 
       {/* ── The Bigger Picture ── */}
       <section className="max-w-4xl mx-auto px-6 py-14">
@@ -582,12 +542,6 @@ export default function ProductPage() {
               className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm"
             >
               Analyze Content
-            </Link>
-            <Link
-              href="/evaluation"
-              className="px-6 py-2.5 border border-secondary/20 text-secondary font-semibold rounded-lg hover:bg-secondary/5 transition-colors text-sm"
-            >
-              Evaluation
             </Link>
             <Link
               href="/dashboard/community"
