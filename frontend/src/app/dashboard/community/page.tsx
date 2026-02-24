@@ -93,8 +93,22 @@ export default function CommunityDashboardPage() {
         <h1 className="text-3xl font-display text-secondary mb-2">
           Community Dashboard
         </h1>
-        <p className="text-secondary/50 text-sm mb-6">
+        <p className="text-secondary/50 text-sm mb-2">
           Real AI detection data collected by the Baloney extension
+        </p>
+        <p className="text-secondary/40 text-xs mb-6">
+          This data was collected using our local extension during the MAD
+          Data 2026 hackathon. While the Chrome Web Store submission is under
+          review, you can contribute to data collection by{" "}
+          <a
+            href="https://github.com/nategarelik/baloney/tree/master/extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary underline hover:opacity-80"
+          >
+            downloading the extension from our open-source repo
+          </a>
+          .
         </p>
 
         {/* ── Error banner ── */}
