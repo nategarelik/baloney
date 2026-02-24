@@ -197,7 +197,6 @@ export default function ProductPage() {
          │  /dashboard      — Live Scan Feed        │
          │  /dashboard/community — Analytics        │
          │  /evaluation     — ROC, Ablation, Bench  │
-         │  /feed           — Demo Feed             │
          │  /tracker        — Platform Trends       │
          └──────────────────────────────────────────┘`}</pre>
           </div>
@@ -392,14 +391,6 @@ export default function ProductPage() {
             </p>
           </div>
         </div>
-        <div className="bg-secondary/5 rounded-lg p-5 mt-6">
-          <p className="text-secondary/60 text-sm leading-relaxed text-center">
-            Before Nielsen, TV networks reported their own viewership. Nobody
-            trusted them. Nielsen put monitoring devices in homes and created
-            the measurement standard. Our extension is the monitoring device.
-            Our Slop Index is the rating.
-          </p>
-        </div>
       </section>
 
       {/* ── Honesty Section ── */}
@@ -516,12 +507,9 @@ export default function ProductPage() {
           ))}
         </div>
         <div className="text-center mt-8">
-          <Link
-            href="/extension"
-            className="inline-block bg-primary text-white font-semibold px-8 py-3 rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Install Baloney Extension
-          </Link>
+          <span className="inline-block px-6 py-2.5 bg-secondary/10 text-secondary/70 font-medium rounded-full text-sm border border-secondary/15">
+            Chrome Web Store &mdash; Under Review
+          </span>
         </div>
       </section>
 
@@ -585,8 +573,8 @@ export default function ProductPage() {
             Try It Right Now
           </h2>
           <p className="text-secondary/70 text-sm mb-6 max-w-lg mx-auto">
-            Paste any text into the analyzer, browse the demo feed, or
-            explore the evaluation dashboard. Everything is live.
+            Paste any text into the analyzer or explore the community
+            dashboard. Everything is live.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
@@ -594,12 +582,6 @@ export default function ProductPage() {
               className="px-6 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-opacity text-sm"
             >
               Analyze Content
-            </Link>
-            <Link
-              href="/feed"
-              className="px-6 py-2.5 border border-secondary/20 text-secondary font-semibold rounded-lg hover:bg-secondary/5 transition-colors text-sm"
-            >
-              Demo Feed
             </Link>
             <Link
               href="/evaluation"
@@ -617,59 +599,16 @@ export default function ProductPage() {
         </div>
       </section>
 
-      {/* ── AI in Development ── */}
-      <section className="max-w-4xl mx-auto px-6 pt-14 pb-24">
-        <div className="bg-secondary/5 rounded-lg p-8 max-w-3xl mx-auto">
-          <h2 className="font-display text-xl text-secondary mb-4 text-center">
-            AI in Development
-          </h2>
-          <p className="text-secondary/70 text-sm leading-relaxed mb-4">
-            Baloney was built during MadData26 (UW-Madison Data Science
-            Hackathon, Feb 21-22, 2026). We didn&apos;t use AI to build
-            this &mdash; we directed AI to build this. Every architectural
-            decision, every data collection choice, every privacy safeguard
-            came from our own judgment. AI amplified the quality of our
-            thinking and let us move at the speed our ideas demanded.
-          </p>
-
-          <div className="space-y-3 text-sm text-secondary/70 leading-relaxed">
-            <div>
-              <span className="font-semibold text-secondary">Tools: </span>
-              Claude Code CLI (Opus 4.6 &amp; Sonnet 4.6) for architecture,
-              implementation, and debugging. Pangram API for text detection,
-              SightEngine API for image/video detection, Google SynthID for
-              watermark detection.
-            </div>
-            <div>
-              <span className="font-semibold text-secondary">
-                What AI helped build:{" "}
-              </span>
-              Boilerplate scaffolding, TypeScript interfaces, Tailwind theming,
-              ensemble architecture, extension UX, chart components, seed data,
-              and documentation.
-            </div>
-            <div>
-              <span className="font-semibold text-secondary">
-                What we did:{" "}
-              </span>
-              Product vision, architecture decisions (Supabase, serverless,
-              extension-first), feature design (AI Slop Index, Exposure Score,
-              Content Provenance), database schema (7 tables, 11 views, 4 RPC
-              functions), deployment, testing, and all final code review.
-            </div>
-            <div>
-              <span className="font-semibold text-secondary">Process: </span>
-              Every feature followed the same loop &mdash; we defined
-              requirements and constraints, AI generated initial
-              implementations, we reviewed and tested, then iterated together
-              until shipped. No code was blindly accepted.
-            </div>
-          </div>
-
-          <p className="text-secondary/50 text-xs mt-4 text-center">
-            Built in 24 hours by Nathaniel Garelik &amp; Ben Verhaalen
-          </p>
-        </div>
+      {/* ── Open Source ── */}
+      <section className="max-w-4xl mx-auto px-6 pt-14 pb-24 text-center">
+        <a
+          href="https://github.com/nategarelik/baloney"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block px-6 py-2.5 border-2 border-secondary/20 text-secondary font-semibold rounded-full hover:bg-secondary/5 transition-colors text-sm"
+        >
+          View Source on GitHub
+        </a>
       </section>
     </main>
   );

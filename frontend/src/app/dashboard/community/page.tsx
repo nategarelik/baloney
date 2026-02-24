@@ -17,7 +17,6 @@ import { CHART_COLORS, CHART_TOOLTIP_STYLE } from "@/lib/constants";
 import { getCommunityAnalytics, getAllScans } from "@/lib/api";
 import type { CommunityAnalytics, ScanRecord } from "@/lib/types";
 import { SlopIndexCard } from "../SlopIndexCard";
-import { AccountCTA } from "@/components/AccountCTA";
 
 import { AuthenticityRadar } from "../AuthenticityRadar";
 import { SlopClock } from "../SlopClock";
@@ -33,7 +32,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   substack: "Substack",
   tiktok: "TikTok",
   manual_upload: "Upload",
-  demo_feed: "Demo Feed",
   facebook: "Facebook",
   medium: "Medium",
   threads: "Threads",
@@ -75,11 +73,13 @@ export default function CommunityDashboardPage() {
     return () => clearInterval(interval);
   }, [fetchData]);
 
-  const platformData = (analytics?.by_platform ?? []).map((d) => ({
-    platform: PLATFORM_LABELS[d.platform] ?? d.platform,
-    Human: d.total - d.ai_count,
-    AI: d.ai_count,
-  }));
+  const platformData = (analytics?.by_platform ?? [])
+    .filter((d) => d.platform !== "demo_feed")
+    .map((d) => ({
+      platform: PLATFORM_LABELS[d.platform] ?? d.platform,
+      Human: d.total - d.ai_count,
+      AI: d.ai_count,
+    }));
 
   const contentTypeData = (analytics?.by_content_type ?? []).map((d) => ({
     type: CONTENT_TYPE_LABELS[d.content_type] ?? d.content_type,
@@ -94,10 +94,8 @@ export default function CommunityDashboardPage() {
           Community Dashboard
         </h1>
         <p className="text-secondary/50 text-sm mb-6">
-          Aggregated AI detection data from all Baloney users
+          Real AI detection data collected by the Baloney extension
         </p>
-
-        <AccountCTA />
 
         {/* ── Error banner ── */}
         {fetchError && (

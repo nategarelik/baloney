@@ -3,9 +3,6 @@
 import Link from "next/link";
 import { MadDataWinner } from "@/components/MadDataWinner";
 
-const CHROME_STORE_URL =
-  "https://github.com/nategarelik/baloney/tree/master/extension";
-
 export default function Home() {
   return (
     <main className="min-h-screen bg-base">
@@ -137,15 +134,24 @@ export default function Home() {
               Your all-purpose truth verifier. Detect AI-generated content as
               you browse and see how much of the internet is real.
             </p>
-            <a
-              href={CHROME_STORE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block px-8 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 text-base btn-primary-3d opacity-0"
+            <div
+              className="opacity-0"
               style={{ animation: "hero-fade-in 0.7s ease-out 0.3s forwards" }}
             >
-              Try Free Now
-            </a>
+              <span className="inline-block px-6 py-2.5 bg-secondary/10 text-secondary/70 font-medium rounded-full text-sm border border-secondary/15 mb-3">
+                Chrome Web Store &mdash; Under Review
+              </span>
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://github.com/nategarelik/baloney"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-8 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-primary/90 text-base btn-primary-3d"
+                >
+                  View Source on GitHub
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
