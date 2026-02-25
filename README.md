@@ -286,7 +286,7 @@ The `BALONEY_EDITION` environment variable controls which edition is active. Whe
 baloney/
   frontend/                 # Next.js web application
     src/
-      app/                  # Pages and API routes (21 routes, 10 pages)
+      app/                  # Pages and API routes (21 routes, 7 pages)
       lib/
         detection/          # Detection pipeline (9 modules)
         auth.ts             # Authentication (cookie + Bearer)

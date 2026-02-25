@@ -196,8 +196,6 @@ export default function ProductPage() {
          │  /analyze        — AI Detector           │
          │  /dashboard      — Live Scan Feed        │
          │  /dashboard/community — Analytics        │
-         │  /evaluation     — ROC, Ablation, Bench  │
-         │  /tracker        — Platform Trends       │
          └──────────────────────────────────────────┘`}</pre>
           </div>
         </div>
