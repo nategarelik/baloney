@@ -16,7 +16,6 @@
   <a href="https://baloney.app">Live Demo</a> |
   <a href="https://baloney.app/analyze">Try Detection</a> |
   <a href="https://baloney.app/dashboard">Dashboard</a> |
-  <a href="https://baloney.app/evaluation">Evaluation</a> |
   <a href="#quick-start">Quick Start</a>
 </p>
 
@@ -41,7 +40,7 @@ Baloney closes this gap. A Chrome extension scans content as you browse nine pla
 </p>
 
 <p align="center">
-  <a href="https://baloney.app/feed">Try the demo feed</a> · <a href="https://baloney.app/platform">See platform overlays</a>
+  <a href="https://baloney.app/analyze">Try the analyzer</a> · <a href="https://baloney.app/dashboard/community">Community dashboard</a>
 </p>
 
 ---
@@ -59,7 +58,7 @@ Baloney closes this gap. A Chrome extension scans content as you browse nine pla
 
 Baloney uses a **cascading detection architecture**: high-accuracy commercial APIs run first when available. If not, the system gracefully falls back to local statistical and frequency-domain methods — no API keys required.
 
-See the full evaluation with ROC curves, confusion matrices, and ablation studies at [baloney.app/evaluation](https://baloney.app/evaluation).
+The detection pipeline uses a cascading architecture with real-time accuracy benchmarking across all methods.
 
 ---
 
@@ -349,7 +348,4 @@ The community edition is fully open source. Pro detection methods are available 
 - **Content Analyzer:** [baloney.app/analyze](https://baloney.app/analyze)
 - **Dashboard:** [baloney.app/dashboard](https://baloney.app/dashboard)
 - **Community Analytics:** [baloney.app/dashboard/community](https://baloney.app/dashboard/community)
-- **Evaluation Metrics:** [baloney.app/evaluation](https://baloney.app/evaluation)
-- **Demo Feed:** [baloney.app/feed](https://baloney.app/feed)
-- **Platform Overlays:** [baloney.app/platform](https://baloney.app/platform)
 - **MAD Data 2026:** 1st Place Winner
