@@ -1,5 +1,33 @@
 // frontend/src/lib/types.ts — Baloney type system
 
+/**
+ * Canonical Verdict Mapping (Pro <-> Mobile)
+ *
+ * Pro (4 values)           Mobile (6 values, declared in baloney-mobile/lib/types.ts)
+ * ─────────────            ────────────────────────────────────────────────────────
+ * human                 -> likely_human
+ * light_edit            -> uncertain | possibly_ai (confidence-dependent)
+ * heavy_edit            -> likely_ai
+ * ai_generated          -> ai_generated
+ * (below confidence floor)  -> inconclusive
+ *
+ * IMPORTANT — Current implementation status:
+ * The mapping above is the INTENDED design, but it is NOT yet implemented.
+ * The API routes (/api/detect/text, /api/detect/image, /api/detect/video)
+ * return pro 4-value verdicts directly from mapVerdict()/mapImageVerdict()
+ * in lib/detectors/verdict-mapper.ts. No server-side translation to the
+ * 6-value mobile vocabulary occurs.
+ *
+ * The mobile client (lib/types.ts in baloney-mobile) declares a 6-value
+ * Verdict union but receives pro 4-value verdicts over the wire. The values
+ * likely_human, uncertain, possibly_ai, likely_ai, and inconclusive are
+ * declared in mobile's type system but are never produced by the current API.
+ *
+ * When the mapping is implemented it should live server-side in each
+ * /api/detect/* route so that the mobile client receives the 6-value
+ * vocabulary directly, identifiable via the X-Installation-ID or
+ * a dedicated Accept-Verdict-Schema header.
+ */
 export type Verdict = "human" | "light_edit" | "heavy_edit" | "ai_generated";
 
 export type Platform =
@@ -151,6 +179,8 @@ export interface PlatformBreakdown {
   ai_count: number;
   avg_ai_confidence?: number;
   ai_rate?: number;
+  sample_size?: number;
+  confidence_level?: ConfidenceLevel;
 }
 
 export interface ContentTypeBreakdown {
@@ -190,6 +220,7 @@ export interface TrendDay {
 export interface CommunityTrends {
   days: number;
   trends: TrendDay[];
+  sample_metadata: SampleMetadata;
 }
 
 export interface DomainEntry {
@@ -220,6 +251,18 @@ export interface SharingToggleResponse {
 }
 
 // ──────────────────────────────────────────────
+// Sample metadata (observatory confidence indicators)
+// ──────────────────────────────────────────────
+
+export type ConfidenceLevel = "high" | "medium" | "low" | "insufficient";
+
+export interface SampleMetadata {
+  sample_size: number;
+  confidence_level: ConfidenceLevel;
+  period: string;
+}
+
+// ──────────────────────────────────────────────
 // Innovative Features
 // ──────────────────────────────────────────────
 
@@ -233,6 +276,9 @@ export interface SlopIndexEntry {
   trend_direction: "rising" | "falling" | "stable";
   total_scans_7d: number;
   computed_at: string;
+  sample_size: number;
+  confidence_level: ConfidenceLevel;
+  period: string;
 }
 
 export interface ExposureScore {
