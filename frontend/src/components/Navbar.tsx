@@ -10,6 +10,7 @@ import { HandDrawnUnderline } from "@/components/HandDrawnUnderline";
 const NAV_LINKS = [
   { href: "/product", label: "Product" },
   { href: "/analyze", label: "Analyze" },
+  { href: "/methodology", label: "Methodology" },
 ] as const;
 
 const DASHBOARD_ITEMS = [
