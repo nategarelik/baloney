@@ -264,14 +264,7 @@ function updatePageStats(type, verdict) {
 // Verdict helpers
 // ──────────────────────────────────────────────
 
-// TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.dotColors
-const VERDICT_COLORS = {
-  ai_generated: "#d4456b",
-  heavy_edit: "#f97316",
-  light_edit: "#f59e0b",
-  human: "#16a34a",
-  unavailable: "#94a3b8",
-};
+const VERDICT_COLORS = BALONEY_CONFIG.VERDICT_COLORS;
 
 const VERDICT_LABELS = {
   ai_generated: "AI Generated",
@@ -290,33 +283,27 @@ function getTextReasons(result) {
   const fv = result.feature_vector;
   if (!fv) return reasons;
 
+  const ft = BALONEY_CONFIG.FEATURE_THRESHOLDS;
   if (fv.burstiness !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (fv.burstiness < 0.2)
+    if (fv.burstiness < ft.burstinessLow)
       reasons.push("Sentence lengths are very uniform, typical of AI writing");
-    // TODO: consider adding to detection-config.ts
-    else if (fv.burstiness > 0.5)
+    else if (fv.burstiness > ft.burstinessHigh)
       reasons.push("Varied sentence rhythm suggests human writing style");
   }
   if (fv.type_token_ratio !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (fv.type_token_ratio < 0.4)
+    if (fv.type_token_ratio < ft.ttrLow)
       reasons.push("Vocabulary is repetitive, a common AI pattern");
-    // TODO: consider adding to detection-config.ts
-    else if (fv.type_token_ratio > 0.7)
+    else if (fv.type_token_ratio > ft.ttrHigh)
       reasons.push("Rich vocabulary diversity indicates human authorship");
   }
   if (fv.perplexity !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (fv.perplexity < 80)
+    if (fv.perplexity < ft.perplexityLow)
       reasons.push("Text is highly predictable, consistent with AI generation");
-    // TODO: consider adding to detection-config.ts
-    else if (fv.perplexity > 150)
+    else if (fv.perplexity > ft.perplexityHigh)
       reasons.push("Unpredictable word choices suggest human creativity");
   }
   if (fv.repetition_score !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (fv.repetition_score > 0.6)
+    if (fv.repetition_score > ft.repetitionHigh)
       reasons.push("High phrase repetition detected");
   }
   return reasons;
@@ -324,30 +311,25 @@ function getTextReasons(result) {
 
 function getImageReasons(result) {
   const reasons = [];
+  const ir = BALONEY_CONFIG.IMAGE_REASON_THRESHOLDS;
   if (result.primary_score !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (result.primary_score > 0.7)
+    if (result.primary_score > ir.primaryScoreHigh)
       reasons.push("Visual patterns strongly match AI generation signatures");
-    // TODO: consider adding to detection-config.ts
-    else if (result.primary_score < 0.3)
+    else if (result.primary_score < ir.primaryScoreLow)
       reasons.push("Visual patterns consistent with authentic photography");
   }
   if (result.secondary_score !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (result.secondary_score > 0.6)
+    if (result.secondary_score > ir.secondaryScoreHigh)
       reasons.push("Frequency analysis shows unusually smooth gradients");
-    // TODO: consider adding to detection-config.ts
-    else if (result.secondary_score < 0.3)
+    else if (result.secondary_score < ir.secondaryScoreLow)
       reasons.push("Natural noise patterns detected in image data");
   }
   if (result.edit_magnitude !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (result.edit_magnitude > 0.7)
+    if (result.edit_magnitude > ir.editMagnitudeHigh)
       reasons.push("Significant digital manipulation detected");
   }
   if (result.trust_score !== undefined) {
-    // TODO: consider adding to detection-config.ts
-    if (result.trust_score > 0.75) reasons.push("High authenticity confidence");
+    if (result.trust_score > ir.trustScoreHigh) reasons.push("High authenticity confidence");
   }
   return reasons;
 }
@@ -390,13 +372,13 @@ function buildInsightHTML(result, type) {
     html += `<div class="baloney-insight__sentences">`;
     result.sentence_scores.slice(0, 5).forEach((s) => {
       const pct = Math.round(s.ai_probability * 100);
-      // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high (0.65) / medium (0.35)
+      const sc = BALONEY_CONFIG.SENTENCE_COLORS;
       const barColor =
-        s.ai_probability > 0.6
-          ? "#d4456b"
-          : s.ai_probability > 0.4
-            ? "#f59e0b"
-            : "#16a34a";
+        s.ai_probability > sc.HIGH_THRESHOLD
+          ? sc.high
+          : s.ai_probability > sc.MID_THRESHOLD
+            ? sc.mid
+            : sc.low;
       const safeText = s.text
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
@@ -438,22 +420,20 @@ function buildInsightHTML(result, type) {
 // ──────────────────────────────────────────────
 
 function getDotColor(confidence) {
-  // TODO: sync with detection-config.ts → DETECTION_CONFIG.ui.scoreColors.high / medium
-  if (confidence >= 0.8) return "#d4456b"; // red/pink — high confidence AI
-  if (confidence >= 0.7) return "#f97316"; // orange
-  return "#f59e0b"; // amber — lower confidence
+  const dc = BALONEY_CONFIG.DOT_COLOR_THRESHOLDS;
+  if (confidence >= dc.HIGH_CONFIDENCE) return dc.HIGH_COLOR;
+  if (confidence >= dc.MID_CONFIDENCE) return dc.MID_COLOR;
+  return dc.LOW_COLOR;
 }
 
 function getDotOpacity(confidence) {
-  // Never 100% opacity — max ~0.85
-  // TODO: consider adding to detection-config.ts
-  return Math.min(0.55 + confidence * 0.3, 0.85);
+  const op = BALONEY_CONFIG.DOT_OPACITY;
+  return Math.min(op.BASE + confidence * op.SCALE, op.MAX);
 }
 
 function createDetectionDot(el, result) {
-  // Only show dot when confidence >= 0.5 (always show for ai_generated regardless)
-  // TODO: sync with detection-config.ts → DETECTION_CONFIG.bayesian.confidenceFloor
-  if (result.confidence < 0.5 && result.verdict !== "ai_generated") return null;
+  // Only show dot when confidence >= visibility threshold (always show for ai_generated regardless)
+  if (result.confidence < BALONEY_CONFIG.DOT_OPACITY.VISIBILITY_THRESHOLD && result.verdict !== "ai_generated") return null;
 
   const confidence = result.confidence || 0;
   const pct = Math.round(confidence * 100);
@@ -852,11 +832,10 @@ function captureVideoFrame(video, seekTime) {
     } else {
       video.addEventListener("seeked", onSeeked);
       // Timeout in case seeking fails
-      // TODO: consider adding to detection-config.ts
       setTimeout(() => {
         video.removeEventListener("seeked", onSeeked);
         resolve(null);
-      }, 3000);
+      }, BALONEY_CONFIG.TIMEOUTS.videoSeek);
       video.currentTime = seekTime;
     }
   });
@@ -995,20 +974,18 @@ async function analyzeVideo(video) {
     const aiRatio = aiCount / frameResults.length;
 
     // Determine video-level verdict from frame consensus
+    const va = BALONEY_CONFIG.VIDEO_AGGREGATION;
     let aggregatedResult;
-    // TODO: sync with detection-config.ts → DETECTION_CONFIG.image.verdictThresholds.aiGenerated
-    if (aiRatio > 0.5 || avgConfidence > 0.65) {
+    if (aiRatio > va.aiRatioHigh || avgConfidence > va.aiConfidenceHigh) {
       aggregatedResult = {
         ...frameResults[0],
         verdict: "ai_generated",
-        // TODO: consider adding to detection-config.ts
-        confidence: Math.max(avgConfidence, 0.7),
+        confidence: Math.max(avgConfidence, va.aiMinConfidence),
         model_used: `multi-frame(${frameResults.length}):${frameResults[0].model_used}`,
         frames_analyzed: frameResults.length,
         frames_flagged: aiCount,
       };
-      // TODO: sync with detection-config.ts → DETECTION_CONFIG.image.verdictThresholds.heavyEdit
-    } else if (aiRatio > 0.2 || avgConfidence > 0.45) {
+    } else if (aiRatio > va.heavyEditRatio || avgConfidence > va.heavyEditConfidence) {
       aggregatedResult = {
         ...frameResults[0],
         verdict: "heavy_edit",
@@ -1085,8 +1062,7 @@ function autoScanTextNodes(elements) {
   elements.forEach((el) => {
     if (el.dataset.baloneyTextScanned) return;
     const text = (el.innerText || "").trim();
-    // TODO: consider adding to detection-config.ts
-    if (text.length < 100) return;
+    if (text.length < BALONEY_CONFIG.TEXT_SCAN.autoScanMinLength) return;
 
     el.dataset.baloneyTextScanned = "1";
     toScan.push(el);
