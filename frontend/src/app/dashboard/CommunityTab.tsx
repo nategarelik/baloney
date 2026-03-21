@@ -79,7 +79,10 @@ export function CommunityTab({
           title="AI Detection Trends"
           subtitle="30-day AI content rate across the community"
         >
-          <CommunityTrends trends={trends.trends} />
+          <CommunityTrends
+            trends={trends.trends}
+            sampleMetadata={trends.sample_metadata}
+          />
         </ChartCard>
       )}
 

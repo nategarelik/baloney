@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { SlopIndexEntry } from "@/lib/types";
+import type { ConfidenceLevel, SlopIndexEntry } from "@/lib/types";
 
 const GRADE_COLORS: Record<string, string> = {
   "A+": "text-emerald-400",
@@ -25,6 +25,40 @@ const TREND_COLORS: Record<string, string> = {
   falling: "text-green-400",
   stable: "text-secondary/50",
 };
+
+const CONFIDENCE_LABELS: Record<ConfidenceLevel, string> = {
+  high: "",
+  medium: "",
+  low: " (low confidence)",
+  insufficient: " (insufficient data)",
+};
+
+const CONFIDENCE_TEXT_COLORS: Record<ConfidenceLevel, string> = {
+  high: "text-secondary/40",
+  medium: "text-secondary/40",
+  low: "text-amber-400/60",
+  insufficient: "text-secondary/30",
+};
+
+function SampleLabel({ entry }: { entry: SlopIndexEntry }) {
+  if (entry.confidence_level === "insufficient") {
+    return (
+      <p className={`text-xs mt-2 ${CONFIDENCE_TEXT_COLORS.insufficient}`}>
+        Insufficient data
+      </p>
+    );
+  }
+
+  return (
+    <p
+      className={`text-xs mt-2 ${CONFIDENCE_TEXT_COLORS[entry.confidence_level]}`}
+    >
+      Based on {entry.sample_size.toLocaleString()} scans{" "}
+      {entry.period}
+      {CONFIDENCE_LABELS[entry.confidence_level]}
+    </p>
+  );
+}
 
 export function SlopIndexCard() {
   const [entries, setEntries] = useState<SlopIndexEntry[]>([]);
@@ -77,7 +111,7 @@ export function SlopIndexCard() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-secondary/70 capitalize">
                 {entry.platform === "x"
-                  ? "𝕏 (Twitter)"
+                  ? "\u{1D54F} (Twitter)"
                   : entry.platform.replace("_", " ")}
               </span>
               <span
@@ -114,6 +148,7 @@ export function SlopIndexCard() {
               <span>Score: {entry.slop_score}/100</span>
               <span>{entry.total_scans_7d} scans/7d</span>
             </div>
+            <SampleLabel entry={entry} />
           </div>
         ))}
       </div>
