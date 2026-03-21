@@ -48,10 +48,6 @@ export async function methodS_sightEngineVideo(videoBlob: Blob): Promise<{
       throw new Error(`SightEngine Video ${response.status}`);
     }
     const data = await response.json();
-    console.log(
-      "[Baloney] SightEngine Video response:",
-      JSON.stringify(data).slice(0, 1000),
-    );
 
     const rawFrames = data.data?.frames || [];
     const frames = rawFrames.map(
