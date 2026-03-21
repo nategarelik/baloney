@@ -76,10 +76,12 @@ frontend/.vercel/
 .railway
 
 # ──────────────────────────────────────────────
-# Markdown (hide all except AI_CITATION)
+# Markdown (hide all except docs and config)
 # ──────────────────────────────────────────────
 *.md
-!docs/AI_CITATION.md
+!docs/**/*.md
+!CLAUDE.md
+!.claude/**/*.md
 .worktrees/
 *.zip
 
