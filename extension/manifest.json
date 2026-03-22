@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Baloney — AI Content Detector",
   "version": "0.5.0",
-  "description": "Detect AI-generated images and text as you scroll. Personal analytics dashboard included.",
+  "description": "Detect AI-generated images, videos, and text on 9 platforms. Confidence scores, sentence highlights, and personal analytics.",
+  "homepage_url": "https://baloney.app",
   "minimum_chrome_version": "114",
 
   "permissions": [

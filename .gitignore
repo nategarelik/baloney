@@ -82,6 +82,7 @@ frontend/.vercel/
 !docs/**/*.md
 !CLAUDE.md
 !.claude/**/*.md
+!extension/store-listing.md
 .worktrees/
 *.zip
 
