@@ -5,6 +5,7 @@ import { useState, useCallback } from "react";
 interface ExportActionsProps {
   result: Record<string, unknown>;
   type: "text" | "image" | "video";
+  platform?: string;
 }
 
 function LinkIcon() {
@@ -97,7 +98,37 @@ type CopiedButton = "link" | "share" | null;
 const BTN_CLASS =
   "px-4 py-2 rounded-lg border border-secondary/10 text-secondary/70 text-sm hover:bg-secondary/5 transition-colors flex items-center gap-2";
 
-export function ExportActions({ result, type }: ExportActionsProps) {
+function buildShareUrl(
+  result: Record<string, unknown>,
+  type: string,
+  platform: string | undefined,
+): string {
+  const verdict = typeof result.verdict === "string" ? result.verdict : null;
+  const aiProbability =
+    typeof result.ai_probability === "number" ? result.ai_probability : null;
+  const confidence =
+    typeof result.confidence === "number" ? result.confidence : null;
+
+  // Prefer ai_probability (text) but fall back to confidence (image/video)
+  const rawScore = aiProbability ?? confidence;
+  const confidenceInt =
+    rawScore !== null ? Math.round(rawScore * 100) : null;
+
+  const params = new URLSearchParams();
+  if (verdict) params.set("verdict", verdict);
+  if (confidenceInt !== null) params.set("confidence", String(confidenceInt));
+  params.set("type", type);
+  if (platform) params.set("platform", platform);
+
+  const base =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/analyze`
+      : "https://baloney.app/analyze";
+
+  return `${base}?${params.toString()}`;
+}
+
+export function ExportActions({ result, type, platform }: ExportActionsProps) {
   const [copiedButton, setCopiedButton] = useState<CopiedButton>(null);
 
   const showCopied = useCallback((button: CopiedButton) => {
@@ -106,10 +137,11 @@ export function ExportActions({ result, type }: ExportActionsProps) {
   }, []);
 
   const handleCopyLink = useCallback(() => {
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    const url = buildShareUrl(result, type, platform);
+    navigator.clipboard.writeText(url).then(() => {
       showCopied("link");
     });
-  }, [showCopied]);
+  }, [result, type, platform, showCopied]);
 
   const handleDownloadJson = useCallback(() => {
     const json = JSON.stringify(result, null, 2);
@@ -125,20 +157,21 @@ export function ExportActions({ result, type }: ExportActionsProps) {
   }, [result, type]);
 
   const handleShare = useCallback(async () => {
+    const shareUrl = buildShareUrl(result, type, platform);
     const verdict =
       typeof result.verdict === "string" ? result.verdict : "unknown";
-    const probability =
+    const aiProbability =
       typeof result.ai_probability === "number"
         ? `${Math.round(result.ai_probability * 100)}%`
         : "";
-    const text = `Baloney AI Detection: ${type} analysis — verdict: ${verdict}${probability ? ` (${probability} AI probability)` : ""}`;
+    const text = `Baloney AI Detection: ${type} analysis — verdict: ${verdict}${aiProbability ? ` (${aiProbability} AI probability)` : ""}`;
 
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({
           title: "Baloney AI Detection",
           text,
-          url: window.location.href,
+          url: shareUrl,
         });
         return;
       } catch {
@@ -146,10 +179,10 @@ export function ExportActions({ result, type }: ExportActionsProps) {
       }
     }
 
-    navigator.clipboard.writeText(window.location.href).then(() => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
       showCopied("share");
     });
-  }, [result, type, showCopied]);
+  }, [result, type, platform, showCopied]);
 
   return (
     <div className="flex flex-wrap gap-3">
