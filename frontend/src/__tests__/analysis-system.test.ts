@@ -21,6 +21,14 @@ import {
   IMAGE_TEST_CASES,
   type TextSample,
 } from "./datasets";
+import {
+  AI_TEXT_SAMPLES_2026,
+  HUMAN_TEXT_SAMPLES_2026,
+  EDGE_CASE_SAMPLES_2026,
+  AI_TEXT_SAMPLES_2026_EXTENDED,
+  HUMAN_TEXT_SAMPLES_2026_EXTENDED,
+  EDGE_CASE_SAMPLES_2026_EXTENDED,
+} from "./datasets-2026-generation";
 
 // Verdict thresholds from single source of truth
 const TEXT_T = DETECTION_CONFIG.text.verdictThresholds;
@@ -1012,6 +1020,371 @@ describe("Ensemble Weight Sensitivity Analysis", () => {
     });
     console.log(
       "  └──────────────────────────────────┴──────────┴──────────┴────────────┘",
+    );
+    expect(true).toBe(true);
+  });
+});
+
+// ══════════════════════════════════════════════════════════
+// 2026 GENERATION BENCHMARK TESTS
+// Uses expanded dataset (500+ total samples) covering
+// current-generation AI models: GPT-5, Claude 4, Gemini 3,
+// Llama 4, Mistral Large, DeepSeek
+// ══════════════════════════════════════════════════════════
+
+const ALL_TEXT_SAMPLES_2026 = [
+  ...AI_TEXT_SAMPLES_2026,
+  ...AI_TEXT_SAMPLES_2026_EXTENDED,
+  ...HUMAN_TEXT_SAMPLES_2026,
+  ...HUMAN_TEXT_SAMPLES_2026_EXTENDED,
+  ...EDGE_CASE_SAMPLES_2026,
+  ...EDGE_CASE_SAMPLES_2026_EXTENDED,
+];
+
+describe("2026 Generation Dataset — Method D Accuracy", () => {
+  let allResults2026: TextAnalysisResult[];
+
+  beforeAll(() => {
+    allResults2026 = ALL_TEXT_SAMPLES_2026.filter(
+      (s) => s.text.length >= 50,
+    ).map(analyzeText);
+  });
+
+  it("produces valid signal values for all 2026 samples", () => {
+    allResults2026.forEach((r) => {
+      expect(r.statistical.signal).toBeGreaterThanOrEqual(0);
+      expect(r.statistical.signal).toBeLessThanOrEqual(1);
+      expect(r.statistical.burstiness).toBeGreaterThanOrEqual(0);
+      expect(r.statistical.burstiness).toBeLessThanOrEqual(1);
+    });
+  });
+
+  it("AI text (2026 gen) has higher average signal than human text", () => {
+    const aiResults = allResults2026.filter((r) => r.sample.label === "ai");
+    const humanResults = allResults2026.filter(
+      (r) => r.sample.label === "human",
+    );
+
+    const avgAi =
+      aiResults.reduce((s, r) => s + r.statistical.signal, 0) / aiResults.length;
+    const avgHuman =
+      humanResults.reduce((s, r) => s + r.statistical.signal, 0) /
+      humanResults.length;
+
+    console.log(
+      `\n  Avg Statistical Signal (2026) — AI: ${avgAi.toFixed(4)} | Human: ${avgHuman.toFixed(4)}`,
+    );
+
+    expect(avgAi).toBeGreaterThan(avgHuman);
+  });
+
+  it("computes overall accuracy on 2026-generation benchmark", () => {
+    const correct = allResults2026.filter((r) => r.correct).length;
+    const total = allResults2026.length;
+    const accuracy = correct / total;
+
+    console.log(
+      `\n  Method D Accuracy on 2026-gen dataset: ${correct}/${total} = ${(accuracy * 100).toFixed(1)}%`,
+    );
+    expect(accuracy).toBeGreaterThan(0.3);
+  });
+
+  it("computes precision, recall, F1 on 2026-generation benchmark", () => {
+    const aiSamples = allResults2026.filter((r) => r.sample.label === "ai");
+    const humanSamples = allResults2026.filter(
+      (r) => r.sample.label === "human",
+    );
+
+    const tp = aiSamples.filter((r) =>
+      ["ai_generated", "heavy_edit"].includes(r.verdict),
+    ).length;
+    const fn = aiSamples.filter((r) =>
+      ["human", "light_edit"].includes(r.verdict),
+    ).length;
+    const fp = humanSamples.filter((r) =>
+      ["ai_generated", "heavy_edit"].includes(r.verdict),
+    ).length;
+    const tn = humanSamples.filter((r) =>
+      ["human", "light_edit"].includes(r.verdict),
+    ).length;
+
+    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+    const f1 =
+      precision + recall > 0
+        ? (2 * precision * recall) / (precision + recall)
+        : 0;
+    const specificity = tn + fp > 0 ? tn / (tn + fp) : 0;
+
+    console.log(`\n  ┌────────────────────────────────────────────────┐`);
+    console.log(`  │ 2026-Gen Dataset — Method D Classification      │`);
+    console.log(`  ├────────────────────────────────────────────────┤`);
+    console.log(
+      `  │ AI samples:             ${String(aiSamples.length).padStart(3)}                     │`,
+    );
+    console.log(
+      `  │ Human samples:          ${String(humanSamples.length).padStart(3)}                     │`,
+    );
+    console.log(`  ├────────────────────────────────────────────────┤`);
+    console.log(
+      `  │ True Positives  (AI->AI):     ${String(tp).padStart(3)}           │`,
+    );
+    console.log(
+      `  │ False Negatives (AI->Human):  ${String(fn).padStart(3)}           │`,
+    );
+    console.log(
+      `  │ False Positives (Human->AI):  ${String(fp).padStart(3)}           │`,
+    );
+    console.log(
+      `  │ True Negatives  (Human->Hum): ${String(tn).padStart(3)}           │`,
+    );
+    console.log(`  ├────────────────────────────────────────────────┤`);
+    console.log(
+      `  │ Precision:    ${(precision * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ Recall:       ${(recall * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ F1 Score:     ${(f1 * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ Specificity:  ${(specificity * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(`  └────────────────────────────────────────────────┘`);
+
+    expect(precision).toBeGreaterThanOrEqual(0);
+    expect(recall).toBeGreaterThanOrEqual(0);
+  });
+
+  it("reports per-sample analysis for 2026 AI text samples", () => {
+    const aiResults = allResults2026.filter((r) => r.sample.label === "ai");
+
+    console.log(
+      "\n  ┌──────────────────────────────────────────────────────────────────────────────────────┐",
+    );
+    console.log(
+      "  │ 2026 AI TEXT — Method D Statistical Analysis                                        │",
+    );
+    console.log(
+      "  ├───────────────────────────────┬──────────┬───────┬──────────┬──────────┬────────────┤",
+    );
+    console.log(
+      "  │ Sample ID                     │ Signal   │ Burst │ TTR      │ Read     │ Verdict    │",
+    );
+    console.log(
+      "  ├───────────────────────────────┼──────────┼───────┼──────────┼──────────┼────────────┤",
+    );
+
+    aiResults.forEach((r) => {
+      const id = r.sample.id.padEnd(29);
+      const sig = r.statistical.signal.toFixed(4).padStart(8);
+      const burst = r.statistical.burstiness.toFixed(2).padStart(5);
+      const ttr = r.statistical.ttr.toFixed(4).padStart(8);
+      const read = r.statistical.readability.toFixed(1).padStart(8);
+      const mark = r.correct ? "OK" : "MISS";
+      const verd = `${r.verdict} ${mark}`.padEnd(12);
+      console.log(
+        `  │ ${id} │ ${sig} │ ${burst} │ ${ttr} │ ${read} │ ${verd} │`,
+      );
+    });
+    console.log(
+      "  └───────────────────────────────┴──────────┴───────┴──────────┴──────────┴────────────┘",
+    );
+    expect(true).toBe(true);
+  });
+
+  it("reports per-sample analysis for 2026 human text samples", () => {
+    const humanResults = allResults2026.filter(
+      (r) => r.sample.label === "human",
+    );
+
+    console.log(
+      "\n  ┌──────────────────────────────────────────────────────────────────────────────────────┐",
+    );
+    console.log(
+      "  │ 2026 HUMAN TEXT — Method D Statistical Analysis                                     │",
+    );
+    console.log(
+      "  ├───────────────────────────────┬──────────┬───────┬──────────┬──────────┬────────────┤",
+    );
+    console.log(
+      "  │ Sample ID                     │ Signal   │ Burst │ TTR      │ Read     │ Verdict    │",
+    );
+    console.log(
+      "  ├───────────────────────────────┼──────────┼───────┼──────────┼──────────┼────────────┤",
+    );
+
+    humanResults.forEach((r) => {
+      const id = r.sample.id.padEnd(29);
+      const sig = r.statistical.signal.toFixed(4).padStart(8);
+      const burst = r.statistical.burstiness.toFixed(2).padStart(5);
+      const ttr = r.statistical.ttr.toFixed(4).padStart(8);
+      const read = r.statistical.readability.toFixed(1).padStart(8);
+      const mark = r.correct ? "OK" : "MISS";
+      const verd = `${r.verdict} ${mark}`.padEnd(12);
+      console.log(
+        `  │ ${id} │ ${sig} │ ${burst} │ ${ttr} │ ${read} │ ${verd} │`,
+      );
+    });
+    console.log(
+      "  └───────────────────────────────┴──────────┴───────┴──────────┴──────────┴────────────┘",
+    );
+    expect(true).toBe(true);
+  });
+});
+
+describe("2026 Generation Dataset — Combined Dataset Stats", () => {
+  it("reports total sample count across original and 2026 datasets", () => {
+    const originalCount = ALL_TEXT_SAMPLES.length;
+    const new2026Count = ALL_TEXT_SAMPLES_2026.length;
+    const combined = originalCount + new2026Count;
+
+    console.log(`\n  ┌───────────────────────────────────────────┐`);
+    console.log(`  │ Dataset Size Summary                       │`);
+    console.log(`  ├───────────────────────────────────────────┤`);
+    console.log(
+      `  │ Original dataset:    ${String(originalCount).padStart(4)} samples            │`,
+    );
+    console.log(
+      `  │ 2026-gen dataset:    ${String(new2026Count).padStart(4)} samples            │`,
+    );
+    console.log(
+      `  │ Combined total:      ${String(combined).padStart(4)} samples            │`,
+    );
+    console.log(
+      `  │   AI samples (2026): ${String(AI_TEXT_SAMPLES_2026.length + AI_TEXT_SAMPLES_2026_EXTENDED.length).padStart(4)}                  │`,
+    );
+    console.log(
+      `  │ Human samples (2026): ${String(HUMAN_TEXT_SAMPLES_2026.length + HUMAN_TEXT_SAMPLES_2026_EXTENDED.length).padStart(4)}                 │`,
+    );
+    console.log(
+      `  │  Edge samples (2026): ${String(EDGE_CASE_SAMPLES_2026.length + EDGE_CASE_SAMPLES_2026_EXTENDED.length).padStart(4)}                 │`,
+    );
+    console.log(`  └───────────────────────────────────────────┘`);
+
+    expect(combined).toBeGreaterThan(300);
+  });
+
+  it("2026 dataset has balanced AI and human samples", () => {
+    const aiCount = AI_TEXT_SAMPLES_2026.length;
+    const humanCount = HUMAN_TEXT_SAMPLES_2026.length;
+    const ratio = aiCount / humanCount;
+
+    console.log(
+      `\n  2026 Dataset Balance — AI: ${aiCount} | Human: ${humanCount} | Ratio: ${ratio.toFixed(2)}`,
+    );
+
+    // ratio should be between 0.5 and 2.0 (neither side dominates)
+    expect(ratio).toBeGreaterThan(0.5);
+    expect(ratio).toBeLessThan(2.0);
+  });
+
+  it("2026 AI samples cover diverse model categories", () => {
+    const categories = new Set(AI_TEXT_SAMPLES_2026.map((s) => s.category));
+    console.log(
+      `\n  2026 AI categories (${categories.size} distinct): ${[...categories].sort().join(", ")}`,
+    );
+    expect(categories.size).toBeGreaterThan(5);
+  });
+
+  it("2026 human samples cover diverse content categories", () => {
+    const categories = new Set(HUMAN_TEXT_SAMPLES_2026.map((s) => s.category));
+    console.log(
+      `\n  2026 Human categories (${categories.size} distinct): ${[...categories].sort().join(", ")}`,
+    );
+    expect(categories.size).toBeGreaterThan(4);
+  });
+
+  it("all 2026 samples with text >=200 chars meet minimum length requirement", () => {
+    const longSamples = ALL_TEXT_SAMPLES_2026.filter(
+      (s) => s.category !== "edge-short-2026",
+    );
+    const belowMinimum = longSamples.filter((s) => s.text.length < 200);
+
+    if (belowMinimum.length > 0) {
+      console.log(
+        `\n  Samples below 200 chars (excluding short-category): ${belowMinimum.map((s) => s.id).join(", ")}`,
+      );
+    }
+
+    expect(belowMinimum.length).toBe(0);
+  });
+
+  it("computes combined accuracy across original + 2026 datasets", () => {
+    const combinedSamples = [
+      ...ALL_TEXT_SAMPLES,
+      ...ALL_TEXT_SAMPLES_2026,
+    ].filter((s) => s.text.length >= 50);
+
+    const combinedResults = combinedSamples.map(analyzeText);
+    const correct = combinedResults.filter((r) => r.correct).length;
+    const total = combinedResults.length;
+    const accuracy = correct / total;
+
+    const aiSamples = combinedResults.filter((r) => r.sample.label === "ai");
+    const humanSamples = combinedResults.filter(
+      (r) => r.sample.label === "human",
+    );
+
+    const tp = aiSamples.filter((r) =>
+      ["ai_generated", "heavy_edit"].includes(r.verdict),
+    ).length;
+    const fn = aiSamples.filter((r) =>
+      ["human", "light_edit"].includes(r.verdict),
+    ).length;
+    const fp = humanSamples.filter((r) =>
+      ["ai_generated", "heavy_edit"].includes(r.verdict),
+    ).length;
+    const tn = humanSamples.filter((r) =>
+      ["human", "light_edit"].includes(r.verdict),
+    ).length;
+
+    const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+    const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
+    const f1 =
+      precision + recall > 0
+        ? (2 * precision * recall) / (precision + recall)
+        : 0;
+
+    console.log(`\n  ┌────────────────────────────────────────────────┐`);
+    console.log(`  │ COMBINED Benchmark (Original + 2026-Gen)        │`);
+    console.log(`  ├────────────────────────────────────────────────┤`);
+    console.log(
+      `  │ Total samples evaluated: ${String(total).padStart(4)}                 │`,
+    );
+    console.log(
+      `  │ Overall Accuracy: ${(accuracy * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ Precision:        ${(precision * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ Recall:           ${(recall * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ F1 Score:         ${(f1 * 100).toFixed(1).padStart(6)}%                    │`,
+    );
+    console.log(
+      `  │ TP=${tp} FN=${fn} FP=${fp} TN=${tn}`.padEnd(49) + `│`,
+    );
+    console.log(`  └────────────────────────────────────────────────┘`);
+
+    expect(accuracy).toBeGreaterThan(0.3);
+  });
+
+  it("edge cases in 2026 dataset produce valid signal values", () => {
+    const edgeResults = EDGE_CASE_SAMPLES_2026.filter(
+      (s) => s.text.length >= 50,
+    ).map(analyzeText);
+
+    edgeResults.forEach((r) => {
+      expect(r.statistical.signal).toBeGreaterThanOrEqual(0);
+      expect(r.statistical.signal).toBeLessThanOrEqual(1);
+    });
+
+    console.log(
+      `\n  Edge case samples analyzed: ${edgeResults.length} of ${EDGE_CASE_SAMPLES_2026.length}`,
     );
     expect(true).toBe(true);
   });
