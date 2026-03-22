@@ -2,6 +2,8 @@
 
 AI content detection platform. Next.js 16 frontend (Vercel) + FastAPI ML backend (Railway) + Chrome Extension + SynthID backend (Railway).
 
+**Platform docs:** [github.com/nategarelik/baloney-platform](https://github.com/nategarelik/baloney-platform) (private) -- investor-ready documentation covering product, technology, market, vision, and appendix across 17 documents.
+
 ## Quick Reference
 
 | Key | Value |
@@ -15,6 +17,7 @@ AI content detection platform. Next.js 16 frontend (Vercel) + FastAPI ML backend
 | Styling | Tailwind CSS + Young Serif (headings) + DM Sans (body) |
 | Tests | Vitest (36 tests, 1 suite, 100% passing) |
 | Mobile client | ~/Baloney-mobile/baloney-mobile (Expo SDK 55 thin client) |
+| Platform docs | ~/Baloney-platform/baloney-platform (private, investor materials) |
 
 ## Commands
 

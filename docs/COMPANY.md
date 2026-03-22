@@ -168,20 +168,35 @@ Full design spec: `docs/superpowers/specs/2026-03-20-dual-plane-browser-design.m
 - Nate Garelik (founder, primary developer)
 - Ben Verhaalen (contributor)
 - Built at MadData26 hackathon, March 2026
-- 101 commits across baloney-pro, 18 commits across baloney-mobile
+- 116 commits across baloney-pro, 21 commits across baloney-mobile
 
 ## Documentation Index
+
+### baloney-platform (`~/Baloney-platform/baloney-platform`)
+**Private repo:** [github.com/nategarelik/baloney-platform](https://github.com/nategarelik/baloney-platform)
+
+Investor-ready platform documentation -- 17 documents across 6 sections:
+- `product/` -- OVERVIEW, CHROME-EXTENSION, WEB-PLATFORM, MOBILE-APP, SLOP-INDEX
+- `technology/` -- ARCHITECTURE, DETECTION-PIPELINE, CONTENT-RUNTIME, PROPRIETARY-MODELS
+- `market/` -- OPPORTUNITY, COMPETITORS, REGULATION
+- `vision/` -- PLATFORM-THESIS, EXPANSION, BUSINESS-MODEL
+- `appendix/` -- API-REFERENCE, METRICS, TEAM
+- Root -- README (front door), EXECUTIVE-SUMMARY (self-contained one-pager)
 
 ### baloney-pro (`~/Baloney/baloney`)
 - `CLAUDE.md` -- Project bootstrap for Claude Code sessions
 - `docs/ANALYSIS.md` -- Comprehensive codebase analysis (March 2026)
 - `docs/COMPANY.md` -- This document
+- `docs/PROPRIETARY-DETECTION-RESEARCH.md` -- ML research roadmap
+- `docs/C2PA-PROVENANCE-RESEARCH.md` -- C2PA integration research
+- `docs/DEVPOST.md` -- Hackathon submission narrative
 - `.claude/commands/` -- test-ensemble, deploy, add-api-route
 
 ### baloney-mobile (`~/Baloney-mobile/baloney-mobile`)
 - `CLAUDE.md` -- Project bootstrap for Claude Code sessions
 - `docs/ARCHITECTURE.md` -- Mobile architecture reference
 - `docs/ANALYSIS.md` -- Comprehensive codebase analysis (March 2026)
+- `docs/market-research-2026-03.md` -- Market research with sourced data
 - `docs/superpowers/specs/2026-03-20-dual-plane-browser-design.md` -- Design spec
 - `docs/superpowers/plans/2026-03-20-dual-plane-browser-plan.md` -- Implementation plan
 
