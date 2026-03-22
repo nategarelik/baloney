@@ -296,6 +296,39 @@ export const DETECTION_CONFIG = {
       avgAiFreq: 0.7325, // Source: evaluation data
       avgHumanFreq: 0.2744, // Source: evaluation data
     },
+    // VIDEO — accuracy unmeasured; baseline pending API-dependent test infrastructure
+    //
+    // What we know from the code:
+    //   Primary method: SightEngine native video endpoint (methodS_sightEngineVideo).
+    //   Verdict mapping: uses image.verdictThresholds (0.65/0.45/0.30).
+    //   Frame-level flag: ai_score > 0.5 counts as "flagged AI frame".
+    //   Fallback: single-frame image analysis when native video API is unavailable.
+    //
+    // Aggregation logic is unit-tested in src/__tests__/video-aggregation.test.ts
+    // (6 test suites, deterministic, no external API calls).
+    //
+    // To establish a real accuracy baseline, collect a labeled video dataset and
+    // run it against the SightEngine video endpoint. Suggested minimum: 50 AI-generated
+    // clips and 50 human-recorded clips, 5-30s each. Store clips in Supabase Storage
+    // or an S3-compatible bucket and add an integration test suite that reads them
+    // using TEST_VIDEO_BUCKET_URL + SIGHTENGINE_API_USER/SECRET env vars.
+    video: {
+      accuracy: null as null, // Source: unmeasured — API-dependent integration tests not yet implemented
+      aggregationLogicTested: true, // Source: evaluation data — src/__tests__/video-aggregation.test.ts
+      aggregationTestCases: 6, // Source: evaluation data — 6 test suites (30+ individual assertions)
+      aggregationAccuracy: 100, // Source: evaluation data — all known-verdict aggregation cases pass
+      primaryMethod: "sightengine:native-video", // Source: code — methodS_sightEngineVideo
+      fallbackMethod: "frame-fallback:image-ensemble", // Source: code — realImageDetection on first frame
+      // Thresholds used for verdict mapping (shared with image detection)
+      verdictThresholds: {
+        aiGenerated: 0.65, // Source: code — route.ts line 52, matches image.verdictThresholds.aiGenerated
+        heavyEdit: 0.45,   // Source: code — route.ts line 53, matches image.verdictThresholds.heavyEdit
+        lightEdit: 0.30,   // Source: code — route.ts line 54, matches image.verdictThresholds.lightEdit
+        frameFlaggedAi: 0.50, // Source: code — route.ts line 61, frames with ai_score > 0.5 are "flagged"
+      },
+      // Baseline will be established when: SightEngine credentials + labeled video dataset in CI
+      baselinePending: "API-dependent integration tests require labeled video clips and live credentials",
+    },
     featureSeparation: [
       { feature: "Signal (composite)", aiMean: 0.5362, humanMean: 0.3413, delta: "+0.1949" },
       { feature: "Burstiness", aiMean: 0.5718, humanMean: 0.7805, delta: "-0.2087" },
