@@ -1,0 +1,384 @@
+# Instincts generated from https://github.com/nategarelik/baloney
+# Generated: 2026-03-22T17:54:56.360Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: baloney-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: feat, fix, docs, chore, test
+
+## Evidence
+
+- 117 commits analyzed
+- Detected conventional commit pattern
+- Examples: docs: add baloney-platform cross-references, test: add video detection accuracy tests with frame-level analysis
+
+---
+id: baloney-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Commit Length
+
+## Action
+
+Write moderate-length commit messages (~61 characters)
+
+## Evidence
+
+- Average commit message length: 61 chars
+- Based on 117 commits
+
+---
+id: baloney-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: baloney-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: baloney-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: baloney-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: baloney-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Test Framework
+
+## Action
+
+Use vitest as the test framework
+
+## Evidence
+
+- Test framework detected: vitest
+- File pattern: *.test.ts
+
+---
+id: baloney-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: baloney-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: no
+
+---
+id: baloney-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~17x per month
+- Files: frontend/src/app/api/detect/video/*, frontend/src/lib/*, frontend/src/app/api/analytics/community/flow/*
+
+---
+id: baloney-workflow-refactoring
+trigger: "when refactoring code"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Refactoring
+
+## Action
+
+Follow the refactoring workflow:
+1. Ensure tests pass before refactor
+2. Refactor code structure
+3. Verify tests still pass
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: src/**/*
+
+---
+id: baloney-workflow-add-or-update-dashboard-visualization
+trigger: "when doing add or update dashboard visualization"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Add Or Update Dashboard Visualization
+
+## Action
+
+Follow the add-or-update-dashboard-visualization workflow:
+1. Create or update dashboard component in frontend/src/app/dashboard/*.tsx
+2. Add or update supporting API route in frontend/src/app/api/analytics/community/*/route.ts or similar
+3. Update types/interfaces in frontend/src/lib/types.ts
+4. Wire new visualization into dashboard page (frontend/src/app/dashboard/page.tsx or community/page.tsx)
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: frontend/src/app/dashboard/*.tsx, frontend/src/app/api/analytics/community/*/route.ts, frontend/src/lib/types.ts
+
+---
+id: baloney-workflow-add-or-update-detection-tests-and-benchmarks
+trigger: "when doing add or update detection tests and benchmarks"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Add Or Update Detection Tests And Benchmarks
+
+## Action
+
+Follow the add-or-update-detection-tests-and-benchmarks workflow:
+1. Add new test file in frontend/src/__tests__/*.test.ts
+2. Add or update benchmark dataset in frontend/src/__tests__/*.ts
+3. Update detection config or logic in frontend/src/lib/detection-config.ts or real-detectors.ts
+4. Run and validate tests
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: frontend/src/__tests__/*.test.ts, frontend/src/__tests__/*.ts, frontend/src/lib/detection-config.ts
+
+---
+id: baloney-workflow-add-or-update-documentation
+trigger: "when doing add or update documentation"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Add Or Update Documentation
+
+## Action
+
+Follow the add-or-update-documentation workflow:
+1. Create or update markdown files in docs/ or root (e.g., CLAUDE.md, COMPANY.md)
+2. Update documentation index or cross-references
+3. Optionally update .gitignore to whitelist or hide docs
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: docs/*.md, CLAUDE.md, README.md
+
+---
+id: baloney-workflow-refactor-or-modularize-detection-pipeline
+trigger: "when doing refactor or modularize detection pipeline"
+confidence: 0.55
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Refactor Or Modularize Detection Pipeline
+
+## Action
+
+Follow the refactor-or-modularize-detection-pipeline workflow:
+1. Extract or centralize config into frontend/src/lib/detection-config.ts
+2. Split monolithic detection files into focused modules under frontend/src/lib/detectors/
+3. Update imports and ensure all tests pass
+4. Update types if needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~1x per month
+- Files: frontend/src/lib/detection-config.ts, frontend/src/lib/real-detectors.ts, frontend/src/lib/detectors/*.ts
+
+---
+id: baloney-workflow-add-or-update-extension-features-or-config
+trigger: "when doing add or update extension features or config"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Add Or Update Extension Features Or Config
+
+## Action
+
+Follow the add-or-update-extension-features-or-config workflow:
+1. Update extension/content.js, extension/sidepanel.js/html, or extension/manifest.json
+2. Sync config with frontend/src/lib/detection-config.ts if needed
+3. Update extension/background.js for event handling
+4. Test extension in browser
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: extension/content.js, extension/sidepanel.js, extension/sidepanel.html
+
+---
+id: baloney-workflow-add-or-update-api-endpoint
+trigger: "when doing add or update api endpoint"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/nategarelik/baloney
+---
+
+# Baloney Workflow Add Or Update Api Endpoint
+
+## Action
+
+Follow the add-or-update-api-endpoint workflow:
+1. Create or update route in frontend/src/app/api/*/route.ts
+2. Update types/interfaces in frontend/src/lib/types.ts if needed
+3. Update frontend components to consume new API
+4. Write or update tests if applicable
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: frontend/src/app/api/*/route.ts, frontend/src/lib/types.ts, frontend/src/app/dashboard/*.tsx
+
